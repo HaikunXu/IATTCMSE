@@ -1,2 +1,2 @@
-# IATTC_MSE
+# IATTCMSE
 IATTC's MSE code
