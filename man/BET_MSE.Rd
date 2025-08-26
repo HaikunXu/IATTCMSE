@@ -4,39 +4,30 @@
 \alias{BET_MSE}
 \title{Runs the BET MSE framework for the specified number of iterations}
 \usage{
-BET_MSE(pdir, sdir, hsnum, hcrnum, scnnum, itr, Bthr, Blim, Tmin, pl)
+BET_MSE(pdir, sidr, HS, HCR, OM, itr, nquarters, Mcycle, n_extra_R)
 }
 \arguments{
-\item{pdir}{OM directory path}
+\item{pdir}{parent directory path}
 
-\item{hsnum}{number characterizing the harvest strategy being run}
+\item{HS}{the name of the harvest strategy}
 
-\item{hcrnum}{number characterizing the harvest control rule being run}
+\item{HCR}{the name of the harvest control rule}
 
-\item{scnnum}{number characterizing the uncertainty scenario being run}
+\item{OM}{the name of the operating model}
 
-\item{itr}{the iteration that one wants to run}
+\item{itr}{iteration number}
 
-\item{Bthr}{the fraction of unfished biomass the threshold reference point refers to}
+\item{nquarters}{total number of new quarters to be simulated in the MSE}
 
-\item{Blim}{the fraction of unfished biomass the limit reference point refers to}
+\item{Mcycle}{the number of years within a management cycle}
 
-\item{Tmin}{specifies the fraction of the minimum catch at the LRP}
+\item{sdir}{benchmark assessment model directory path}
 
-\item{pl}{specifies the level of probability of SSB>LRP required by the hcr
-Note that the F target is specified in the forecast file. The fishing intensity is measured as the spawning potential ratio (SPR).
-SPR is the calculated as the ratio of the equilibrium reproductive output per recruit that would occur
-with the current year's F intensities and biology, to the equilibrium reproductive output per recruit
-that would occur with the current year's biology and no fishing.}
-
-\item{FBtrh}{the fraction of Btrh to consider for the threshold reference point}
-}
-\value{
-a data frame of output for performance statistics
+\item{nextra}{the number of recruitment devs after the main R and before the forecast R}
 }
 \description{
 Runs the BET MSE framework for the specified number of iterations
 }
 \author{
-D.Tommasi
+Haikun Xu
 }
