@@ -1,0 +1,92 @@
+#' Make projection based on simulated R devs and HCR
+#'
+#' @param dir_istep the directory of step i
+#' @param step1 where the true R0 is stored
+#' @param dir_OM_previous the directory of the OM in the previous step
+#' @param dir_EM_previous the directory of the EM in the previous step
+#' @param dir_OM_Boot the directory of the OM bootstrap in the current step
+#'  
+#' @author Haikun Xu 
+#' @export
+
+Estimationn_EM = function(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot) {
+  
+  # step 1: create a new folder for the OM bootstrap
+  dir_EM <- paste0(dir_istep, "EM/")
+  dir.create(dir_EM)
+  
+  # copy files to the new folder
+  files = c(
+    paste0(dir_EM_previous, "starter.ss"),
+    paste0(dir_EM_previous, "ss.exe"),
+    paste0(dir_EM_previous, "go_nohess.bat"),
+    paste0(dir_EM_previous, "forecast.ss")
+  )
+  file.copy(from = files, to = dir_EM, overwrite = TRUE)
+  
+  # change data file
+  dat_EM_previous <- r4ss::SS_readdat_3.30(file = paste0(dir_EM_previous, "BET-EPO.dat"), verbose = FALSE)
+  dat_EM_previous_all <- r4ss::SS_readdat_3.30(file = paste0(dir_EM_previous, "BET-EPO_all.dat"), verbose = FALSE)
+  data_boot <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, "data_boot_001.ss"), verbose = FALSE)
+  
+  # add new CPUE
+  CPUE <- dat_EM_previous$CPUE
+  CPUE_boot <- data_boot$CPUE[(nrow(CPUE)+1):nrow(data_boot$CPUE),]
+  CPUE_new <- rbind(CPUE, CPUE_boot)
+  
+  # add new catch
+  catch <- dat_EM_previous$catch
+  catch_boot <- data_boot$catch[which(data_boot$catch$year>max(catch$year)),]
+  catch_new <- dplyr::arrange(rbind(catch, catch_boot), fleet, year)
+  
+  # save data file
+  dat_EM_previous$catch <- catch_new
+  dat_EM_previous$CPUE <- CPUE_new
+  dat_EM_previous$endyr <- dat_EM_previous$endyr + Mcycle * 4
+  r4ss::SS_writedat_3.30(dat_EM_previous, paste0(dir_EM, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
+  
+  dat_EM_previous_all$catch <- catch_new
+  dat_EM_previous_all$CPUE <- CPUE_new
+  dat_EM_previous_all$endyr <- dat_EM_previous_all$endyr + Mcycle * 4
+  r4ss::SS_writedat_3.30(dat_EM_previous_all, paste0(dir_EM, "BET-EPO_all.dat"), verbose = FALSE, overwrite = TRUE)
+  
+  # change control file
+  ctl <- r4ss::SS_readctl_3.30(
+    file = paste0(dir_EM_previous, "/BET-EPO.ctl"),
+    verbose = FALSE,
+    datlist = dat_EM_previous,
+    use_datlist = TRUE
+  )
+  ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
+  
+  r4ss::SS_writectl_3.30(
+    ctl,
+    outfile = paste0(dir_EM, "/BET-EPO.ctl"),
+    overwrite = TRUE,
+    verbose = FALSE
+  )
+  
+  # change par file by adding 12 more main R devs and using the R0 from the OM
+  ParDir <- paste0(dir_EM_previous, "ss3.par")
+  ParFile <- readLines(ParDir, warn = F)
+  
+  Line_main <- match("# recdev2:", ParFile)
+  R_main <- read.table(
+    file = ParDir,
+    nrows = 1,
+    skip = Line_main
+  )
+  
+  R_main_new <- c(R_main, rep(0, Mcycle * 4))
+  ParFile[Line_main + 1] <- gsub(",", "", toString(R_main_new))
+  
+  Line_R0 <- match("# SR_parm[1]:", ParFile)
+  ParFile[Line_R0 + 1] <- step1$R0
+  
+  writeLines(ParFile, paste0(dir_EM, "/ss3.par"))
+  
+  # run the estimation model
+  command <- paste("cd", dir_EM, "& go_nohess.bat", sep = " ")
+  ss <- shell(cmd = command, intern = T, wait = T)
+  
+}

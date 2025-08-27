@@ -4,10 +4,12 @@
 \alias{BET_MSE}
 \title{Runs the BET MSE framework for the specified number of iterations}
 \usage{
-BET_MSE(pdir, sidr, HS, HCR, OM, itr, nquarters, Mcycle, n_extra_R)
+BET_MSE(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R)
 }
 \arguments{
 \item{pdir}{parent directory path}
+
+\item{sdir}{benchmark assessment model directory path}
 
 \item{HS}{the name of the harvest strategy}
 
@@ -15,15 +17,13 @@ BET_MSE(pdir, sidr, HS, HCR, OM, itr, nquarters, Mcycle, n_extra_R)
 
 \item{OM}{the name of the operating model}
 
-\item{itr}{iteration number}
+\item{itrnum}{iteration number}
 
 \item{nquarters}{total number of new quarters to be simulated in the MSE}
 
 \item{Mcycle}{the number of years within a management cycle}
 
-\item{sdir}{benchmark assessment model directory path}
-
-\item{nextra}{the number of recruitment devs after the main R and before the forecast R}
+\item{n_extra_R}{the number of recruitment devs after the main R and before the forecast R}
 }
 \description{
 Runs the BET MSE framework for the specified number of iterations

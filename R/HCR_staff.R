@@ -1,4 +1,4 @@
-#' Runs the BET MSE framework for the specified number of iterations
+#' Runs the staff's HCR algorithm
 #'
 #' @param dir_EM the directory of the EM used to compute the current SBR_d for harvest control rule
 #' @param CurrentClosure the current number of closure days
@@ -30,16 +30,18 @@ HCR_staff = function(dir_EM, CurrentClosure, plot = NA) {
   Fscale <- Fmult * Fadjust
   
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
-  NewClosure <- 365 - (365 - CurrentClosure) * Fscale * Fadjust
+  NewClosure <- 365 - (365 - CurrentClosure) * Fscale
   
   if ((Fscale > 1) & (CurrentClosure - NewClosure > 10)) {
     NewClosure <- CurrentClosure - 10
     Fscale <- (365 - NewClosure) / (365 - (NewClosure + 10))
+    Fadjust <- Fscale / Fmult
   }
   
   if ((Fscale < 1) & (NewClosure - CurrentClosure > 10)) {
     NewClosure <- CurrentClosure + 10
     Fscale <- (365 - NewClosure) / (365 - (NewClosure - 10))
+    Fadjust <- Fscale / Fmult
   }
   
   return(list("SBR_d" = SBR_d, "Fscale" = Fscale, "Fadjust" = Fadjust, "NewClosure" = NewClosure, "max_gradient" = max_gradient))

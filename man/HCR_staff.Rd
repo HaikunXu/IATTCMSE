@@ -2,7 +2,7 @@
 % Please edit documentation in R/HCR_staff.R
 \name{HCR_staff}
 \alias{HCR_staff}
-\title{Runs the BET MSE framework for the specified number of iterations}
+\title{Runs the staff's HCR algorithm}
 \usage{
 HCR_staff(dir_EM, CurrentClosure, plot = NA)
 }
@@ -12,7 +12,7 @@ HCR_staff(dir_EM, CurrentClosure, plot = NA)
 \item{CurrentClosure}{the current number of closure days}
 }
 \description{
-Runs the BET MSE framework for the specified number of iterations
+Runs the staff's HCR algorithm
 }
 \author{
 Haikun Xu
