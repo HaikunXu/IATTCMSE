@@ -3,6 +3,7 @@
 export(BET_MSE)
 export(Bootstrap_OM)
 export(Estimationn_EM)
+export(Final_OM)
 export(HCR_staff)
 export(Initialize_OM)
 export(Projection_OM)

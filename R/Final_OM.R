@@ -1,18 +1,18 @@
-#' Make projection based on simulated R devs and HCR
+#' Make the final OM for extracting MSE results
 #'
 #' @param dir_istep the directory of step i
+#' @param istep step number
 #' @param dir_OM the directory of OM
 #' @param Mcycle the number of years within a management cycle
-#' @param seed the seed for bootstrap
 #' 
 #' @author Haikun Xu 
 #' @export
 
-Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed) {
+Final_OM = function(dir_istep, istep, dir_OM, Mcycle) {
   
   # step 1: create a new folder for the OM bootstrap
-  dir_OM_Boot <- paste0(dir_istep, "OM_Boot/")
-  dir.create(dir_OM_Boot)
+  dir_OM_Final <- paste0(dir_istep, "OM_Final/")
+  dir.create(dir_OM_Final)
   
   # copy files to the new folder
   files = c(
@@ -20,11 +20,8 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed) {
     paste0(dir_OM, "ss.exe"),
     paste0(dir_OM, "go_nohess.bat")
   )
-  file.copy(from = files, to = dir_OM_Boot, overwrite = TRUE)
+  file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
   
-  # read the report file from the OM projection
-  om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
-
   # read projected catch
   Catch_projection <- r4ss::SS_ForeCatch(om_out,
                                          yrs = ((istep - 1) * Mcycle * 4 + 197):(istep * Mcycle * 4 + 196),
@@ -56,7 +53,7 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed) {
   
   # LF_survey <- LF[which(LF$fleet==23),]
   
-  r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
+  r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Final, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
   
   # change recruitment period in the control file
   ctl <- r4ss::SS_readctl_3.30(
@@ -69,7 +66,7 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed) {
   
   r4ss::SS_writectl_3.30(
     ctl,
-    outfile = paste0(dir_OM_Boot, "/BET-EPO.ctl"),
+    outfile = paste0(dir_OM_Final, "/BET-EPO.ctl"),
     overwrite = TRUE,
     verbose = FALSE
   )
@@ -81,7 +78,7 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed) {
   
   ForecastFile[13] <- 1 # 1 year-quarters
   
-  writeLines(ForecastFile, paste0(dir_OM_Boot, "/forecast.ss"))
+  writeLines(ForecastFile, paste0(dir_OM_Final, "/forecast.ss"))
   
   # change recruitment in the par file
   ParDir <- paste0(dir_OM, "ss3.par")
@@ -107,31 +104,22 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed) {
   ParFile[Line_main + 1] <- gsub(",", "", toString(R_main_new))
   ParFile[Line_forecast + 1] <- gsub(",", "", toString(R_forecast_new))
   
-  writeLines(ParFile, paste0(dir_OM_Boot, "/ss3.par"))
+  writeLines(ParFile, paste0(dir_OM_Final, "/ss3.par"))
   
-  # set up bootstrap
-  starter_boot <- r4ss::SS_readstarter(paste0(dir_OM_Boot, "starter.ss"), verbose = FALSE)
+  # starter file
+  starter <- r4ss::SS_readstarter(paste0(dir_OM_Final, "starter.ss"), verbose = FALSE)
   
   #specify to use the ss3.par as parameters
-  starter_boot$init_values_src = 1
+  starter$init_values_src = 1
   #turn off estimation of parameters 
-  starter_boot$last_estimation_phase = 0
-  #add 1 data bootstrap file
-  starter_boot$N_bootstraps = 3
-  
+  starter$last_estimation_phase = 0
+
   #write new starter file
-  r4ss::SS_writestarter(starter_boot, dir_OM_Boot, verbose = FALSE, overwrite = TRUE)
+  r4ss::SS_writestarter(starter, dir_OM_Final, verbose = FALSE, overwrite = TRUE)
   
-  # add a seed
-  starterDir <- paste0(dir_OM_Boot, "starter.ss")
-  starterFile <- readLines(starterDir, warn = F)
-  Line_seed <- match("1e-05 #_ALK_tolerance", starterFile)
-  starterFile[Line_seed] <- seed
-  writeLines(starterFile, paste0(dir_OM_Boot, "/starter.ss"))
-  
-  # run the bootstrap model
-  command <- paste("cd", dir_OM_Boot, "& go_nohess.bat", sep = " ")
+  # run the OM
+  command <- paste("cd", dir_OM_Final, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
   
-  return(dir_OM_Boot)
+  return(dir_OM_Final)
 }

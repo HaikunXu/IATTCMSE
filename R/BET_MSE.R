@@ -87,16 +87,25 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 4: Change the data files of the updated OM to run bootstrap
     # *************************************************************************************
-    step4 <- ifelse(istep == nsteps,
-                    Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed, plot = c(3, 7, 11)),
-                    Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed, plot = NA))
+    step4 <- Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed)
     dir_OM_Boot <- step4
+    
     # *************************************************************************************
     # Step 5: Estimation model
     # *************************************************************************************
     Estimationn_EM(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot)
     
   }
+  
+  # *************************************************************************************
+  # Step 6: Run the OM one last time to produce MSE time series outputs
+  # *************************************************************************************
+  step6 <- Final_OM(dir_istep, istep, dir_OM, Mcycle)
+  dir_OM_final <- step6
+    
+  # read the report file from the OM projection
+  om_out = r4ss::SS_output(dir = dir_OM_final, covar = F, verbose = FALSE, printstats = FALSE)
+  r4ss::SS_plots(replist=om_out, uncertainty=F, datplot=T, plot = c(3, 7, 11), verbose = FALSE)
   
   Record <- data.frame("SBR_d" = SBR_d_ts,
                        "max_gradient" = max_gradient_ts,

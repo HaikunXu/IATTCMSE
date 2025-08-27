@@ -4,7 +4,7 @@
 \alias{Bootstrap_OM}
 \title{Make projection based on simulated R devs and HCR}
 \usage{
-Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed, plot = NA)
+Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed)
 }
 \arguments{
 \item{dir_istep}{the directory of step i}
@@ -14,8 +14,6 @@ Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed, plot = NA)
 \item{Mcycle}{the number of years within a management cycle}
 
 \item{seed}{the seed for bootstrap}
-
-\item{plot}{what r4ss tabs to plot}
 }
 \description{
 Make projection based on simulated R devs and HCR

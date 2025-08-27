@@ -6,14 +6,11 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff = function(dir_EM, CurrentClosure, plot = NA) {
+HCR_staff = function(dir_EM, CurrentClosure) {
   
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
   
-  # make plot
-  if(!sum(is.na(plot))) r4ss::SS_plots(replist=em_out, uncertainty=F, datplot=T, plot = plot, verbose = FALSE)
-
   # max gradient
   max_gradient <- em_out$maximum_gradient_component
   

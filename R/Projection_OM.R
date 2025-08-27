@@ -66,13 +66,18 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   
   writeLines(ForecastFile, paste0(dir_OM, "/forecast.ss"))
   
-  # step 4: change starter file
-  StarterDir <- paste0(dir_EM_previous, "/starter.ss")
-  StarterFile <- readLines(StarterDir, warn = F)
-  StarterFile[15] <- 0 # do not estimate
-  StarterFile[6] <- 1 # 0=use init values in control file; 1=use ss.par
   
-  writeLines(StarterFile, paste0(dir_OM, "/starter.ss"))
+  # step 4: change starter file
+  starter <- r4ss::SS_readstarter(paste0(dir_EM_previous, "/starter.ss"), verbose = FALSE)
+  
+  #specify to use the ss3.par as parameters
+  starter$init_values_src = 1
+  #turn off estimation of parameters 
+  starter$last_estimation_phase = 0
+  
+  #write new starter file
+  r4ss::SS_writestarter(starter, dir_OM, verbose = FALSE, overwrite = TRUE)
+  
   
   # step 5: run ss
   # setwd(dir_OM)
