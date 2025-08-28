@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff = function(dir_EM, CurrentClosure) {
+HCR_staff = function(dir_EM, istep, CurrentClosure) {
   
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
@@ -29,18 +29,30 @@ HCR_staff = function(dir_EM, CurrentClosure) {
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   NewClosure <- 365 - (365 - CurrentClosure) * Fscale
   
-  if ((Fscale > 1) & (CurrentClosure - NewClosure > 10)) {
-    NewClosure <- CurrentClosure - 10
-    Fscale <- (365 - NewClosure) / (365 - (NewClosure + 10))
-    Fadjust <- Fscale / Fmult
+  if(istep > 1) {
+    if ((Fscale > 1) & (CurrentClosure - NewClosure > 10)) {
+      NewClosure <- CurrentClosure - 10
+      Fscale <- (365 - NewClosure) / (365 - (NewClosure + 10))
+      Fadjust <- Fscale / Fmult
+    }
+    
+    if ((Fscale < 1) & (NewClosure - CurrentClosure > 10)) {
+      NewClosure <- CurrentClosure + 10
+      Fscale <- (365 - NewClosure) / (365 - (NewClosure - 10))
+      Fadjust <- Fscale / Fmult
+    }
   }
   
-  if ((Fscale < 1) & (NewClosure - CurrentClosure > 10)) {
-    NewClosure <- CurrentClosure + 10
-    Fscale <- (365 - NewClosure) / (365 - (NewClosure - 10))
-    Fadjust <- Fscale / Fmult
-  }
-  
-  return(list("SBR_d" = SBR_d, "Fscale" = Fscale, "Fadjust" = Fadjust, "NewClosure" = NewClosure, "max_gradient" = max_gradient))
 
+  return(
+    list(
+      "SBR_d" = SBR_d,
+      "Fscale" = Fscale,
+      "Fadjust" = Fadjust,
+      "NewClosure" = NewClosure,
+      "max_gradient" = max_gradient,
+      "Fmult" = Fmult
+    )
+  )
+  
 }

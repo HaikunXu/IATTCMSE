@@ -8,7 +8,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Final_OM = function(dir_istep, istep, dir_OM, Mcycle) {
+Final_OM = function(dir_istep, istep, dir_OM, Mcycle, endquarter) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_OM_Final <- paste0(dir_istep, "OM_Final/")
@@ -27,7 +27,7 @@ Final_OM = function(dir_istep, istep, dir_OM, Mcycle) {
   
   # read projected catch
   Catch_projection <- r4ss::SS_ForeCatch(om_out,
-                                         yrs = ((istep - 1) * Mcycle * 4 + 197):(istep * Mcycle * 4 + 196),
+                                         yrs = ((istep - 1) * Mcycle * 4 + endquarter + 1):(istep * Mcycle * 4 + endquarter),
                                          zeros = TRUE)
   
   # read catch file
@@ -43,7 +43,7 @@ Final_OM = function(dir_istep, istep, dir_OM, Mcycle) {
   Catch_new <- dplyr::arrange(rbind(Catch, Catch_projection_new), fleet, year)
   
   dat$catch <- Catch_new
-  dat$endyr <- istep * Mcycle * 4 + 196
+  dat$endyr <- istep * Mcycle * 4 + endquarter
   
   # add dummy CPUE data
   CPUE_new <- dat$CPUE[(nrow(dat$CPUE) - Mcycle * 4 + 1):nrow(dat$CPUE),]
@@ -76,12 +76,10 @@ Final_OM = function(dir_istep, istep, dir_OM, Mcycle) {
   
   
   # change forecast file
-  ForecastDir <- paste0(dir_OM, "forecast.ss")
-  ForecastFile <- readLines(ForecastDir, warn = F)
-  
-  ForecastFile[13] <- 1 # 1 year-quarters
-  
-  writeLines(ForecastFile, paste0(dir_OM_Final, "/forecast.ss"))
+  Forecast <- r4ss::SS_readforecast(paste0(dir_OM, "forecast.ss"), verbose = FALSE)
+  Forecast$Nforecastyrs <- 1
+  r4ss::SS_writeforecast(Forecast, dir_OM_Final, verbose = FALSE, overwrite = TRUE)
+
   
   # change recruitment in the par file
   ParDir <- paste0(dir_OM, "ss3.par")
@@ -117,7 +115,7 @@ Final_OM = function(dir_istep, istep, dir_OM, Mcycle) {
   #turn off estimation of parameters 
   starter$last_estimation_phase = 0
   #
-  starter$maxyr_sdreport <- istep * Mcycle * 4 + 197
+  starter$maxyr_sdreport <- istep * Mcycle * 4 + endquarter + 1
 
   #write new starter file
   r4ss::SS_writestarter(starter, dir_OM_Final, verbose = FALSE, overwrite = TRUE)

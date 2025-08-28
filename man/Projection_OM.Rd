@@ -16,7 +16,8 @@ Projection_OM(
   dir_EM_previous,
   R_devs,
   n_extra_R,
-  Mcycle
+  Mcycle,
+  plot = NA
 )
 }
 \arguments{

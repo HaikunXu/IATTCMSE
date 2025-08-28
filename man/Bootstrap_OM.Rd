@@ -4,7 +4,7 @@
 \alias{Bootstrap_OM}
 \title{Make projection based on simulated R devs and HCR}
 \usage{
-Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed)
+Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed, endquarter)
 }
 \arguments{
 \item{dir_istep}{the directory of step i}

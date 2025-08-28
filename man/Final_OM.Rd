@@ -4,7 +4,7 @@
 \alias{Final_OM}
 \title{Make the final OM for extracting MSE results}
 \usage{
-Final_OM(dir_istep, istep, dir_OM, Mcycle)
+Final_OM(dir_istep, istep, dir_OM, Mcycle, endquarter)
 }
 \arguments{
 \item{dir_istep}{the directory of step i}

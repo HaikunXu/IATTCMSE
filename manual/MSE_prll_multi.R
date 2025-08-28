@@ -12,13 +12,13 @@ sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 #Dimensions
 # Nfisheries <- 22
-niterations <- 10
-nyears <- 30
+niterations <- 5
+nyears <- 10
 nquarters <- nyears * 4
-Mcycle <- 3
+Mcycle <- 10
 nsteps <- nyears / Mcycle
-# endquarter <- 196
-# startquarter <- 17
+endquarter <- 196
+startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
 # # simulate and save recruitment devs
@@ -61,6 +61,6 @@ cl = makeCluster(no_cores)
 registerDoParallel(cl)
 
 
-foreach(itrnum = 1:niterations) %dopar% { IATTCMSE::BET_MSE(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R) }
+foreach(itrnum = 1:niterations) %dopar% { IATTCMSE::BET_MSE(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter) }
 
 stopCluster(cl)

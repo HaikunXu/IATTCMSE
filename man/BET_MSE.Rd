@@ -4,7 +4,19 @@
 \alias{BET_MSE}
 \title{Runs the BET MSE framework for the specified number of iterations}
 \usage{
-BET_MSE(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R)
+BET_MSE(
+  pdir,
+  sdir,
+  HS,
+  HCR,
+  OM,
+  itrnum,
+  nquarters,
+  Mcycle,
+  n_extra_R,
+  startquarter,
+  endquarter
+)
 }
 \arguments{
 \item{pdir}{parent directory path}

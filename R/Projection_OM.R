@@ -14,7 +14,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle) {
+Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, plot = NA) {
   
   # create directory for new time step where the new dat file will be saved
   dir_istep <- paste0(pdir, HS, HCR, OM, itr, "step", istep, "/")
@@ -57,17 +57,17 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   writeLines(ParFile, paste0(dir_OM, "/ss3.par"))
   
   # step 3: change forecast file
-  ForecastDir <- paste0(dir_OM_previous, "forecast.ss")
-  ForecastFile <- readLines(ForecastDir, warn = F)
+  Forecast <- r4ss::SS_readforecast(paste0(dir_OM_previous, "forecast.ss"), verbose = FALSE)
   
-  ForecastFile[12] <- 5 # use F scaler
-  ForecastFile[14] <- Fscale # input F scaler
-  ForecastFile[13] <- 1 + Mcycle * 4 # number of forecast years
+  Forecast$F_scalar <- Fscale # input F scaler
+  Forecast$Forecast <- 5 # use F scaler
+  Forecast$Nforecastyrs <- 1 + Mcycle * 4 # number of forecast years
+  Forecast$ControlRuleMethod <- 0 # Harvest control rule method
+  Forecast$First_forecast_loop_with_stochastic_recruitment <- 1
+
+  r4ss::SS_writeforecast(Forecast, dir_OM, verbose = FALSE, overwrite = TRUE)
+
   
-  writeLines(ForecastFile, paste0(dir_OM, "/forecast.ss"))
-  
-  
-  # step 4: change starter file
   starter <- r4ss::SS_readstarter(paste0(dir_EM_previous, "/starter.ss"), verbose = FALSE)
   
   #specify to use the ss3.par as parameters
@@ -83,6 +83,13 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   # setwd(dir_OM)
   command <- paste("cd", dir_OM, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
+  
+  
+  # plot
+  if(sum(is.na(plot)) == 0) {
+    om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
+    r4ss::SS_plots(replist=om_out, uncertainty=F, datplot=T, plot = plot, forecastplot = TRUE, verbose = FALSE)
+  }
   
   return(list("dir_istep" = dir_istep, "dir_OM" = dir_OM))
   
