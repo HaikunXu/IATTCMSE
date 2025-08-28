@@ -17,10 +17,6 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   
   itr = paste0("itr", itrnum, "/")
   
-  #set working directory
-  dir.create(paste0(pdir, HS, HCR, OM))
-  setwd(paste0(pdir, HS, HCR, OM))
-  
   # create and set directory for each iteration (i.e. different recruitment)
   dir.create(paste0(pdir, HS, HCR, OM, itr))
   
@@ -35,11 +31,11 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   # *************************************************************************************
   # step 1: initialize the OM by copying from the benchmark assessment model
   # *************************************************************************************
-  step1 <- Initialize_OM(sdir, OM)
+  step1 <- IATTCMSE::Initialize_OM(pdir, sdir, HS, HCR, OM)
   
   for (istep in 1:nsteps){
     
-    print(paste0("istep = ",istep))
+    print(paste0(pdir, HS, HCR, OM, itr, ": istep = ",istep))
     
     # specify the previous OM and EM directories
     if(istep == 1) {
@@ -59,7 +55,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
                          paste0(pdir, HS, "EM/"),
                          paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/", "EM/"))
     
-    step2 <- HCR_staff(dir_EM = dir_EM_HCR, CurrentClosure)
+    step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_HCR, CurrentClosure)
     
     if(step2$max_gradient > 0.1) { # large gradient - the model does not converge
       # read the report file from the OM projection
@@ -67,7 +63,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
       # plot the latest OM to examine why the EM does not converge
       r4ss::SS_plots(replist=om_out, forecastplot=T, uncertainty=F, datplot=T, plot = c(3, 7, 11), verbose = FALSE)
       
-      break 
+      break
     }
     # save some management quantities
     SBR_d_ts[istep] <- step2$SBR_d
@@ -79,7 +75,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # step 3: make projection using simulated R devs and HCR F
     # *************************************************************************************
-    step3 <- Projection_OM(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs)
+    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle)
     
     dir_istep <- step3$dir_istep
     dir_OM <- step3$dir_OM
@@ -87,29 +83,30 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 4: Change the data files of the updated OM to run bootstrap
     # *************************************************************************************
-    step4 <- Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed)
+    step4 <- IATTCMSE::Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed)
     dir_OM_Boot <- step4
     
     # *************************************************************************************
     # Step 5: Estimation model
     # *************************************************************************************
-    Estimationn_EM(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot)
+    IATTCMSE::Estimationn_EM(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle)
     
   }
   
   # *************************************************************************************
   # Step 6: Run the OM one last time to produce MSE time series outputs
   # *************************************************************************************
-  step6 <- Final_OM(dir_istep, istep, dir_OM, Mcycle)
-  dir_OM_final <- step6
-    
-  # read the report file from the OM projection
-  om_out = r4ss::SS_output(dir = dir_OM_final, covar = F, verbose = FALSE, printstats = FALSE)
-  r4ss::SS_plots(replist=om_out, uncertainty=F, datplot=T, plot = c(3, 7, 11), verbose = FALSE)
+  step6 <- IATTCMSE::Final_OM(dir_istep, istep, dir_OM, Mcycle)
+  dir_OM_Final <- step6
+  
+  # *************************************************************************************
+  # Step 7: Extract OM_final's results
+  # *************************************************************************************
+  step7 <- IATTCMSE::Extract_OM(dir_OM_Final)
+  write.csv(step7, file = paste0(pdir, HS, HCR, OM, itr, "Output.csv"), row.names = FALSE)
   
   Record <- data.frame("SBR_d" = SBR_d_ts,
                        "max_gradient" = max_gradient_ts,
                        "closure" = Closure_ts)
-
-  write.csv(Record, file = paste0(paste0(pdir, HS, HCR, OM, itr, "Closure_days.csv")), row.names = FALSE)
+  write.csv(Record, file = paste0(pdir, HS, HCR, OM, itr, "Record.csv"), row.names = FALSE)
 }

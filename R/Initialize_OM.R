@@ -1,12 +1,13 @@
 #' Initialize the OM based on the benchmark assessment model
-#'
+#' 
+#' @param pdir parent directory path
 #' @param sdir the directory of the assessment models with F30% reference points
 #' @param OM name of the reference model
 #' 
 #' @author Haikun Xu 
 #' @export
 
-Initialize_OM = function(sdir, OM) {
+Initialize_OM = function(pdir, sdir, HS, HCR, OM) {
   
   # *************************************************************************************
   # Step 0: get the OM from the 2024 assessment

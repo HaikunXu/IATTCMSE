@@ -14,7 +14,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs) {
+Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle) {
   
   # create directory for new time step where the new dat file will be saved
   dir_istep <- paste0(pdir, HS, HCR, OM, itr, "step", istep, "/")

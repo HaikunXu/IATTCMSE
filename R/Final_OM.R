@@ -22,6 +22,9 @@ Final_OM = function(dir_istep, istep, dir_OM, Mcycle) {
   )
   file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
   
+  # read the report file from the OM projection
+  om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
+  
   # read projected catch
   Catch_projection <- r4ss::SS_ForeCatch(om_out,
                                          yrs = ((istep - 1) * Mcycle * 4 + 197):(istep * Mcycle * 4 + 196),
@@ -113,6 +116,8 @@ Final_OM = function(dir_istep, istep, dir_OM, Mcycle) {
   starter$init_values_src = 1
   #turn off estimation of parameters 
   starter$last_estimation_phase = 0
+  #
+  starter$maxyr_sdreport <- istep * Mcycle * 4 + 197
 
   #write new starter file
   r4ss::SS_writestarter(starter, dir_OM_Final, verbose = FALSE, overwrite = TRUE)

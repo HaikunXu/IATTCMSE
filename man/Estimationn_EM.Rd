@@ -4,7 +4,14 @@
 \alias{Estimationn_EM}
 \title{Make projection based on simulated R devs and HCR}
 \usage{
-Estimationn_EM(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot)
+Estimationn_EM(
+  dir_istep,
+  step1,
+  dir_OM_previous,
+  dir_EM_previous,
+  dir_OM_Boot,
+  Mcycle
+)
 }
 \arguments{
 \item{dir_istep}{the directory of step i}

@@ -14,7 +14,9 @@ Projection_OM(
   Fscale,
   dir_OM_previous,
   dir_EM_previous,
-  R_devs
+  R_devs,
+  n_extra_R,
+  Mcycle
 )
 }
 \arguments{

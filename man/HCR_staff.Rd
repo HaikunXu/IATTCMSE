@@ -4,7 +4,7 @@
 \alias{HCR_staff}
 \title{Runs the staff's HCR algorithm}
 \usage{
-HCR_staff(dir_EM, CurrentClosure, plot = NA)
+HCR_staff(dir_EM, CurrentClosure)
 }
 \arguments{
 \item{dir_EM}{the directory of the EM used to compute the current SBR_d for harvest control rule}

@@ -4,9 +4,11 @@
 \alias{Initialize_OM}
 \title{Initialize the OM based on the benchmark assessment model}
 \usage{
-Initialize_OM(sdir, OM)
+Initialize_OM(pdir, sdir, HS, HCR, OM)
 }
 \arguments{
+\item{pdir}{parent directory path}
+
 \item{sdir}{the directory of the assessment models with F30\% reference points}
 
 \item{OM}{name of the reference model}

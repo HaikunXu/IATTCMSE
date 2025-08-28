@@ -9,7 +9,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Estimationn_EM = function(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot) {
+Estimationn_EM = function(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_EM <- paste0(dir_istep, "EM/")
