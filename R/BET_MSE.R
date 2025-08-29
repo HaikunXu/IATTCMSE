@@ -13,7 +13,7 @@
 #' @author Haikun Xu 
 #' @export
 
-BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter) { 
+BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet) { 
   
   itr = paste0("itr", itrnum, "/")
   
@@ -77,7 +77,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # step 3: make projection using simulated R devs and HCR F
     # *************************************************************************************
-    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, plot = 3)
+    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle)
     
     dir_istep <- step3$dir_istep
     dir_OM <- step3$dir_OM
@@ -91,8 +91,10 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 5: Estimation model
     # *************************************************************************************
-    IATTCMSE::Estimationn_EM(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle)
-    
+    if(istep < nsteps) 
+      IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet)
+    else
+      IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet, plot = TRUE)
   }
   
   # *************************************************************************************
@@ -109,6 +111,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   
   Record <- data.frame("SBR_d" = SBR_d_ts,
                        "max_gradient" = max_gradient_ts,
-                       "closure" = Closure_ts)
+                       "closure" = Closure_ts,
+                       "Fmult" = Fmult_ts)
   write.csv(Record, file = paste0(pdir, HS, HCR, OM, itr, "Record.csv"), row.names = FALSE)
 }

@@ -6,17 +6,19 @@
 \usage{
 Estimationn_EM(
   dir_istep,
-  step1,
+  R0,
   dir_OM_previous,
   dir_EM_previous,
   dir_OM_Boot,
-  Mcycle
+  Mcycle,
+  EM_comp_fleet,
+  plot = FALSE
 )
 }
 \arguments{
 \item{dir_istep}{the directory of step i}
 
-\item{step1}{where the true R0 is stored}
+\item{R0}{true R0}
 
 \item{dir_OM_previous}{the directory of the OM in the previous step}
 

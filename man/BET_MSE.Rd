@@ -15,7 +15,8 @@ BET_MSE(
   Mcycle,
   n_extra_R,
   startquarter,
-  endquarter
+  endquarter,
+  EM_comp_fleet
 )
 }
 \arguments{

@@ -24,7 +24,7 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed, endquarter) {
   
   # read the report file from the OM projection
   om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
-
+  
   # read projected catch
   Catch_projection <- r4ss::SS_ForeCatch(om_out,
                                          yrs = ((istep - 1) * Mcycle * 4 + endquarter + 1):(istep * Mcycle * 4 + endquarter),
@@ -52,10 +52,12 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed, endquarter) {
   dat$CPUE <- rbind(dat$CPUE, CPUE_new)
   
   # add dummy LF data
-  # LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
-  
-  # LF_survey <- LF[which(LF$fleet==23),]
-  
+  LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
+  LF_new <- LF[which(LF$year %in% 169:180),] # no LL LF during COVID years so use pre-COVID samples
+  LF_new$year <- LF_new$year + istep * Mcycle * 4 + 16 # 4 COVID-years (2020-2023)
+  dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
+  dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
+
   r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
   
   # change recruitment period in the control file
@@ -110,21 +112,21 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed, endquarter) {
   # set up bootstrap
   starter_boot <- r4ss::SS_readstarter(paste0(dir_OM_Boot, "starter.ss"), verbose = FALSE)
   
-  #specify to use the ss3.par as parameters
+  # specify to use the ss3.par as parameters
   starter_boot$init_values_src = 1
-  #turn off estimation of parameters 
+  # turn off estimation of parameters 
   starter_boot$last_estimation_phase = 0
-  #add 1 data bootstrap file
+  # add 1 data bootstrap file
   starter_boot$N_bootstraps = 3
   
-  #write new starter file
+  # write new starter file
   r4ss::SS_writestarter(starter_boot, dir_OM_Boot, verbose = FALSE, overwrite = TRUE)
   
   # add a seed
   starterDir <- paste0(dir_OM_Boot, "starter.ss")
   starterFile <- readLines(starterDir, warn = F)
   Line_seed <- match("1e-05 #_ALK_tolerance", starterFile)
-  starterFile[Line_seed] <- seed
+  starterFile[Line_seed+1] <- seed
   writeLines(starterFile, paste0(dir_OM_Boot, "/starter.ss"))
   
   # run the bootstrap model

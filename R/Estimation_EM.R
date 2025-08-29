@@ -1,7 +1,7 @@
 #' Make projection based on simulated R devs and HCR
 #'
 #' @param dir_istep the directory of step i
-#' @param step1 where the true R0 is stored
+#' @param R0 true R0
 #' @param dir_OM_previous the directory of the OM in the previous step
 #' @param dir_EM_previous the directory of the EM in the previous step
 #' @param dir_OM_Boot the directory of the OM bootstrap in the current step
@@ -9,7 +9,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Estimationn_EM = function(dir_istep, step1, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle) {
+Estimationn_EM = function(dir_istep, R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet, plot = FALSE) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_EM <- paste0(dir_istep, "EM/")
@@ -39,9 +39,16 @@ Estimationn_EM = function(dir_istep, step1, dir_OM_previous, dir_EM_previous, di
   catch_boot <- data_boot$catch[which(data_boot$catch$year>max(catch$year)),]
   catch_new <- dplyr::arrange(rbind(catch, catch_boot), fleet, year)
   
+  # add new LF
+  LF <- dat_EM_previous$sizefreq_data_list[[1]]
+  LF_boot <- dplyr::filter(data_boot$sizefreq_data_list[[1]], year > max(LF$year), fleet %in% EM_comp_fleet)
+  LF_new <- dplyr::arrange(rbind(LF, LF_boot), fleet, year)
+  
   # save data file
   dat_EM_previous$catch <- catch_new
   dat_EM_previous$CPUE <- CPUE_new
+  dat_EM_previous$sizefreq_data_list[[1]] <- LF_new
+  dat_EM_previous$Nobs_per_method <- nrow(LF_new)
   dat_EM_previous$endyr <- dat_EM_previous$endyr + Mcycle * 4
   r4ss::SS_writedat_3.30(dat_EM_previous, paste0(dir_EM, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
   
@@ -81,7 +88,7 @@ Estimationn_EM = function(dir_istep, step1, dir_OM_previous, dir_EM_previous, di
   ParFile[Line_main + 1] <- gsub(",", "", toString(R_main_new))
   
   Line_R0 <- match("# SR_parm[1]:", ParFile)
-  ParFile[Line_R0 + 1] <- step1$R0
+  ParFile[Line_R0 + 1] <- R0
   
   writeLines(ParFile, paste0(dir_EM, "/ss3.par"))
   
@@ -89,4 +96,9 @@ Estimationn_EM = function(dir_istep, step1, dir_OM_previous, dir_EM_previous, di
   command <- paste("cd", dir_EM, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
   
+  if(plot == TRUE) {
+    em_out = r4ss::SS_output(dir = dir_EM, covar = F, verbose = FALSE, printstats = FALSE)
+    r4ss::SS_plots(replist = em_out, uncertainty = F, datplot = T, verbose = FALSE)
+  }
+
 }
