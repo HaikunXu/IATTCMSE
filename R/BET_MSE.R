@@ -37,6 +37,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   for (istep in 1:nsteps){
     
     print(paste0(pdir, HS, HCR, OM, itr, ": istep = ",istep))
+    Flag <- 1 # mark whether the loop is running without an EM with a large gradient
     
     # specify the previous OM and EM directories
     if(istep == 1) {
@@ -59,10 +60,8 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_HCR, istep, CurrentClosure)
     
     if(step2$max_gradient > 0.1) { # large gradient - the model does not converge
-      # read the report file from the OM projection
-      # om_out = r4ss::SS_output(dir = dir_OM_previous, covar = F, verbose = FALSE, printstats = FALSE)
-      # plot the latest OM to examine why the EM does not converge
-      # r4ss::SS_plots(replist=om_out, forecastplot=T, uncertainty=F, datplot=T, plot = c(3, 7), verbose = FALSE)
+      max_gradient_ts[istep] <- step2$max_gradient # record the gradient
+      Flag <- 0 # mark the flag
       break
     }
     
@@ -91,23 +90,25 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 5: Estimation model
     # *************************************************************************************
-    if(istep < nsteps) 
-      IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet)
-    else
-      IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet, plot = TRUE)
+    if(istep < nsteps) step5 <- IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet)
+    # else
+      # IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet, plot = TRUE)
   }
   
-  # *************************************************************************************
-  # Step 6: Run the OM one last time to produce MSE time series outputs
-  # *************************************************************************************
-  step6 <- IATTCMSE::Final_OM(dir_istep, istep, dir_OM, Mcycle, endquarter)
-  dir_OM_Final <- step6
-  
-  # *************************************************************************************
-  # Step 7: Extract OM_final's results
-  # *************************************************************************************
-  step7 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter)
-  write.csv(step7, file = paste0(pdir, HS, HCR, OM, itr, "Output.csv"), row.names = FALSE)
+  if(Flag == 1) { # theloop is finished with all EM converged
+    # *************************************************************************************
+    # Step 6: Run the OM one last time to produce MSE time series outputs
+    # *************************************************************************************
+    step6 <- IATTCMSE::Final_OM(dir_istep, istep, dir_OM, Mcycle, endquarter)
+    dir_OM_Final <- step6
+    
+    # *************************************************************************************
+    # Step 7: Extract OM_final's results
+    # *************************************************************************************
+    step7 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter)
+    write.csv(step7, file = paste0(pdir, HS, HCR, OM, itr, "Output.csv"), row.names = FALSE)
+  }
+
   
   Record <- data.frame("SBR_d" = SBR_d_ts,
                        "max_gradient" = max_gradient_ts,

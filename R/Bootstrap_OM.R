@@ -52,11 +52,11 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed, endquarter) {
   dat$CPUE <- rbind(dat$CPUE, CPUE_new)
   
   # add dummy LF data
-  LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
-  LF_new <- LF[which(LF$year %in% 169:180),] # no LL LF during COVID years so use pre-COVID samples
-  LF_new$year <- LF_new$year + istep * Mcycle * 4 + 16 # 4 COVID-years (2020-2023)
-  dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
-  dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
+  # LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
+  # LF_new <- LF[which(LF$year %in% 169:180),] # no LL LF during COVID years so use pre-COVID samples
+  # LF_new$year <- LF_new$year + istep * Mcycle * 4 + 16 # 4 COVID-years (2020-2023)
+  # dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
+  # dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
 
   r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
   

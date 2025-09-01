@@ -25,8 +25,8 @@ sdir = "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
 # Nfisheries <- 22
-niterations <- 5
-nyears <- 3
+niterations <- 10
+nyears <- 15
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -51,7 +51,7 @@ OM <- paste0(OM_name[OMnum], "/")
 ```{r management_output}
 
 # extract saved management output
-for (itrnum in 1:niterations) {
+for (itrnum in c(1,7)) { # :niterations) {
   itr = paste0("itr", itrnum, "/")
   Record <- read.csv(paste0(paste0(pdir, HS, HCR, OM, itr, "Record.csv")))
   Record$Step <- 1:nsteps
@@ -62,6 +62,8 @@ for (itrnum in 1:niterations) {
   else Record_all <- rbind(Record_all, Record)
 }
 
+Record_all$itr <- as.factor(Record_all$itr)
+
 ggplot(data = Record_all) +
   geom_line(aes(x = Step, y = closure, color = itr)) +
   geom_point(aes(x = Step, y = closure, color = itr)) +
@@ -71,10 +73,15 @@ ggplot(data = Record_all) +
   geom_line(aes(x = Step, y = SBR_d, color = itr)) +
   geom_point(aes(x = Step, y = SBR_d, color = itr)) +
   theme_bw()
+
+ggplot(data = Record_all) +
+  geom_line(aes(x = Step, y = Fmult, color = itr)) +
+  geom_point(aes(x = Step, y = Fmult, color = itr)) +
+  theme_bw()
 ```
 
 ```{r}
-for (itrnum in 1:niterations) {
+for (itrnum in c(1,7)) { # :niterations) {
   itr = paste0("itr", itrnum, "/")
   Output <- read.csv(paste0(paste0(pdir, HS, HCR, OM, itr, "Output.csv")))
   Output$OM <- OM_name[OMnum]
@@ -91,7 +98,7 @@ Output_all_long <- Output_all %>%
 ggplot(data = Output_all_long %>% filter(Year > 180)) +
   geom_line(aes(x = Year, y = Value, color = itr)) +
   geom_point(aes(x = Year, y = Value, color = itr)) +
-  geom_vline(xintercept = c(196, 208)) +
+  geom_vline(xintercept = 196) +
   facet_wrap(~Quantity, scales = "free_y", nrow = 6) +
   theme_bw()
 ```

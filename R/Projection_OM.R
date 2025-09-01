@@ -59,7 +59,7 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   # step 3: change forecast file
   Forecast <- r4ss::SS_readforecast(paste0(dir_OM_previous, "forecast.ss"), verbose = FALSE)
   
-  Forecast$F_scalar <- Fscale # input F scaler
+  Forecast$F_scalar <- Fscale # Fscale # input F scaler
   Forecast$Forecast <- 5 # use F scaler
   Forecast$Nforecastyrs <- 1 + Mcycle * 4 # number of forecast years
   Forecast$ControlRuleMethod <- 0 # Harvest control rule method

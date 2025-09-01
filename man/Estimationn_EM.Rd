@@ -12,7 +12,8 @@ Estimationn_EM(
   dir_OM_Boot,
   Mcycle,
   EM_comp_fleet,
-  plot = FALSE
+  plot = FALSE,
+  from_par = FALSE
 )
 }
 \arguments{

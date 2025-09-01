@@ -1,8 +1,6 @@
 library(IATTCMSE)
 library(foreach)
 library(doParallel)
-library(dplyr)
-library(tidyr)
 
 #Specify path of parent directory
 pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
@@ -10,10 +8,10 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 #Specify the path of conditioned initial OM
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
-#Dimensions
+# Dimensions
 # Nfisheries <- 22
-niterations <- 5
-nyears <- 3
+niterations <- 10
+nyears <- 15
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -56,7 +54,7 @@ dir.create(paste0(pdir, HS, HCR, OM)) # for that OM
 BET_MSE(pdir, sdir, HS, HCR, OM, itrnum = 1, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet)
 
 #Calculate the numbers of cores 
-no_cores = 5 # detectCores() - 2
+no_cores = 10 # detectCores() - 2
 #Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)

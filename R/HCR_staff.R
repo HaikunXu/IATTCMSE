@@ -22,28 +22,36 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   if (SBR_d > 0.2) Fadjust <- 1
   else Fadjust <- SBR_d / 0.2
   
-  # get Fscale for Btarget = 0.3
-  Fmult <- IATTCassessment::Fmult(dir_EM)
-  Fscale <- Fmult * Fadjust
+  # get Fmult
+  ForeRepName <- paste(dir_EM, "Forecast-report.SSO", sep = "")
+  
+  # Get management report
+  ForeRepStart <- grep("Management_report", readLines(ForeRepName))
+  ForeRepEnd <- grep("THIS FORECAST IS FOR PURPOSES", readLines(ForeRepName))[1]
+  
+  ForeDat <- read.table(file = ForeRepName, col.names = c(seq(1, 10, by = 1)), fill = T, quote = "", colClasses = "character", 
+                        nrows = ForeRepEnd - ForeRepStart, skip = ForeRepStart - 1)
+  ForeDat <- as.data.frame(ForeDat)
   
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
-  NewClosure <- 365 - (365 - CurrentClosure) * Fscale
+  NewClosure <- 365 - (365 - CurrentClosure) * Fadjust
   
-  if(istep > 1) {
-    if ((Fscale > 1) & (CurrentClosure - NewClosure > 10)) {
+  # if (istep > 1) {
+    if ((Fadjust > 1) & (CurrentClosure - NewClosure > 10)) {
       NewClosure <- CurrentClosure - 10
-      Fscale <- (365 - NewClosure) / (365 - (NewClosure + 10))
-      Fadjust <- Fscale / Fmult
+      Fadjust <- (365 - NewClosure) / (365 - CurrentClosure)
     }
     
-    if ((Fscale < 1) & (NewClosure - CurrentClosure > 10)) {
+    if ((Fadjust < 1) & (NewClosure - CurrentClosure > 10)) {
       NewClosure <- CurrentClosure + 10
-      Fscale <- (365 - NewClosure) / (365 - (NewClosure - 10))
-      Fadjust <- Fscale / Fmult
+      Fadjust <- (365 - NewClosure) / (365 - CurrentClosure)
     }
-  }
+  # }
   
-
+  # get F_mult
+  Fmult <- as.numeric(ForeDat[ForeDat[, 1] == c("Fmult"), 2])[3] # FMSY
+  Fscale <- Fmult * Fadjust
+  
   return(
     list(
       "SBR_d" = SBR_d,
