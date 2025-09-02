@@ -4,7 +4,7 @@
 \alias{Extract_OM}
 \title{Extract and save the final OM's output}
 \usage{
-Extract_OM(dir_OM_Final, startquarter, plot = c(3, 7))
+Extract_OM(dir_OM_Final, startquarter, plot = FALSE)
 }
 \description{
 Extract and save the final OM's output

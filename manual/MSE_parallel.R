@@ -9,9 +9,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-# Nfisheries <- 22
-niterations <- 10
-nyears <- 15
+niterations <- 5
+nyears <- 3
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -33,17 +32,19 @@ EM_comp_fleet <- c(4, 23) # fleets with comps in ASPM Rdevs+
 # 
 # write.csv(R_devs, file = paste0(pdir,"R_devs.csv"), row.names = FALSE)
 
-OM_name <- "Fix-1-1"
+OM_name <- c("Fix-1-1", "Sel-1-1")
+HCR_name <- c("HCR_staff", "HCR_staff_0")
+
 # Set the harvest strategy
 HSnum <- 1
 HS <- paste0("HS", HSnum, "/")
 
 # Set the HCR
-HCRnum <- 1
-HCR <- paste0("HCR", HCRnum, "/")
+HCRnum <- 2
+HCR <- paste0(HCR_name[HCRnum], "/")
 
 # Set the scenario
-OMnum <- 1
+OMnum <- 2
 OM <- paste0(OM_name[OMnum], "/")
 
 # create a folder for all iterations
@@ -51,15 +52,14 @@ dir.create(paste0(pdir, HS)) # for that harvest strategy
 dir.create(paste0(pdir, HS, HCR)) # for that harvest control rule
 dir.create(paste0(pdir, HS, HCR, OM)) # for that OM
 
-BET_MSE(pdir, sdir, HS, HCR, OM, itrnum = 1, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet)
+# BET_MSE(pdir, sdir, HS, HCR, OM, itrnum = 1, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, clean = TRUE)
 
 #Calculate the numbers of cores 
-no_cores = 10 # detectCores() - 2
+no_cores = 5 # detectCores() - 2
 #Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)
 
-
-foreach(itrnum = 1:niterations) %dopar% { IATTCMSE::BET_MSE(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet) }
+foreach(itrnum = 1:niterations) %dopar% { IATTCMSE::BET_MSE(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, clean = TRUE) }
 
 stopCluster(cl)

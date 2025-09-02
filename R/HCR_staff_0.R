@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff = function(dir_EM, istep, CurrentClosure) {
+HCR_staff_0 = function(dir_EM, istep, CurrentClosure) {
   
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
@@ -47,17 +47,17 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   NewClosure <- 365 - (365 - CurrentClosure) * Fratio
   
   # if (istep > 1) {
-    if ((Fratio > 1) & ((CurrentClosure - NewClosure) > 10)) {
-      NewClosure <- CurrentClosure - 10
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      Fadjust <- Fratio * Frecent / Fmult
-    }
-
-    if ((Fratio < 1) & ((NewClosure - CurrentClosure) > 10)) {
-      NewClosure <- CurrentClosure + 10
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      Fadjust <- Fratio * Frecent / Fmult
-    }
+    # if ((Fratio > 1) & ((CurrentClosure - NewClosure) > 10)) {
+    #   NewClosure <- CurrentClosure - 10
+    #   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    #   Fadjust <- Fratio * Frecent / Fmult
+    # }
+    # 
+    # if ((Fratio < 1) & ((NewClosure - CurrentClosure) > 10)) {
+    #   NewClosure <- CurrentClosure + 10
+    #   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    #   Fadjust <- Fratio * Frecent / Fmult
+    # }
   # }
   
 

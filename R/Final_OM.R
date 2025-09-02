@@ -1,6 +1,6 @@
 #' Make the final OM for extracting MSE results
 #'
-#' @param dir_istep the directory of step i
+#' @param dir_itr the directory of iteration itr
 #' @param istep step number
 #' @param dir_OM the directory of OM
 #' @param Mcycle the number of years within a management cycle
@@ -8,10 +8,10 @@
 #' @author Haikun Xu 
 #' @export
 
-Final_OM = function(dir_istep, istep, dir_OM, Mcycle, endquarter) {
+Final_OM = function(dir_itr, istep, dir_OM, Mcycle, endquarter) {
   
   # step 1: create a new folder for the OM bootstrap
-  dir_OM_Final <- paste0(dir_istep, "OM_Final/")
+  dir_OM_Final <- paste0(dir_itr, "OM_Final/")
   dir.create(dir_OM_Final)
   
   # copy files to the new folder

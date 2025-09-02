@@ -40,6 +40,10 @@ Projection_OM(
 \item{dir_EM_previous}{the directory of the EM in the previous step}
 
 \item{R_devs}{simulated R devs}
+
+\item{n_extra_R}{the number of recruitment devs after the main R and before the forecast R}
+
+\item{Mcycle}{the number of years within a management cycle}
 }
 \description{
 Make projection based on simulated R devs and HCR

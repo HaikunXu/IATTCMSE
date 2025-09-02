@@ -10,6 +10,8 @@
 #' @param dir_OM_previous the directory of the OM in the previous step
 #' @param dir_EM_previous the directory of the EM in the previous step
 #' @param R_devs simulated R devs
+#' @param n_extra_R the number of recruitment devs after the main R and before the forecast R
+#' @param Mcycle the number of years within a management cycle
 #' 
 #' @author Haikun Xu 
 #' @export

@@ -66,6 +66,8 @@ Estimationn_EM = function(dir_istep, R0, dir_OM_previous, dir_EM_previous, dir_O
   )
   ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
   
+  if(from_par == FALSE) ctl$SR_parms$INIT[1] <- R0
+  
   r4ss::SS_writectl_3.30(
     ctl,
     outfile = paste0(dir_EM, "/BET-EPO.ctl"),

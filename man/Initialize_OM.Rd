@@ -11,6 +11,10 @@ Initialize_OM(pdir, sdir, HS, HCR, OM)
 
 \item{sdir}{the directory of the assessment models with F30\% reference points}
 
+\item{HS}{the name of the harvest strategy}
+
+\item{HCR}{the name of the harvest control rule}
+
 \item{OM}{name of the reference model}
 }
 \description{

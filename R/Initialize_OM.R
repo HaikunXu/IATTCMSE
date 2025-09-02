@@ -2,6 +2,8 @@
 #' 
 #' @param pdir parent directory path
 #' @param sdir the directory of the assessment models with F30% reference points
+#' @param HS the name of the harvest strategy
+#' @param HCR the name of the harvest control rule
 #' @param OM name of the reference model
 #' 
 #' @author Haikun Xu 

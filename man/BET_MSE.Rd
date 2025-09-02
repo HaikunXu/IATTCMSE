@@ -16,7 +16,8 @@ BET_MSE(
   n_extra_R,
   startquarter,
   endquarter,
-  EM_comp_fleet
+  EM_comp_fleet,
+  clean = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,12 @@ BET_MSE(
 \item{Mcycle}{the number of years within a management cycle}
 
 \item{n_extra_R}{the number of recruitment devs after the main R and before the forecast R}
+
+\item{startquarter}{the first quarter of the assessment model}
+
+\item{EM_comp_fleet}{The fleets with comp data in the EM}
+
+\item{clean}{if TRUE, all intermediate folders of the MSE simulation will be deleted to save storage space}
 }
 \description{
 Runs the BET MSE framework for the specified number of iterations
