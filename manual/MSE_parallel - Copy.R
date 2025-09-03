@@ -9,7 +9,7 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 10
+niterations <- 5
 nyears <- 15
 nquarters <- nyears * 4
 Mcycle <- 3
@@ -34,7 +34,7 @@ EM_comp_fleet <- c(4, 23) # fleets with comps in ASPM Rdevs+
 
 
 # Calculate the numbers of cores 
-no_cores = 12 # detectCores() - 2
+no_cores = 5 # detectCores() - 2
 # Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)
@@ -54,15 +54,16 @@ HCRnum <- 1
 HCR <- paste0(HCR_name[HCRnum], "/")
 dir.create(paste0(pdir, HS, HCR)) # for that harvest control rule
 
-# specify the run list 
+
 runs <- data.frame(expand.grid(run_om = OM, run_itr = 1:niterations))
+
 
 for (OMnum in 1:4) {
   # create a folder for all iterations
-  unlink(paste0(pdir, HS, HCR, OM[OMnum]), recursive = TRUE)
   dir.create(paste0(pdir, HS, HCR, OM[OMnum])) # for that OM
 }
 
 foreach(i = 1:nrow(runs)) %dopar% { IATTCMSE::BET_MSE(pdir, sdir, HS, HCR, runs[i,1], runs[i,2], nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, clean = TRUE) }
   
+
 stopCluster(cl)

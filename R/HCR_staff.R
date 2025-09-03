@@ -46,7 +46,7 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
   NewClosure <- 365 - (365 - CurrentClosure) * Fratio
   
-  # if (istep > 1) {
+  if (istep > 1) {
     if ((Fratio > 1) & ((CurrentClosure - NewClosure) > 10)) {
       NewClosure <- CurrentClosure - 10
       Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
@@ -58,7 +58,7 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
       Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
       Fadjust <- Fratio * Frecent / Fmult
     }
-  # }
+  }
   
 
   Fscale <- Fmult * Fadjust
