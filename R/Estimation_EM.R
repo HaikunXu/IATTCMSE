@@ -20,7 +20,8 @@ Estimationn_EM = function(dir_istep, R0, dir_OM_previous, dir_EM_previous, dir_O
     # paste0(dir_EM_previous, "starter.ss"),
     paste0(dir_EM_previous, "ss.exe"),
     paste0(dir_EM_previous, "go_nohess.bat"),
-    paste0(dir_EM_previous, "forecast.ss")
+    paste0(dir_EM_previous, "forecast.ss"),
+    paste0(dir_EM_previous, "starter.ss")
   )
   file.copy(from = files, to = dir_EM, overwrite = TRUE)
   
@@ -76,7 +77,7 @@ Estimationn_EM = function(dir_istep, R0, dir_OM_previous, dir_EM_previous, dir_O
   )
   
   if(from_par == FALSE) {
-    starter <- r4ss::SS_readstarter(paste0(dir_EM_previous, "/starter.ss"), verbose = FALSE)
+    starter <- r4ss::SS_readstarter(paste0(dir_EM, "/starter.ss"), verbose = FALSE)
     
     #specify to not use the ss3.par as parameters
     starter$init_values_src = 0
