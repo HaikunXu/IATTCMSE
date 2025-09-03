@@ -32,6 +32,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   max_gradient_ts <- rep(NA, nsteps)
   Closure_ts <- rep(NA, nsteps)
   Fadjust_ts <- rep(NA, nsteps)
+  time_ts <- rep(NA, nsteps)
   
   # *************************************************************************************
   # step 1: initialize the OM by copying from the benchmark assessment model
@@ -47,7 +48,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     if(istep == 1) {
       dir_OM_previous <- paste0(pdir, HS, HCR, OM, "itr0/")
       dir_EM_previous <- paste0(pdir, HS, "EM/")
-      CurrentClosure <- 72
+      CurrentClosure <- 100
     }
     else {
       dir_OM_previous <- paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/OM_Boot/")
@@ -94,9 +95,12 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 5: Estimation model
     # *************************************************************************************
+    
+    # time stamp
+    time_ts[istep] <- Sys.time()
+    
     if(istep < nsteps) step5 <- IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet)
-    # else
-      # IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet, plot = TRUE)
+    
   }
   
   if(Flag == 1) { # the loop is finished with all EM converged
@@ -123,6 +127,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   Record <- data.frame("SBR_d" = SBR_d_ts,
                        "max_gradient" = max_gradient_ts,
                        "closure" = Closure_ts,
-                       "Fadjust" = Fadjust_ts)
+                       "Fadjust" = Fadjust_ts,
+                       "Time_Stamp" = time_ts)
   write.csv(Record, file = paste0(dir_itr, "Record.csv"), row.names = FALSE)
 }
