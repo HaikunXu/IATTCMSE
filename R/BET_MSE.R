@@ -32,6 +32,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   max_gradient_ts <- rep(NA, nsteps)
   Closure_ts <- rep(NA, nsteps)
   Fadjust_ts <- rep(NA, nsteps)
+  F30_ts <- rep(NA,  nsteps)
   time_ts <- rep(NA, nsteps)
   
   # *************************************************************************************
@@ -77,6 +78,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     Closure_ts[istep] <- step2$NewClosure
     max_gradient_ts[istep] <- step2$max_gradient
     Fadjust_ts[istep] <- step2$Fadjust
+    F30_ts[istep] <- step2$Fscale / step2$Fadjust
     
     # *************************************************************************************
     # step 3: make projection using simulated R devs and HCR F
@@ -107,7 +109,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 6: Run the OM one last time to produce MSE time series outputs
     # *************************************************************************************
-    step6 <- IATTCMSE::Final_OM(dir_itr, istep, dir_OM, Mcycle, endquarter)
+    step6 <- IATTCMSE::Final_OM(pdir, dir_itr, istep, dir_OM, Mcycle, endquarter, clean)
     dir_OM_Final <- step6
     
     # *************************************************************************************
@@ -128,6 +130,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
                        "max_gradient" = max_gradient_ts,
                        "closure" = Closure_ts,
                        "Fadjust" = Fadjust_ts,
+                       "F30" = F30_ts,
                        "Time_Stamp" = time_ts)
   write.csv(Record, file = paste0(dir_itr, "Record.csv"), row.names = FALSE)
 }
