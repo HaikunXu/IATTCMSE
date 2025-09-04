@@ -8,7 +8,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Final_OM = function(dir_itr, istep, dir_OM, Mcycle, endquarter) {
+Final_OM = function(pdir, dir_itr, istep, dir_OM, Mcycle, endquarter, clean) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_OM_Final <- paste0(dir_itr, "OM_Final/")
@@ -18,7 +18,8 @@ Final_OM = function(dir_itr, istep, dir_OM, Mcycle, endquarter) {
   files = c(
     paste0(dir_OM, "starter.ss"),
     paste0(dir_OM, "ss.exe"),
-    paste0(dir_OM, "go_nohess.bat")
+    paste0(dir_OM, "go_nohess.bat"),
+    paste0(pdir, "CLEAN.BAT")
   )
   file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
   
@@ -123,6 +124,12 @@ Final_OM = function(dir_itr, istep, dir_OM, Mcycle, endquarter) {
   # run the OM
   command <- paste("cd", dir_OM_Final, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
+  
+  if(clean == TRUE) {
+    # clean unused files in this folder to save storage space
+    command <- paste("cd", dir_OM_Final, "& CLEAN.BAT", sep = " ")
+    ss <- shell(cmd = command, intern = T, wait = T)
+  }
   
   return(dir_OM_Final)
 }
