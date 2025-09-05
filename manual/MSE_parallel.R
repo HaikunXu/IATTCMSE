@@ -34,7 +34,7 @@ EM_comp_fleet <- c(4, 23) # fleets with comps in ASPM Rdevs+
 
 
 # Calculate the numbers of cores 
-no_cores = 12 # detectCores() - 2
+no_cores = 10 # detectCores() - 2
 # Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)
@@ -50,7 +50,7 @@ HS <- paste0("HS", HSnum, "/")
 dir.create(paste0(pdir, HS)) # for that harvest strategy
 
 # Set the HCR
-HCRnum <- 1
+HCRnum <- 2
 HCR <- paste0(HCR_name[HCRnum], "/")
 dir.create(paste0(pdir, HS, HCR)) # for that harvest control rule
 
@@ -62,6 +62,8 @@ for (OMnum in 1:4) {
   unlink(paste0(pdir, HS, HCR, OM[OMnum]), recursive = TRUE)
   dir.create(paste0(pdir, HS, HCR, OM[OMnum])) # for that OM
 }
+
+# BET_MSE(pdir, sdir, HS, HCR, runs[i,1], runs[i,2], nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, clean = TRUE)
 
 foreach(i = 1:nrow(runs)) %dopar% { IATTCMSE::BET_MSE(pdir, sdir, HS, HCR, runs[i,1], runs[i,2], nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, clean = TRUE) }
   

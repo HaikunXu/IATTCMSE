@@ -17,6 +17,7 @@ HCR_staff_0 = function(dir_EM, istep, CurrentClosure) {
   # dynamic SBR
   Dynamic_Bzero <- em_out$Dynamic_Bzero
   SBR_d <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)] / Dynamic_Bzero$SSB_nofishing[nrow(Dynamic_Bzero)]
+  SB <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)]
 
   # Find FHCR from the estimated Sbio using the HCR
   if (SBR_d > 0.2) Fadjust <- 1
@@ -59,7 +60,6 @@ HCR_staff_0 = function(dir_EM, istep, CurrentClosure) {
     #   Fadjust <- Fratio * Frecent / Fmult
     # }
   # }
-  
 
   Fscale <- Fmult * Fadjust
   
@@ -69,7 +69,8 @@ HCR_staff_0 = function(dir_EM, istep, CurrentClosure) {
       "Fscale" = Fscale,
       "Fadjust" = Fadjust,
       "NewClosure" = NewClosure,
-      "max_gradient" = max_gradient
+      "max_gradient" = max_gradient,
+      "SB" = SB
     )
   )
   

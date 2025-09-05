@@ -2,13 +2,13 @@
 title: "MSE_analysis"
 author: "Haikun Xu"
 date: "`r Sys.Date()`"
-output: word_document
+output: html_document
 editor_options: 
   chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 ```
 
 ```{r initial_setup}
@@ -35,8 +35,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 3
-nyears <- 9
+niterations <- 10
+nyears <- 15
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -53,7 +53,7 @@ HSnum <- 1
 HS <- paste0("HS", HSnum, "/")
 
 # Set the HCR
-HCRnum <- 1
+HCRnum <- 2
 HCR <- paste0(HCR_name[HCRnum], "/")
 ```
 
@@ -85,23 +85,22 @@ ggplot(data = Record_all) +
   geom_boxplot(aes(x = Step, y = closure, fill = OM)) +
   theme_bw()
   
-# gggeom_violin()ggplot(data = Record_all) +
-#   geom_line(aes(x = Step, y = SBR_d, color = itr)) +
-#   geom_point(aes(x = Step, y = SBR_d, color = itr)) +
-#   theme_bw()
-# 
+ggplot(data = Record_all) +
+  geom_boxplot(aes(x = Step, y = SBR_d, fill = OM)) +
+  theme_bw()
+ 
 ggplot(data = Record_all) +
   geom_boxplot(aes(x = Step, y = Fadjust, fill = OM)) +
   theme_bw() +
   ylab("F/F30%")
 
-ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = (Time_Stamp - min(Time_Stamp))/60, fill = OM)) +
-  theme_bw() +
-  ylab("Time chart in minute")
+# ggplot(data = Record_all) +
+#   geom_boxplot(aes(x = Step, y = (Time_Stamp)/60, fill = OM)) +
+#   theme_bw() +
+#   ylab("Time chart in minute")
 ```
 
-```{r fig.height=15, fig.width=10}
+```{r fig.height=10, fig.width=20}
 for (OMnum in 1:4) {
   # Set the scenario
   OM <- paste0(OM_name[OMnum], "/")
@@ -124,7 +123,7 @@ Output_all_long <- Output_all %>%
          Year = Year / 4 + 1974.875,
          year = floor(Year) + 0.5) %>%
   gather(2:7, key = "Quantity", value = "Value") %>%
-  filter(Quantity %in% c("Catch", "SB", "SBR", "SBR_d", "Recruit"))
+  filter(Quantity %in% c("Catch", "SB", "SBR", "SBR_d"))
 
 output_all_old <- Output_all_long %>%
   filter(Year < 2024)
@@ -133,13 +132,32 @@ output_all_new <- Output_all_long %>%
 
 ggplot() +
   geom_point(aes(x = Year, y = Value, color = OM, shape = OM), alpha = 1, data = output_all_new) +
-  geom_vline(xintercept = c(seq(0, nyears, Mcycle) + 2024), linetype = "dashed") +
-  facet_wrap(~Quantity, scales = "free_y", nrow = 5) +
+  facet_wrap(~Quantity, scales = "free_y", nrow = 2) +
   theme_bw()
 
 ggplot() +
   geom_boxplot(aes(x = factor(year), y = Value, fill = OM), data = output_all_new) +
-  geom_vline(xintercept = factor(c(seq(0, nyears, Mcycle) + 2024)), linetype = "dashed") +
-  facet_wrap(~Quantity, scales = "free_y", nrow = 5) +
+  facet_wrap(~Quantity, scales = "free_y", nrow = 2) +
   theme_bw()
 ```
+
+```{r fig.height=10, fig.width=10}
+# compare estimated and true SBR_d
+Record_all$year <- as.numeric(Record_all$Step) * Mcycle + 2021.125
+
+ggplot() +
+  geom_boxplot(aes(x = as.factor(Year), y = Value, fill = OM), data = output_all_new %>% filter(Quantity == "SBR_d", Year %in% Record_all$year)) +
+  geom_boxplot(aes(x = as.factor(year), y = SBR_d, fill = OM), data = Record_all) +
+  ylab("SBR_d") +
+  facet_wrap(~OM, nrow = 4) +
+  theme_bw()
+
+# compare estimated and true SBR_d
+ggplot() +
+  geom_boxplot(aes(x = as.factor(Year), y = Value, fill = OM), data = output_all_new %>% filter(Quantity == "SB", Year %in% Record_all$year)) +
+  geom_boxplot(aes(x = as.factor(year), y = SB, fill = OM), data = Record_all) +
+  ylab("SB") +
+  facet_wrap(~OM, nrow = 4, scales = "free_y") +
+  theme_bw()
+```
+

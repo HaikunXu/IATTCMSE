@@ -33,7 +33,8 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   Closure_ts <- rep(NA, nsteps)
   Fadjust_ts <- rep(NA, nsteps)
   F30_ts <- rep(NA,  nsteps)
-  time_ts <- rep(NA, nsteps)
+  Time_ts <- rep(NA, nsteps)
+  SB_ts <- rep(NA, nsteps)
   
   # *************************************************************************************
   # step 1: initialize the OM by copying from the benchmark assessment model
@@ -79,6 +80,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     max_gradient_ts[istep] <- step2$max_gradient
     Fadjust_ts[istep] <- step2$Fadjust
     F30_ts[istep] <- step2$Fscale / step2$Fadjust
+    SB_ts[istep] <- step2$SB
     
     # *************************************************************************************
     # step 3: make projection using simulated R devs and HCR F
@@ -99,7 +101,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     
     # time stamp
-    time_ts[istep] <- Sys.time()
+    Time_ts[istep] <- Sys.time()
     
     if(istep < nsteps) step5 <- IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_OM_previous, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet)
     
@@ -131,6 +133,8 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
                        "closure" = Closure_ts,
                        "Fadjust" = Fadjust_ts,
                        "F30" = F30_ts,
-                       "Time_Stamp" = time_ts)
+                       "Time_Stamp" = Time_ts,
+                       "SB" = SB_ts)
+  
   write.csv(Record, file = paste0(dir_itr, "Record.csv"), row.names = FALSE)
 }
