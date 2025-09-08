@@ -13,7 +13,6 @@ Projection_OM(
   istep,
   Fscale,
   dir_OM_previous,
-  dir_EM_previous,
   R_devs,
   n_extra_R,
   Mcycle,
@@ -36,8 +35,6 @@ Projection_OM(
 \item{Fscale}{input F scaler}
 
 \item{dir_OM_previous}{the directory of the OM in the previous step}
-
-\item{dir_EM_previous}{the directory of the EM in the previous step}
 
 \item{R_devs}{simulated R devs}
 

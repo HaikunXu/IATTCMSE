@@ -8,7 +8,6 @@
 #' @param istep step number
 #' @param Fscale input F scaler 
 #' @param dir_OM_previous the directory of the OM in the previous step
-#' @param dir_EM_previous the directory of the EM in the previous step
 #' @param R_devs simulated R devs
 #' @param n_extra_R the number of recruitment devs after the main R and before the forecast R
 #' @param Mcycle the number of years within a management cycle
@@ -16,7 +15,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, plot = NA) {
+Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, R_devs, n_extra_R, Mcycle, plot = NA) {
   
   # create directory for new time step where the new dat file will be saved
   dir_istep <- paste0(pdir, HS, HCR, OM, itr, "step", istep, "/")
@@ -28,13 +27,13 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   
   files = c(
     paste0(dir_OM_previous, "BET-EPO.ctl"),
-    paste0(dir_EM_previous, "BET-EPO_all.dat"),
+    paste0(dir_OM_previous, "BET-EPO.dat"),
     paste0(dir_OM_previous, "ss.exe"),
     paste0(dir_OM_previous, "go_nohess.bat")
   )
   file.copy(from = files, to = dir_OM, overwrite = TRUE)
   
-  file.rename(from = paste0(dir_OM, "BET-EPO_all.dat"), to = paste0(dir_OM, "BET-EPO.dat")) # load the full dataset
+  # file.rename(from = paste0(dir_OM, "BET-EPO_new.dat"), to = paste0(dir_OM, "BET-EPO.dat")) # load the full dataset
   
   # step 2: change par file
   ParDir <- paste0(dir_OM_previous, "ss3.par")
@@ -70,7 +69,7 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   r4ss::SS_writeforecast(Forecast, dir_OM, verbose = FALSE, overwrite = TRUE)
 
   
-  starter <- r4ss::SS_readstarter(paste0(dir_EM_previous, "/starter.ss"), verbose = FALSE)
+  starter <- r4ss::SS_readstarter(paste0(dir_OM_previous, "/starter.ss"), verbose = FALSE)
   
   #specify to use the ss3.par as parameters
   starter$init_values_src = 1
