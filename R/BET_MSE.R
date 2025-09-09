@@ -94,13 +94,13 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 4: Change the data files of the updated OM to run bootstrap
     # *************************************************************************************
-    step4 <- IATTCMSE::Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, seed, endquarter)
+    step4 <- IATTCMSE::Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, endquarter)
     dir_OM_Boot <- step4
     
     # *************************************************************************************
     # Step 5: Update the OM with simulated data without error
     # *************************************************************************************
-    step5 <- IATTCMSE::Update_OM(dir_OM, dir_OM_Boot, Mcycle, EM_comp_fleet)
+    step5 <- IATTCMSE::Update_OM(dir_OM, dir_OM_Boot, Mcycle)
     
     # *************************************************************************************
     # Step 6: Estimation model
@@ -109,7 +109,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # time stamp
     Time_ts[istep] <- Sys.time()
     
-    if(istep < nsteps) step6 <- IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet)
+    if(istep < nsteps) step6 <- IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_EM_previous, dir_OM_Boot, Mcycle)
     
   }
   

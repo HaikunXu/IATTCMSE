@@ -8,7 +8,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Update_OM = function(dir_OM, dir_OM_Boot, Mcycle, EM_comp_fleet) {
+Update_OM = function(dir_OM, dir_OM_Boot, Mcycle) {
   
   # change data file
   dat_OM <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, "BET-EPO.dat"), verbose = FALSE)
@@ -26,7 +26,7 @@ Update_OM = function(dir_OM, dir_OM_Boot, Mcycle, EM_comp_fleet) {
   
   # add new LF
   LF <- dat_OM$sizefreq_data_list[[1]]
-  LF_boot <- dplyr::filter(data_boot$sizefreq_data_list[[1]], year > max(LF$year), fleet %in% EM_comp_fleet)
+  LF_boot <- dplyr::filter(data_boot$sizefreq_data_list[[1]], year > max(LF$year))
   LF_new <- dplyr::arrange(rbind(LF, LF_boot), fleet, year)
   
   # save data file

@@ -8,7 +8,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Estimationn_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, EM_comp_fleet, plot = FALSE, from_par = FALSE) {
+Estimationn_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, plot = FALSE, from_par = FALSE) {
   
   # step 1: create a new folder for the EM
   dir_EM <- paste0(dir_istep, "EM/")
@@ -26,7 +26,6 @@ Estimationn_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, E
   
   # change data file
   dat_EM_previous <- r4ss::SS_readdat_3.30(file = paste0(dir_EM_previous, "BET-EPO.dat"), verbose = FALSE)
-  dat_EM_previous_all <- r4ss::SS_readdat_3.30(file = paste0(dir_EM_previous, "BET-EPO_all.dat"), verbose = FALSE)
   data_boot <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, "data_boot_001.ss"), verbose = FALSE)
   
   # add new CPUE
@@ -41,7 +40,7 @@ Estimationn_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, E
   
   # add new LF
   LF <- dat_EM_previous$sizefreq_data_list[[1]]
-  LF_boot <- dplyr::filter(data_boot$sizefreq_data_list[[1]], year > max(LF$year), fleet %in% EM_comp_fleet)
+  LF_boot <- dplyr::filter(data_boot$sizefreq_data_list[[1]], year > max(LF$year))
   LF_new <- dplyr::arrange(rbind(LF, LF_boot), fleet, year)
   
   # save data file

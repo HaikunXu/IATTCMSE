@@ -10,7 +10,6 @@ Estimationn_EM(
   dir_EM_previous,
   dir_OM_Boot,
   Mcycle,
-  EM_comp_fleet,
   plot = FALSE,
   from_par = FALSE
 )

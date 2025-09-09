@@ -8,7 +8,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed, endquarter) {
+Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, endquarter) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_OM_Boot <- paste0(dir_istep, "OM_Boot/")
@@ -52,11 +52,11 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed, endquarter) {
   dat$CPUE <- rbind(dat$CPUE, CPUE_new)
   
   # add dummy LF data
-  # LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
-  # LF_new <- LF[which(LF$year %in% 169:180),] # no LL LF during COVID years so use pre-COVID samples
-  # LF_new$year <- LF_new$year + istep * Mcycle * 4 + 16 # 4 COVID-years (2020-2023)
-  # dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
-  # dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
+  LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
+  LF_new <- LF[which((LF$year %in% 169:180) & LF$fleet %in% EM_comp_fleet),] # no LL LF during COVID years so use pre-COVID samples
+  LF_new$year <- LF_new$year + istep * Mcycle * 4 + 16 # 4 COVID-years (2020-2023)
+  dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
+  dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
 
   r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
   
@@ -118,17 +118,13 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, seed, endquarter) {
   starter_boot$last_estimation_phase = 0
   # add 1 data bootstrap file
   starter_boot$N_bootstraps = 3
+  # add the seed
+  starter_boot$seed <- seed
   
   # write new starter file
   r4ss::SS_writestarter(starter_boot, dir_OM_Boot, verbose = FALSE, overwrite = TRUE)
   
-  # add a seed
-  starterDir <- paste0(dir_OM_Boot, "starter.ss")
-  starterFile <- readLines(starterDir, warn = F)
-  Line_seed <- match("1e-05 #_ALK_tolerance", starterFile)
-  starterFile[Line_seed+1] <- seed
-  writeLines(starterFile, paste0(dir_OM_Boot, "/starter.ss"))
-  
+
   # run the bootstrap model
   command <- paste("cd", dir_OM_Boot, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)

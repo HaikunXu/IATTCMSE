@@ -4,7 +4,7 @@
 \alias{Update_OM}
 \title{Make projection based on simulated R devs and HCR}
 \usage{
-Update_OM(dir_OM, dir_OM_Boot, Mcycle, EM_comp_fleet)
+Update_OM(dir_OM, dir_OM_Boot, Mcycle)
 }
 \arguments{
 \item{dir_OM_Boot}{the directory of the OM bootstrap in the current step}
