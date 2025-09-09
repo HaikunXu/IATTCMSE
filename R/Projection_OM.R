@@ -15,7 +15,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, R_devs, n_extra_R, Mcycle, plot = NA) {
+Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, plot = NA) {
   
   # create directory for new time step where the new dat file will be saved
   dir_istep <- paste0(pdir, HS, HCR, OM, itr, "step", istep, "/")
@@ -69,7 +69,8 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   r4ss::SS_writeforecast(Forecast, dir_OM, verbose = FALSE, overwrite = TRUE)
 
   
-  starter <- r4ss::SS_readstarter(paste0(dir_OM_previous, "/starter.ss"), verbose = FALSE)
+  # change starter file
+  starter <- r4ss::SS_readstarter(paste0(dir_EM_previous, "/starter.ss"), verbose = FALSE)
   
   #specify to use the ss3.par as parameters
   starter$init_values_src = 1

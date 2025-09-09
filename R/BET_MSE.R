@@ -67,6 +67,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     if(HCR == "HCR_staff/") step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_HCR, istep, CurrentClosure)
     if(HCR == "HCR_staff_0/") step2 <- IATTCMSE::HCR_staff_0(dir_EM = dir_EM_HCR, istep, CurrentClosure)
     if(HCR == "HCR_staff_0_Fscaler/") step2 <- IATTCMSE::HCR_staff_0_Fscaler(OM, dir_EM = dir_EM_HCR, istep, CurrentClosure)
+    if(HCR == "HCR_staff_Fscaler/") step2 <- IATTCMSE::HCR_staff_Fscaler(OM, dir_EM = dir_EM_HCR, istep, CurrentClosure)
     
     if(step2$max_gradient > 0.1) { # large gradient - the model does not converge
       max_gradient_ts[istep] <- step2$max_gradient # record the gradient
@@ -86,7 +87,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # step 3: make projection using simulated R devs and HCR F
     # *************************************************************************************
-    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, step2$Fscale, dir_OM_previous, R_devs, n_extra_R, Mcycle)
+    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, step2$Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle)
     
     dir_istep <- step3$dir_istep
     dir_OM <- step3$dir_OM
@@ -117,7 +118,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 7: Run the OM one last time to produce MSE time series outputs
     # *************************************************************************************
-    step7 <- IATTCMSE::Final_OM(pdir, dir_itr, istep, dir_OM, Mcycle, endquarter, clean)
+    step7 <- IATTCMSE::Final_OM(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, clean)
     dir_OM_Final <- step7
     
     # *************************************************************************************
@@ -126,7 +127,9 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter)
     write.csv(step8, file = paste0(dir_itr, "Output.csv"), row.names = FALSE)
     
-    # clean unnecessary folders to save space if the management simulation reaches the end without an error
+    # *************************************************************************************
+    # Step 9: clean unnecessary folders to save space
+    # *************************************************************************************
     if (clean == TRUE) {
       for (istep in 1:nsteps) {
         unlink(paste0(pdir, HS, HCR, OM, itr, "step", istep), recursive = TRUE)
@@ -134,6 +137,9 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     }
   }
 
+  # *************************************************************************************
+  # Step 10: save HCR-related quantities
+  # *************************************************************************************
   Record <- data.frame("SBR_d" = SBR_d_ts,
                        "max_gradient" = max_gradient_ts,
                        "closure" = Closure_ts,

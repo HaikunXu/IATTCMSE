@@ -8,7 +8,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Final_OM = function(pdir, dir_itr, istep, dir_OM, Mcycle, endquarter, clean) {
+Final_OM = function(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, clean) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_OM_Final <- paste0(dir_itr, "OM_Final/")
@@ -19,18 +19,10 @@ Final_OM = function(pdir, dir_itr, istep, dir_OM, Mcycle, endquarter, clean) {
     paste0(dir_OM, "starter.ss"),
     paste0(dir_OM, "ss.exe"),
     paste0(dir_OM, "go_nohess.bat"),
-    paste0(dir_OM, "BET-EPO.dat"),
+    paste0(dir_OM_Boot, "BET-EPO.dat"),
     paste0(pdir, "CLEAN.BAT")
   )
   file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
-  
-  # read the report file from the OM projection
-  om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
-  
-  # read projected catch
-  Catch_projection <- r4ss::SS_ForeCatch(om_out,
-                                         yrs = ((istep - 1) * Mcycle * 4 + endquarter + 1):(istep * Mcycle * 4 + endquarter),
-                                         zeros = TRUE)
   
   # read data file
   dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Final, "BET-EPO.dat"), verbose = FALSE)

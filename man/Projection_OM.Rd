@@ -13,6 +13,7 @@ Projection_OM(
   istep,
   Fscale,
   dir_OM_previous,
+  dir_EM_previous,
   R_devs,
   n_extra_R,
   Mcycle,
