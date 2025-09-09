@@ -19,6 +19,7 @@ Final_OM = function(pdir, dir_itr, istep, dir_OM, Mcycle, endquarter, clean) {
     paste0(dir_OM, "starter.ss"),
     paste0(dir_OM, "ss.exe"),
     paste0(dir_OM, "go_nohess.bat"),
+    paste0(dir_OM, "BET-EPO.dat"),
     paste0(pdir, "CLEAN.BAT")
   )
   file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
@@ -31,33 +32,8 @@ Final_OM = function(pdir, dir_itr, istep, dir_OM, Mcycle, endquarter, clean) {
                                          yrs = ((istep - 1) * Mcycle * 4 + endquarter + 1):(istep * Mcycle * 4 + endquarter),
                                          zeros = TRUE)
   
-  # read catch file
-  dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, "BET-EPO.dat"), verbose = FALSE)
-  Catch <- dat$catch
-  
-  Catch_projection_new <- data.frame("year" = Catch_projection$`#Year`,
-                                     "seas" = Catch_projection$Seas,
-                                     "fleet" = Catch_projection$Fleet,
-                                     "catch" = Catch_projection$`dead(B)`,
-                                     "catch_se" = 0.01)
-  
-  Catch_new <- dplyr::arrange(rbind(Catch, Catch_projection_new), fleet, year)
-  
-  dat$catch <- Catch_new
-  dat$endyr <- istep * Mcycle * 4 + endquarter
-  
-  # add dummy CPUE data
-  CPUE_new <- dat$CPUE[(nrow(dat$CPUE) - Mcycle * 4 + 1):nrow(dat$CPUE),]
-  CPUE_new$year <- CPUE_new$year + Mcycle * 4
-  CPUE_new$se_log <- dat$CPUE$se_log[nrow(dat$CPUE)]
-  dat$CPUE <- rbind(dat$CPUE, CPUE_new)
-  
-  # add dummy LF data
-  # LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
-  
-  # LF_survey <- LF[which(LF$fleet==23),]
-  
-  r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Final, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
+  # read data file
+  dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Final, "BET-EPO.dat"), verbose = FALSE)
   
   # change recruitment period in the control file
   ctl <- r4ss::SS_readctl_3.30(
