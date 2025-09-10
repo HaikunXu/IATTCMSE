@@ -2,21 +2,21 @@
 % Please edit documentation in R/Update_OM.R
 \name{Update_OM}
 \alias{Update_OM}
-\title{Make projection based on simulated R devs and HCR}
+\title{Update OM's data file with "true" data}
 \usage{
-Update_OM(dir_OM_Boot, Mcycle)
+Update_OM(dir_OM, dir_OM_Boot, Mcycle, dat_name)
 }
 \arguments{
+\item{dir_OM}{the directory of OM}
+
 \item{dir_OM_Boot}{the directory of the OM bootstrap in the current step}
 
-\item{dir_istep}{the directory of step i}
+\item{Mcycle}{the number of years within a management cycle}
 
-\item{R0}{true R0}
-
-\item{dir_EM_previous}{the directory of the EM in the previous step}
+\item{dat_name}{name of the SS data file}
 }
 \description{
-Make projection based on simulated R devs and HCR
+Update OM's data file with "true" data
 }
 \author{
 Haikun Xu

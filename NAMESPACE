@@ -2,7 +2,7 @@
 
 export(BET_MSE)
 export(Bootstrap_OM)
-export(Estimationn_EM)
+export(Estimation_EM)
 export(Extract_OM)
 export(Final_OM)
 export(HCR_staff)

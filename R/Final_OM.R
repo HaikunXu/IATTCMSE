@@ -1,14 +1,21 @@
 #' Make the final OM for extracting MSE results
-#'
+#' 
+#' @param pdir parent directory path
 #' @param dir_itr the directory of iteration itr
 #' @param istep step number
 #' @param dir_OM the directory of OM
+#' @param dir_OM_Boot the directory of the OM bootstrap in the current step
 #' @param Mcycle the number of years within a management cycle
+#' @param endquarter the last quarter of the assessment model
+#' @param dat_name name of the SS data file
+#' @param ctl_name name of the SS control file
+#' @param ss_name name of the SS exe file
+#' @param clean if TRUE, all intermediate folders of the MSE simulation will be deleted to save storage space
 #' 
 #' @author Haikun Xu 
 #' @export
 
-Final_OM = function(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, clean) {
+Final_OM = function(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, dat_name, ctl_name, ss_name, clean) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_OM_Final <- paste0(dir_itr, "OM_Final/")
@@ -17,19 +24,19 @@ Final_OM = function(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarte
   # copy files to the new folder
   files = c(
     paste0(dir_OM, "starter.ss"),
-    paste0(dir_OM, "ss.exe"),
+    paste0(dir_OM, ss_name),
     paste0(dir_OM, "go_nohess.bat"),
-    paste0(dir_OM_Boot, "BET-EPO.dat"),
+    paste0(dir_OM_Boot, dat_name),
     paste0(pdir, "CLEAN.BAT")
   )
   file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
   
   # read data file
-  dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Final, "BET-EPO.dat"), verbose = FALSE)
+  dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Final, dat_name), verbose = FALSE)
   
   # change recruitment period in the control file
   ctl <- r4ss::SS_readctl_3.30(
-    file = paste0(dir_OM, "/BET-EPO.ctl"),
+    file = paste0(dir_OM, ctl_name),
     verbose = FALSE,
     datlist = dat,
     use_datlist = TRUE
@@ -38,7 +45,7 @@ Final_OM = function(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarte
   
   r4ss::SS_writectl_3.30(
     ctl,
-    outfile = paste0(dir_OM_Final, "/BET-EPO.ctl"),
+    outfile = paste0(dir_OM_Final, ctl_name),
     overwrite = TRUE,
     verbose = FALSE
   )

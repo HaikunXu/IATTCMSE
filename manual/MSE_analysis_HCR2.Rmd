@@ -1,5 +1,5 @@
 ---
-title: "MSE_analysis_HCR3"
+title: "MSE_analysis_HCR2"
 author: "Haikun Xu"
 date: "`r Sys.Date()`"
 output: word_document
@@ -45,7 +45,7 @@ startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
-HCR_name <-  "HCR_staff_0_Fscaler"
+HCR_name <-  "HCR_staff_0"
 
 # Set the harvest strategy
 HSnum <- 1

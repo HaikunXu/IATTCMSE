@@ -17,21 +17,7 @@ nsteps <- nyears / Mcycle
 endquarter <- 196
 startquarter <- 17
 n_extra_R <- 2 # number of assessment period recruitment in the projection
-EM_comp_fleet <- NA # c(4, 23) # fleets with comps in ASPM Rdevs+
-
-# simulate and save recruitment devs
-# set.seed(123)
-# seeds <- sample(1:1e3, size = niterations, replace = FALSE)  # Sample 5 elements without replacement
-# write.csv(seeds, file = paste0(pdir,"seeds.csv"), row.names = FALSE)
-# 
-# R_devs <- matrix(NA, nrow = nquarters, ncol = niterations)
-# for (i in 1:niterations) {
-#   set.seed(seeds[i])
-#   R_devs[,i] <- rnorm(n = nquarters, mean = 0, sd = 0.6) - 0.6 ^ 2 / 2
-# }
-# 
-# write.csv(R_devs, file = paste0(pdir,"R_devs.csv"), row.names = FALSE)
-
+EM_comp_fleet <- NA # c(4, 23) # add simulated LF to the fleets with comps in ASPM Rdevs+
 
 # Calculate the numbers of cores 
 no_cores = 10 # detectCores() - 2

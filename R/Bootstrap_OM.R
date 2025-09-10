@@ -1,14 +1,20 @@
-#' Make projection based on simulated R devs and HCR
+#' Bootstrap observed data for the EM
 #'
 #' @param dir_istep the directory of step i
+#' @param istep step number
 #' @param dir_OM the directory of OM
 #' @param Mcycle the number of years within a management cycle
+#' @param EM_comp_fleet The fleets with comp data in the EM
 #' @param seed the seed for bootstrap
-#' 
+#' @param endquarter the last quarter of the assessment model
+#' @param dat_name name of the SS data file
+#' @param ctl_name name of the SS control file
+#' @param ss_name name of the SS exe file
+#'  
 #' @author Haikun Xu 
 #' @export
 
-Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, endquarter) {
+Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, endquarter, dat_name, ctl_name, ss_name) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_OM_Boot <- paste0(dir_istep, "OM_Boot/")
@@ -17,7 +23,7 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, e
   # copy files to the new folder
   files = c(
     paste0(dir_OM, "starter.ss"),
-    paste0(dir_OM, "ss.exe"),
+    paste0(dir_OM, ss_name),
     paste0(dir_OM, "go_nohess.bat")
   )
   file.copy(from = files, to = dir_OM_Boot, overwrite = TRUE)
@@ -31,7 +37,7 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, e
                                          zeros = TRUE)
   
   # read catch file
-  dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, "BET-EPO.dat"), verbose = FALSE)
+  dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, dat_name), verbose = FALSE)
   Catch <- dat$catch
   
   Catch_projection_new <- data.frame("year" = Catch_projection$`#Year`,
@@ -58,11 +64,11 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, e
   dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
   dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
 
-  r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
+  r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, dat_name), verbose = FALSE, overwrite = TRUE)
   
   # change recruitment period in the control file
   ctl <- r4ss::SS_readctl_3.30(
-    file = paste0(dir_OM, "/BET-EPO.ctl"),
+    file = paste0(dir_OM, ctl_name),
     verbose = FALSE,
     datlist = dat,
     use_datlist = TRUE
@@ -71,7 +77,7 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, e
   
   r4ss::SS_writectl_3.30(
     ctl,
-    outfile = paste0(dir_OM_Boot, "/BET-EPO.ctl"),
+    outfile = paste0(dir_OM_Boot, ctl_name),
     overwrite = TRUE,
     verbose = FALSE
   )

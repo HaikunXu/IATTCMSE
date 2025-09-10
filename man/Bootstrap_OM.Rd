@@ -2,21 +2,44 @@
 % Please edit documentation in R/Bootstrap_OM.R
 \name{Bootstrap_OM}
 \alias{Bootstrap_OM}
-\title{Make projection based on simulated R devs and HCR}
+\title{Bootstrap observed data for the EM}
 \usage{
-Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, endquarter)
+Bootstrap_OM(
+  dir_istep,
+  istep,
+  dir_OM,
+  Mcycle,
+  EM_comp_fleet,
+  seed,
+  endquarter,
+  dat_name,
+  ctl_name,
+  ss_name
+)
 }
 \arguments{
 \item{dir_istep}{the directory of step i}
+
+\item{istep}{step number}
 
 \item{dir_OM}{the directory of OM}
 
 \item{Mcycle}{the number of years within a management cycle}
 
+\item{EM_comp_fleet}{The fleets with comp data in the EM}
+
 \item{seed}{the seed for bootstrap}
+
+\item{endquarter}{the last quarter of the assessment model}
+
+\item{dat_name}{name of the SS data file}
+
+\item{ctl_name}{name of the SS control file}
+
+\item{ss_name}{name of the SS exe file}
 }
 \description{
-Make projection based on simulated R devs and HCR
+Bootstrap observed data for the EM
 }
 \author{
 Haikun Xu

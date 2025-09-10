@@ -4,16 +4,42 @@
 \alias{Final_OM}
 \title{Make the final OM for extracting MSE results}
 \usage{
-Final_OM(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, clean)
+Final_OM(
+  pdir,
+  dir_itr,
+  istep,
+  dir_OM,
+  dir_OM_Boot,
+  Mcycle,
+  endquarter,
+  dat_name,
+  ctl_name,
+  ss_name,
+  clean
+)
 }
 \arguments{
+\item{pdir}{parent directory path}
+
 \item{dir_itr}{the directory of iteration itr}
 
 \item{istep}{step number}
 
 \item{dir_OM}{the directory of OM}
 
+\item{dir_OM_Boot}{the directory of the OM bootstrap in the current step}
+
 \item{Mcycle}{the number of years within a management cycle}
+
+\item{endquarter}{the last quarter of the assessment model}
+
+\item{dat_name}{name of the SS data file}
+
+\item{ctl_name}{name of the SS control file}
+
+\item{ss_name}{name of the SS exe file}
+
+\item{clean}{if TRUE, all intermediate folders of the MSE simulation will be deleted to save storage space}
 }
 \description{
 Make the final OM for extracting MSE results

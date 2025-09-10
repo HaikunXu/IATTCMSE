@@ -5,11 +5,14 @@
 #' @param HS the name of the harvest strategy
 #' @param HCR the name of the harvest control rule
 #' @param OM name of the reference model
+#' @param dat_name name of the SS data file
+#' @param ctl_name name of the SS control file
+#' @param ss_name name of the SS exe file
 #' 
 #' @author Haikun Xu 
 #' @export
 
-Initialize_OM = function(pdir, sdir, HS, HCR, OM) {
+Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name) {
   
   # *************************************************************************************
   # Step 0: get the OM from the 2024 assessment
@@ -21,9 +24,9 @@ Initialize_OM = function(pdir, sdir, HS, HCR, OM) {
   dir.create(dir_OM_MSE)
 
   files = c(
-    paste0(dir_OM_benchmark, "BET-EPO.ctl"),
-    paste0(dir_OM_benchmark, "BET-EPO.dat"),
-    paste0(dir_OM_benchmark, "ss.exe"),
+    paste0(dir_OM_benchmark, ctl_name),
+    paste0(dir_OM_benchmark, dat_name),
+    paste0(dir_OM_benchmark, ss_name),
     paste0(dir_OM_benchmark, "go_nohess.bat"),
     paste0(sdir, "forecast.ss"),
     paste0(sdir, "starter.ss"),

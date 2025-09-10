@@ -17,7 +17,10 @@ Projection_OM(
   R_devs,
   n_extra_R,
   Mcycle,
-  plot = NA
+  dat_name,
+  ctl_name,
+  ss_name,
+  plot = FALSE
 )
 }
 \arguments{
@@ -37,11 +40,21 @@ Projection_OM(
 
 \item{dir_OM_previous}{the directory of the OM in the previous step}
 
+\item{dir_EM_previous}{the directory of the EM in the previous step}
+
 \item{R_devs}{simulated R devs}
 
 \item{n_extra_R}{the number of recruitment devs after the main R and before the forecast R}
 
 \item{Mcycle}{the number of years within a management cycle}
+
+\item{dat_name}{name of the SS data file}
+
+\item{ctl_name}{name of the SS control file}
+
+\item{ss_name}{name of the SS exe file}
+
+\item{plot}{whether to plot OM's results}
 }
 \description{
 Make projection based on simulated R devs and HCR

@@ -8,14 +8,19 @@
 #' @param istep step number
 #' @param Fscale input F scaler 
 #' @param dir_OM_previous the directory of the OM in the previous step
+#' @param dir_EM_previous the directory of the EM in the previous step
 #' @param R_devs simulated R devs
 #' @param n_extra_R the number of recruitment devs after the main R and before the forecast R
 #' @param Mcycle the number of years within a management cycle
+#' @param dat_name name of the SS data file
+#' @param ctl_name name of the SS control file
+#' @param ss_name name of the SS exe file
+#' @param plot whether to plot OM's results
 #' 
 #' @author Haikun Xu 
 #' @export
 
-Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, plot = NA) {
+Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE) {
   
   # create directory for new time step where the new dat file will be saved
   dir_istep <- paste0(pdir, HS, HCR, OM, itr, "step", istep, "/")
@@ -26,15 +31,14 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   dir.create(dir_OM)
   
   files = c(
-    paste0(dir_OM_previous, "BET-EPO.ctl"),
-    paste0(dir_OM_previous, "BET-EPO.dat"),
-    paste0(dir_OM_previous, "ss.exe"),
+    paste0(dir_OM_previous, dat_name),
+    paste0(dir_OM_previous, ctl_name),
+    paste0(dir_OM_previous, ss_name),
     paste0(dir_OM_previous, "go_nohess.bat")
   )
   file.copy(from = files, to = dir_OM, overwrite = TRUE)
   
-  # file.rename(from = paste0(dir_OM, "BET-EPO_new.dat"), to = paste0(dir_OM, "BET-EPO.dat")) # load the full dataset
-  
+
   # step 2: change par file
   ParDir <- paste0(dir_OM_previous, "ss3.par")
   ParFile <- readLines(ParDir, warn = F)
@@ -88,9 +92,9 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   
   
   # plot
-  if(sum(is.na(plot)) == 0) {
+  if(plot == TRUE) {
     om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
-    r4ss::SS_plots(replist=om_out, uncertainty=F, datplot=T, plot = plot, forecastplot = TRUE, verbose = FALSE)
+    r4ss::SS_plots(replist=om_out, uncertainty=F, datplot=T, forecastplot = TRUE, verbose = FALSE)
   }
   
   return(list("dir_istep" = dir_istep, "dir_OM" = dir_OM))

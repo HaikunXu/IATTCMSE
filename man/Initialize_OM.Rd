@@ -4,7 +4,7 @@
 \alias{Initialize_OM}
 \title{Initialize the OM based on the benchmark assessment model}
 \usage{
-Initialize_OM(pdir, sdir, HS, HCR, OM)
+Initialize_OM(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name)
 }
 \arguments{
 \item{pdir}{parent directory path}
@@ -16,6 +16,12 @@ Initialize_OM(pdir, sdir, HS, HCR, OM)
 \item{HCR}{the name of the harvest control rule}
 
 \item{OM}{name of the reference model}
+
+\item{dat_name}{name of the SS data file}
+
+\item{ctl_name}{name of the SS control file}
+
+\item{ss_name}{name of the SS exe file}
 }
 \description{
 Initialize the OM based on the benchmark assessment model

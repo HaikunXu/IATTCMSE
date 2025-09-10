@@ -10,13 +10,17 @@
 #' @param Mcycle the number of years within a management cycle
 #' @param n_extra_R the number of recruitment devs after the main R and before the forecast R
 #' @param startquarter the first quarter of the assessment model
+#' @param endquarter the last quarter of the assessment model
 #' @param EM_comp_fleet The fleets with comp data in the EM
+#' @param dat_name name of the SS data file
+#' @param ctl_name name of the SS control file
+#' @param ss_name name of the SS exe file
 #' @param clean if TRUE, all intermediate folders of the MSE simulation will be deleted to save storage space
 #' 
 #' @author Haikun Xu 
 #' @export
 
-BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, clean = FALSE) { 
+BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, dat_name, ctl_name, ss_name, clean = FALSE) { 
   
   itr = paste0("itr", itrnum, "/")
   
@@ -39,7 +43,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   # *************************************************************************************
   # step 1: initialize the OM by copying from the benchmark assessment model
   # *************************************************************************************
-  step1 <- IATTCMSE::Initialize_OM(pdir, sdir, HS, HCR, OM)
+  step1 <- IATTCMSE::Initialize_OM(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name)
   Flag <- 1 # mark whether the loop is running without an EM with a large gradient
   
   for (istep in 1:nsteps){
@@ -87,7 +91,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # step 3: make projection using simulated R devs and HCR F
     # *************************************************************************************
-    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, step2$Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle)
+    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, step2$Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, dat_name, ctl_name, ss_name)
     
     dir_istep <- step3$dir_istep
     dir_OM <- step3$dir_OM
@@ -95,13 +99,13 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 4: Change the data files of the updated OM to run bootstrap
     # *************************************************************************************
-    step4 <- IATTCMSE::Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, endquarter)
+    step4 <- IATTCMSE::Bootstrap_OM(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, endquarter, dat_name, ctl_name, ss_name)
     dir_OM_Boot <- step4
     
     # *************************************************************************************
     # Step 5: Update the OM with simulated data without error
     # *************************************************************************************
-    step5 <- IATTCMSE::Update_OM(dir_OM, dir_OM_Boot, Mcycle)
+    step5 <- IATTCMSE::Update_OM(dir_OM, dir_OM_Boot, Mcycle, dat_name)
     
     # *************************************************************************************
     # Step 6: Estimation model
@@ -110,7 +114,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # time stamp
     Time_ts[istep] <- Sys.time()
     
-    if(istep < nsteps) step6 <- IATTCMSE::Estimationn_EM(dir_istep, step1$R0, dir_EM_previous, dir_OM_Boot, Mcycle)
+    if(istep < nsteps) step6 <- IATTCMSE::Estimation_EM(dir_istep, step1$R0, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, include_LF = FALSE)
     
   }
   
@@ -118,7 +122,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 7: Run the OM one last time to produce MSE time series outputs
     # *************************************************************************************
-    step7 <- IATTCMSE::Final_OM(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, clean)
+    step7 <- IATTCMSE::Final_OM(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, dat_name, ctl_name, ss_name, clean)
     dir_OM_Final <- step7
     
     # *************************************************************************************

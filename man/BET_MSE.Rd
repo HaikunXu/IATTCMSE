@@ -17,6 +17,9 @@ BET_MSE(
   startquarter,
   endquarter,
   EM_comp_fleet,
+  dat_name,
+  ctl_name,
+  ss_name,
   clean = FALSE
 )
 }
@@ -41,7 +44,15 @@ BET_MSE(
 
 \item{startquarter}{the first quarter of the assessment model}
 
+\item{endquarter}{the last quarter of the assessment model}
+
 \item{EM_comp_fleet}{The fleets with comp data in the EM}
+
+\item{dat_name}{name of the SS data file}
+
+\item{ctl_name}{name of the SS control file}
+
+\item{ss_name}{name of the SS exe file}
 
 \item{clean}{if TRUE, all intermediate folders of the MSE simulation will be deleted to save storage space}
 }
