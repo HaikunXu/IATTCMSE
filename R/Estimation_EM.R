@@ -46,8 +46,8 @@ Estimationn_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, p
   # save data file
   dat_EM_previous$catch <- catch_new
   dat_EM_previous$CPUE <- CPUE_new
-  dat_EM_previous$sizefreq_data_list[[1]] <- LF_new
-  dat_EM_previous$Nobs_per_method <- nrow(LF_new)
+  # dat_EM_previous$sizefreq_data_list[[1]] <- LF_new
+  # dat_EM_previous$Nobs_per_method <- nrow(LF_new)
   dat_EM_previous$endyr <- dat_EM_previous$endyr + Mcycle * 4
   r4ss::SS_writedat_3.30(dat_EM_previous, paste0(dir_EM, "BET-EPO.dat"), verbose = FALSE, overwrite = TRUE)
   
