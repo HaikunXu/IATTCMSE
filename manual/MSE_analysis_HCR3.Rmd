@@ -35,7 +35,7 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 1
+niterations <- 4
 nyears <- 15
 nquarters <- nyears * 4
 Mcycle <- 3

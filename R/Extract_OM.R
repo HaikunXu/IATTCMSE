@@ -8,7 +8,7 @@ Extract_OM = function(dir_OM_Final, startquarter, plot = FALSE) {
   library(dplyr)
   # read the report file from the final OM
   om_out = r4ss::SS_output(dir = dir_OM_Final, covar = F, verbose = FALSE, printstats = FALSE)
-  if(plot != FALSE) r4ss::SS_plots(replist = om_out, uncertainty = F, datplot = T, plot = plot, verbose = FALSE)
+  if(plot == TRUE) r4ss::SS_plots(replist = om_out, uncertainty = F, datplot = T, verbose = FALSE)
   
   Recruit <- om_out$recruit[,c("Yr", "dev", "pred_recr")] %>%
     filter(Yr >= startquarter)

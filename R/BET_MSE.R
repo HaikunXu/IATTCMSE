@@ -20,7 +20,7 @@
 #' @author Haikun Xu 
 #' @export
 
-BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, dat_name, ctl_name, ss_name, clean = FALSE) { 
+BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R, startquarter, endquarter, EM_comp_fleet, dat_name, ctl_name, ss_name, clean = FALSE, plot = FALSE) { 
   
   itr = paste0("itr", itrnum, "/")
   
@@ -114,7 +114,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # time stamp
     Time_ts[istep] <- Sys.time()
     
-    if(istep < nsteps) step6 <- IATTCMSE::Estimation_EM(dir_istep, step1$R0, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, include_LF = FALSE)
+    if(istep < nsteps) step6 <- IATTCMSE::Estimation_EM(dir_istep, step1$R0, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, include_LF = FALSE, plot = plot)
     
   }
   
@@ -128,7 +128,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 8: Extract OM_final's results
     # *************************************************************************************
-    step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter)
+    step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter, plot = plot)
     write.csv(step8, file = paste0(dir_itr, "Output.csv"), row.names = FALSE)
     
     # *************************************************************************************
