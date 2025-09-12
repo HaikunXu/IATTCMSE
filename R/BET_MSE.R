@@ -73,7 +73,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     if(HCR == "HCR_staff_0_Fscaler/") step2 <- IATTCMSE::HCR_staff_0_Fscaler(OM, dir_EM = dir_EM_HCR, istep, CurrentClosure)
     if(HCR == "HCR_staff_Fscaler/") step2 <- IATTCMSE::HCR_staff_Fscaler(OM, dir_EM = dir_EM_HCR, istep, CurrentClosure)
     
-    if(step2$max_gradient > 0.1) { # large gradient - the model does not converge
+    if((step2$max_gradient > 0.1) | (step2$SBR_d > 0.9) | (step2$SBR_d < 0.1)) { # large gradient - the model does not converge
       max_gradient_ts[istep] <- step2$max_gradient # record the gradient
       Flag <- 0 # mark the flag
       break
@@ -91,7 +91,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # step 3: make projection using simulated R devs and HCR F
     # *************************************************************************************
-    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, step2$Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, dat_name, ctl_name, ss_name)
+    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, step2$Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, dat_name, ctl_name, ss_name, plot = plot)
     
     dir_istep <- step3$dir_istep
     dir_OM <- step3$dir_OM
@@ -114,7 +114,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # time stamp
     Time_ts[istep] <- Sys.time()
     
-    if(istep < nsteps) step6 <- IATTCMSE::Estimation_EM(dir_istep, step1$R0, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, include_LF = FALSE, plot = plot)
+    if(istep < nsteps) step6 <- IATTCMSE::Estimation_EM(dir_istep, step1$R0, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, plot = plot)
     
   }
   

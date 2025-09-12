@@ -14,7 +14,6 @@ Estimation_EM(
   ctl_name,
   ss_name,
   plot = FALSE,
-  from_par = FALSE,
   include_LF = TRUE
 )
 }
@@ -37,9 +36,9 @@ Estimation_EM(
 
 \item{plot}{whether to plot EM's results}
 
-\item{from_par}{whether to start the EM from the par file}
-
 \item{include_LF}{whether to fit the EM to bootstrapped LF data}
+
+\item{from_par}{whether to start the EM from the par file}
 }
 \description{
 Make projection based on simulated R devs and HCR

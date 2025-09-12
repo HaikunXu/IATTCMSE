@@ -15,7 +15,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE, from_par = FALSE, include_LF = TRUE) {
+Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE, include_LF = TRUE) {
   
   # step 1: create a new folder for the EM
   dir_EM <- paste0(dir_istep, "EM/")
@@ -68,7 +68,7 @@ Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, da
   )
   ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
   
-  if(from_par == FALSE) ctl$SR_parms$INIT[1] <- R0
+  ctl$SR_parms$INIT[1] <- R0
   
   r4ss::SS_writectl_3.30(
     ctl,
@@ -77,41 +77,13 @@ Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, da
     verbose = FALSE
   )
   
-  if(from_par == FALSE) {
-    starter <- r4ss::SS_readstarter(paste0(dir_EM, "/starter.ss"), verbose = FALSE)
-    
-    #specify to not use the ss3.par as parameters
-    starter$init_values_src = 0
-
-    #write new starter file
-    r4ss::SS_writestarter(starter, dir_EM, verbose = FALSE, overwrite = TRUE)
-  }
-  else {
-    # change par file by adding 12 more main R devs and using the R0 from the OM
-    ParDir <- paste0(dir_EM_previous, "ss3.par")
-    ParFile <- readLines(ParDir, warn = F)
-
-    Line_main <- match("# recdev2:", ParFile)
-    R_main <- read.table(file = ParDir, nrows = 1, skip = Line_main)
-
-    R_main_new <- c(R_main, rep(0, Mcycle * 4))
-    ParFile[Line_main + 1] <- gsub(",", "", toString(R_main_new))
-
-    Line_R0 <- match("# SR_parm[1]:", ParFile)
-    ParFile[Line_R0 + 1] <- R0
-
-    writeLines(ParFile, paste0(dir_EM, "/ss3.par"))
-    
-    # change starter file
-    starter <- r4ss::SS_readstarter(paste0(dir_EM_previous, "/starter.ss"), verbose = FALSE)
-    
-    #specify to use the ss3.par as parameters
-    starter$init_values_src = 1
-    
-    #write new starter file
-    r4ss::SS_writestarter(starter, dir_EM, verbose = FALSE, overwrite = TRUE)
-  }
+  starter <- r4ss::SS_readstarter(paste0(dir_EM, "/starter.ss"), verbose = FALSE)
   
+  #specify to not use the ss3.par as parameters
+  starter$init_values_src = 0
+  
+  #write new starter file
+  r4ss::SS_writestarter(starter, dir_EM, verbose = FALSE, overwrite = TRUE)
   
   # run the estimation model
   command <- paste("cd", dir_EM, "& go_nohess.bat", sep = " ")
