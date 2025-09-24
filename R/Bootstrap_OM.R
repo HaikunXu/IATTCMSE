@@ -54,7 +54,7 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, e
   # add dummy CPUE data
   CPUE_new <- dat$CPUE[(nrow(dat$CPUE) - Mcycle * 4 + 1):nrow(dat$CPUE),]
   CPUE_new$year <- CPUE_new$year + Mcycle * 4
-  CPUE_new$se_log <- mean(dat$CPUE$se_log[(nrow(dat$CPUE)-3):nrow(dat$CPUE)])
+  CPUE_new$se_log <- mean(dat$CPUE$se_log[(nrow(dat$CPUE)-11):nrow(dat$CPUE)])
   dat$CPUE <- rbind(dat$CPUE, CPUE_new)
   
   # add dummy LF data

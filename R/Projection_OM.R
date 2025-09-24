@@ -33,7 +33,7 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   files = c(
     paste0(dir_OM_previous, dat_name),
     paste0(dir_OM_previous, ctl_name),
-    paste0(dir_OM_previous, ss_name),
+    paste0(pdir, ss_name),
     paste0(dir_OM_previous, "go_nohess.bat")
   )
   file.copy(from = files, to = dir_OM, overwrite = TRUE)
