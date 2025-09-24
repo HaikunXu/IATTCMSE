@@ -73,7 +73,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     if(HCR == "HCR_staff_0_Fscaler/") step2 <- IATTCMSE::HCR_staff_0_Fscaler(OM, dir_EM = dir_EM_HCR, istep, CurrentClosure)
     if(HCR == "HCR_staff_Fscaler/") step2 <- IATTCMSE::HCR_staff_Fscaler(OM, dir_EM = dir_EM_HCR, istep, CurrentClosure)
     
-    if((step2$max_gradient > 0.1) | (step2$SBR_d > 0.95) | (step2$SBR_d < 0.05)) { # large gradient - the model does not converge
+    if((step2$max_gradient > 0.1) | (step2$SBR_d > 0.99) | (step2$SBR_d < 0.01)) { # large gradient - the model does not converge
       max_gradient_ts[istep] <- step2$max_gradient # record the gradient
       SBR_d_ts[istep] <- step2$SBR_d
       Flag <- 0 # mark the flag

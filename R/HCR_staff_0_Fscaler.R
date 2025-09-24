@@ -8,22 +8,25 @@
 
 HCR_staff_0_Fscaler = function(OM, dir_EM, istep, CurrentClosure) {
   
-  if(OM == "Fix-1-1/") {
-    Fscaler = 0.980753865
-    Sscaler = 0.1781594 / 0.1688287
-  }
-  if(OM == "Gro-1-1/") {
-    Fscaler = 0.860062653
-    Sscaler = 0.2163695 / 0.1688287
-  }
-  if(OM == "Mrt-1-1/") {
-    Fscaler = 0.624446298
-    Sscaler = 0.3095251 / 0.1688287
-  }
-  if(OM == "Sel-1-1/") {
-    Fscaler = 0.626810429
-    Sscaler = 0.3065837 / 0.1688287
-  }
+  # if(OM == "Fix-1-1/") {
+  #   Fscaler = 0.980753865
+  #   Sscaler = 1.055267
+  # }
+  # if(OM == "Gro-1-1/") {
+  #   Fscaler = 0.860062653
+  #   Sscaler = 1.281592
+  # }
+  # if(OM == "Mrt-1-1/") {
+  #   Fscaler = 0.624446298
+  #   Sscaler = 1.833368
+  # }
+  # if(OM == "Sel-1-1/") {
+  #   Fscaler = 0.626810429
+  #   Sscaler = 1.815945
+  # }
+  
+  Fscaler <- (0.980753865 + 0.860062653 + 0.624446298 + 0.626810429) / 4
+  Sscaler <- (1.055267 + 1.281592 + 1.833368 + 1.815945) / 4
   
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)

@@ -2,6 +2,7 @@
 
 export(BET_MSE)
 export(Bootstrap_OM)
+export(Clean)
 export(Estimation_EM)
 export(Extract_OM)
 export(Final_OM)

@@ -23,7 +23,7 @@ Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, da
   
   # copy files to the new folder
   files = c(
-    paste0(dir_EM_previous, ss_name),
+    paste0(pdir, ss_name),
     paste0(dir_EM_previous, "go_nohess.bat"),
     paste0(dir_EM_previous, "forecast.ss"),
     paste0(dir_EM_previous, "starter.ss")
@@ -68,7 +68,7 @@ Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, da
   )
   ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
   
-  ctl$SR_parms$INIT[1] <- R0 + 0.5 # adding 0.5 makes the EM more likely to converge
+  ctl$SR_parms$INIT[1] <- R0 + 0.25 # adding 0.25 makes the EM more likely to converge
   
   r4ss::SS_writectl_3.30(
     ctl,
