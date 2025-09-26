@@ -23,7 +23,7 @@ Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, da
   
   # copy files to the new folder
   files = c(
-    paste0(pdir, ss_name),
+    paste0(dir_EM_previous, ss_name),
     paste0(dir_EM_previous, "go_nohess.bat"),
     paste0(dir_EM_previous, "forecast.ss"),
     paste0(dir_EM_previous, "starter.ss")
