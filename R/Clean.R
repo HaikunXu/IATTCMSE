@@ -17,12 +17,11 @@ Clean = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle) {
   itr = paste0("itr", itrnum, "/")
   nsteps <- nquarters / 4 / Mcycle
   
-  if (clean == TRUE) {
-    for (istep in 1:nsteps) {
-      unlink(paste0(pdir, HS, HCR, OM, itr, "step", istep), recursive = TRUE)
-    }
+  for (istep in 1:nsteps) {
+    unlink(paste0(pdir, HS, HCR, OM, itr, "step", istep), recursive = TRUE)
   }
   
+  dir_itr <- paste0(pdir, HS, HCR, OM, itr)
   dir_OM_Final <- paste0(dir_itr, "OM_Final/")
   command <- paste("cd", dir_OM_Final, "& CLEAN.BAT", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
