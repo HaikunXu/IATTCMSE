@@ -1,5 +1,5 @@
 ---
-title: "MSE_analysis_HCR2"
+title: "MSE_analysis_HCR1"
 author: "Haikun Xu"
 date: "`r Sys.Date()`"
 output: word_document
@@ -35,8 +35,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 1
-nyears <- 12
+niterations <- 3
+nyears <- 18
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -45,10 +45,10 @@ startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
-HCR_name <-  "HCR_staff_0"
+HCR_name <-  "HCR_staff_risk"
 
 # Set the harvest strategy
-HSnum <- 1
+HSnum <- 2
 HS <- paste0("HS", HSnum, "/")
 
 # Set the HCR
@@ -85,6 +85,23 @@ for (OMnum in 1:length(OM_name)) {
   }
 }
 
+
+Record_all_count <- Record_all %>%
+  filter(Step == nsteps, max_gradient < 0.05) %>%
+  group_by(OM) %>%
+  summarise(count = n())
+
+Record_all_failed <- Record_all %>%
+  filter(Step == nsteps) %>%
+  filter(max_gradient > 0.05 | is.na(max_gradient)) %>%
+  select(OM, itr) %>%
+  mutate(Flag = 0)
+
+Record_all_run <- Record_all
+Record_all_passed <- left_join(Record_all, Record_all_failed) %>%
+  filter(is.na(Flag))
+
+
 Record_all$itr <- as.factor(Record_all$itr)
 Record_all$Step <- as.factor(Record_all$Step)
 
@@ -101,10 +118,10 @@ ggplot(data = Record_all) +
   theme_bw() +
   ylab("F/F30%")
 
-ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = (Time_Stamp - min(Time_Stamp))/60, fill = OM)) +
-  theme_bw() +
-  ylab("Time chart in minute")
+# ggplot(data = Record_all) +
+#   geom_boxplot(aes(x = Step, y = (Time_Stamp - min(Time_Stamp))/60, fill = OM)) +
+#   theme_bw() +
+#   ylab("Time chart in minute")
 ```
 
 ```{r fig.height=10, fig.width=20}
@@ -185,12 +202,23 @@ ggplot() +
 
 Record_all_2 <- left_join(Record_all, output_all_new) %>%
   filter(Quantity == "SB") %>%
-  mutate(SB_ratio = Value / SB)
+  mutate(SB_ratio = SB / Value)
 
 # compare SB ratio
 ggplot() +
   geom_boxplot(aes(x = as.factor(Year), y = SB_ratio, fill = OM), data = Record_all_2) +
-  ylab("SB_OM / SB_EM") +
-  facet_wrap(~OM, nrow = 4) +
+  ylab("SB_EM / SB_OM") +
+  facet_wrap( ~ OM, nrow = 4) +
+  theme_bw()
+
+Record_all_3 <- left_join(Record_all, output_all_new) %>%
+  filter(Quantity == "SBR_d") %>%
+  mutate(SB_ratio = SBR_d / Value)
+
+# compare SB ratio
+ggplot() +
+  geom_boxplot(aes(x = as.factor(Year), y = SB_ratio, fill = OM), data = Record_all_3) +
+  ylab("SBR_d_EM / SBR_d_OM") +
+  facet_wrap( ~ OM, nrow = 4) +
   theme_bw()
 ```

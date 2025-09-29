@@ -9,7 +9,7 @@
 HCR_staff_Fscaler = function(OM, dir_EM, istep, CurrentClosure) {
   
   Fscaler <- (0.980753865 + 0.860062653 + 0.624446298 + 0.626810429) / 4
-  Sscaler <- (1.055267 + 1.281592 + 1.833368 + 1.815945) / 4
+  Sscaler <- 1 # (1.055267 + 1.281592 + 1.833368 + 1.815945) / 4
   
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
@@ -47,18 +47,33 @@ HCR_staff_Fscaler = function(OM, dir_EM, istep, CurrentClosure) {
   
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
-  NewClosure <- 365 - (365 - CurrentClosure) * Fratio
+  NewClosure <- max(365 - (365 - CurrentClosure) * Fratio, 0)
   
-  if ((CurrentClosure - NewClosure) > 10) {
-    NewClosure <- max(CurrentClosure - 10, 0)
-    Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-    Fadjust <- Fratio * Frecent / Fmult
+  if(SBR_d >= 0.2) {
+    if ((CurrentClosure - NewClosure) > 10) {
+      NewClosure <- CurrentClosure - 10
+      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+      Fadjust <- Fratio * Frecent / Fmult
+    }
+    
+    if ((NewClosure - CurrentClosure) > 10) {
+      NewClosure <- CurrentClosure + 10
+      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+      Fadjust <- Fratio * Frecent / Fmult
+    }
   }
-  
-  if ((NewClosure - CurrentClosure) > 10) {
-    NewClosure <- CurrentClosure + 10
-    Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-    Fadjust <- Fratio * Frecent / Fmult
+  else {
+    if ((CurrentClosure - NewClosure) > 30) {
+      NewClosure <- CurrentClosure - 30
+      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+      Fadjust <- Fratio * Frecent / Fmult
+    }
+    
+    if ((NewClosure - CurrentClosure) > 30) {
+      NewClosure <- CurrentClosure + 30
+      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+      Fadjust <- Fratio * Frecent / Fmult
+    }
   }
   
   Fscale <- Fmult * Fadjust

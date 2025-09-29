@@ -35,8 +35,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 5
-nyears <- 15
+niterations <- 1
+nyears <- 12
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -44,8 +44,8 @@ endquarter <- 196
 startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1]
-HCR_name <-  "HCR_staff_0_Fscaler"
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
+HCR_name <-  "HCR_staff"
 
 # Set the harvest strategy
 HSnum <- 1
@@ -63,20 +63,29 @@ for (OMnum in 1:length(OM_name)) {
   # extract saved management output
   for (itrnum in 1:niterations) {
     itr = paste0("itr", itrnum, "/")
-    Record <- read.csv(paste0(paste0(pdir, HS, HCR, OM, itr, "Record.csv")))
-    Record$Step <- 1:nsteps
-    Record$OM <- OM
-    Record$itr <- itrnum
     
-    if (OMnum == 1 & itrnum == 1)
-      Record_all <- Record
-    else
-      Record_all <- rbind(Record_all, Record)
+    skip_to_next <- FALSE
+    
+    tryCatch({
+      Record <- read.csv(paste0(paste0(pdir, HS, HCR, OM, itr, "Record.csv")))
+      Record$Step <- 1:nsteps
+      Record$OM <- OM
+      Record$itr <- itrnum
+      
+      if (OMnum == 1 & itrnum == 1)
+        Record_all <- Record
+      else
+        Record_all <- rbind(Record_all, Record)
+    }, error = function(e) {
+      skip_to_next <<- TRUE
+    })
+    if (skip_to_next) {
+      next
+    }
   }
-  
-  Record_all$itr <- as.factor(Record_all$itr)
 }
 
+Record_all$itr <- as.factor(Record_all$itr)
 Record_all$Step <- as.factor(Record_all$Step)
 
 ggplot(data = Record_all) +
@@ -92,10 +101,10 @@ ggplot(data = Record_all) +
   theme_bw() +
   ylab("F/F30%")
 
-# ggplot(data = Record_all) +
-#   geom_boxplot(aes(x = Step, y = (Time_Stamp)/60, fill = OM)) +
-#   theme_bw() +
-#   ylab("Time chart in minute")
+ggplot(data = Record_all) +
+  geom_boxplot(aes(x = Step, y = (Time_Stamp - min(Time_Stamp))/60, fill = OM)) +
+  theme_bw() +
+  ylab("Time chart in minute")
 ```
 
 ```{r fig.height=10, fig.width=20}
@@ -105,16 +114,30 @@ for (OMnum in 1:length(OM_name)) {
   
   for (itrnum in 1:niterations) {
     itr = paste0("itr", itrnum, "/")
-    Output <- read.csv(paste0(paste0(pdir, HS, HCR, OM, itr, "Output.csv")))
-    Output$OM <- OM
-    Output$itr <- itrnum
     
-    if (OMnum == 1 & itrnum == 1)
-      Output_all <- Output
-    else
-      Output_all <- rbind(Output_all, Output)
+    skip_to_next <- FALSE
+    
+    tryCatch({
+      Output <- read.csv(paste0(paste0(pdir, HS, HCR, OM, itr, "Output.csv")))
+      Output$OM <- OM
+      Output$itr <- itrnum
+      
+      if (OMnum == 1 & itrnum == 1)
+        Output_all <- Output
+      else
+        Output_all <- rbind(Output_all, Output)
+    }, error = function(e) {
+      skip_to_next <<- TRUE
+    })
+    if (skip_to_next) {
+      next
+    }
   }
 }
+
+output_counts <- Output_all %>%
+  group_by(OM) %>%
+  summarise(count = length(unique(itr)))
 
 Output_all_long <- Output_all %>%
   mutate(itr = as.factor(itr),
@@ -167,7 +190,7 @@ Record_all_2 <- left_join(Record_all, output_all_new) %>%
 # compare SB ratio
 ggplot() +
   geom_boxplot(aes(x = as.factor(Year), y = SB_ratio, fill = OM), data = Record_all_2) +
-  ylab("SB_EM / SB_OM") +
+  ylab("SB_OM / SB_EM") +
   facet_wrap(~OM, nrow = 4) +
   theme_bw()
 ```
