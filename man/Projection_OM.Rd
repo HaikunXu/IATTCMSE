@@ -11,7 +11,7 @@ Projection_OM(
   OM,
   itr,
   istep,
-  Fscale,
+  Fratio,
   dir_OM_previous,
   dir_EM_previous,
   R_devs,
@@ -36,8 +36,6 @@ Projection_OM(
 
 \item{istep}{step number}
 
-\item{Fscale}{input F scaler}
-
 \item{dir_OM_previous}{the directory of the OM in the previous step}
 
 \item{dir_EM_previous}{the directory of the EM in the previous step}
@@ -55,6 +53,8 @@ Projection_OM(
 \item{ss_name}{name of the SS exe file}
 
 \item{plot}{whether to plot OM's results}
+
+\item{Fscale}{input F scaler}
 }
 \description{
 Make projection based on simulated R devs and HCR

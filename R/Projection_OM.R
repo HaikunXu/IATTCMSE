@@ -20,7 +20,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE) {
+Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fratio, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE) {
   
   # create directory for new time step where the new dat file will be saved
   dir_istep <- paste0(pdir, HS, HCR, OM, itr, "step", istep, "/")
@@ -38,7 +38,7 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   )
   file.copy(from = files, to = dir_OM, overwrite = TRUE)
   
-
+  
   # step 2: change par file
   ParDir <- paste0(dir_OM_previous, "ss3.par")
   ParFile <- readLines(ParDir, warn = F)
@@ -61,10 +61,26 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
   ParFile[Line + 1] <- gsub(",", "", toString(R_forecast_new)) # do R bias adjustment???
   writeLines(ParFile, paste0(dir_OM, "/ss3.par"))
   
+  # step 2 plus: get Fcurrent
+  ForeRepName <- paste(dir_OM_previous, "Forecast-report.SSO", sep = "")
+  ForeRepStart <- grep("Management_report", readLines(ForeRepName))
+  ForeRepEnd <- grep("THIS FORECAST IS FOR PURPOSES", readLines(ForeRepName))[1]
+  ForeDat <- read.table(file = ForeRepName, col.names = c(seq(1, 10, by = 1)), fill = T, quote = "", colClasses = "character", 
+                        nrows = ForeRepEnd - ForeRepStart, skip = ForeRepStart - 1)
+  ForeDat <- as.data.frame(ForeDat)
+  
+  # get F30%
+  Fmult <- as.numeric(ForeDat[ForeDat[, 1] == c("Fmult"), 2])[3] # F30%
+
+  FvectorRepStart <- grep("Seasonal_apicalF=Fmult", readLines(ForeRepName))
+  Fvector <- read.table(file = ForeRepName, nrows = 1, skip = FvectorRepStart[1] + 1)
+  Fvector <- Fvector[3:length(Fvector)]
+  Fcurrent <- sum(Fvector) # Fcurrent
+  
   # step 3: change forecast file
   Forecast <- r4ss::SS_readforecast(paste0(dir_OM_previous, "forecast.ss"), verbose = FALSE)
   
-  Forecast$F_scalar <- Fscale # Fscale # input F scaler
+  Forecast$F_scalar <- Fcurrent * Fratio # Fscale # input F scaler
   Forecast$Forecast <- 5 # use F scaler
   Forecast$Nforecastyrs <- 1 + Mcycle * 4 # number of forecast years
   Forecast$ControlRuleMethod <- 0 # Harvest control rule method
@@ -97,6 +113,6 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fscale, dir_OM_previous,
     r4ss::SS_plots(replist=om_out, uncertainty=F, datplot=T, forecastplot = TRUE, verbose = FALSE)
   }
   
-  return(list("dir_istep" = dir_istep, "dir_OM" = dir_OM))
+  return(list("dir_istep" = dir_istep, "dir_OM" = dir_OM, "Fcurrent" = Fcurrent, "F30" = Fmult))
   
 }

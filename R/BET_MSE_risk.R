@@ -68,7 +68,8 @@ BET_MSE_risk = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_ex
     else dir_EM_HCR <- paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/", c("EM_Fix/", "EM_Mrt/", "EM_Sel/", "EM_Gro/"))
     
     if(HCR == "HCR_staff_risk/") step2 <- IATTCMSE::HCR_staff_risk(dir_EM = dir_EM_HCR, istep, CurrentClosure)
-   
+    if(HCR == "HCR_staff_0_risk/") step2 <- IATTCMSE::HCR_staff_0_risk(dir_EM = dir_EM_HCR, istep, CurrentClosure)
+    
     if((step2$max_gradient > 0.1) | (step2$SBR_d > 0.99) | (step2$SBR_d < 0.01)) { # large gradient - the model does not converge
       max_gradient_ts[istep] <- step2$max_gradient # record the gradient
       SBR_d_ts[istep] <- step2$SBR_d

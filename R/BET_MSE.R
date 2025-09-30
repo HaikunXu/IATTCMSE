@@ -35,10 +35,12 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   SBR_d_ts <- rep(NA, nsteps)
   max_gradient_ts <- rep(NA, nsteps)
   Closure_ts <- rep(NA, nsteps)
-  Fadjust_ts <- rep(NA, nsteps)
+  Fratio_ts <- rep(NA, nsteps)
   F30_ts <- rep(NA,  nsteps)
+  Finput_ts <- rep(NA,  nsteps)
   Time_ts <- rep(NA, nsteps)
   SB_ts <- rep(NA, nsteps)
+  Fcurrent_ts = rep(NA, nsteps)
   
   # *************************************************************************************
   # step 1: initialize the OM by copying from the benchmark assessment model
@@ -57,7 +59,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
       CurrentClosure <- 72
     }
     else {
-      dir_OM_previous <- paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/OM_Boot/")
+      dir_OM_previous <- paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/OM_Final/")
       dir_EM_previous <- paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/EM/")
     }
     
@@ -69,9 +71,6 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
                          paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/", "EM/"))
     
     if(HCR == "HCR_staff/") step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_HCR, istep, CurrentClosure)
-    if(HCR == "HCR_staff_0/") step2 <- IATTCMSE::HCR_staff_0(dir_EM = dir_EM_HCR, istep, CurrentClosure)
-    if(HCR == "HCR_staff_0_Fscaler/") step2 <- IATTCMSE::HCR_staff_0_Fscaler(OM, dir_EM = dir_EM_HCR, istep, CurrentClosure)
-    if(HCR == "HCR_staff_Fscaler/") step2 <- IATTCMSE::HCR_staff_Fscaler(OM, dir_EM = dir_EM_HCR, istep, CurrentClosure)
     
     if((step2$max_gradient > 0.1) | (step2$SBR_d > 0.99) | (step2$SBR_d < 0.01)) { # large gradient - the model does not converge
       max_gradient_ts[istep] <- step2$max_gradient # record the gradient
@@ -85,14 +84,13 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     CurrentClosure <- step2$NewClosure
     Closure_ts[istep] <- step2$NewClosure
     max_gradient_ts[istep] <- step2$max_gradient
-    Fadjust_ts[istep] <- step2$Fadjust
-    F30_ts[istep] <- step2$Fscale / step2$Fadjust
+    Fratio_ts[istep] <- step2$Fratio
     SB_ts[istep] <- step2$SB
-    
+
     # *************************************************************************************
     # step 3: make projection using simulated R devs and HCR F
     # *************************************************************************************
-    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, step2$Fscale, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, dat_name, ctl_name, ss_name, plot = plot)
+    step3 <- IATTCMSE::Projection_OM(pdir, HS, HCR, OM, itr, istep, step2$Fratio, dir_OM_previous, dir_EM_previous, R_devs, n_extra_R, Mcycle, dat_name, ctl_name, ss_name, plot = plot)
     
     dir_istep <- step3$dir_istep
     dir_OM <- step3$dir_OM
@@ -106,7 +104,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 5: Update the OM with simulated data without error
     # *************************************************************************************
-    step5 <- IATTCMSE::Update_OM(dir_OM, dir_OM_Boot, Mcycle, dat_name)
+    step5 <- IATTCMSE::Update_OM(dir_OM, dir_OM_Boot, paste0(dir_istep, "OM_Final/"), Mcycle, dat_name, ss_name)
     
     # *************************************************************************************
     # Step 6: Estimation model
@@ -148,9 +146,11 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   Record <- data.frame("SBR_d" = SBR_d_ts,
                        "max_gradient" = max_gradient_ts,
                        "closure" = Closure_ts,
-                       "Fadjust" = Fadjust_ts,
-                       "F30" = F30_ts,
+                       # "Fadjust" = Fadjust_ts,
+                       # "F30" = F30_ts,
                        "Time_Stamp" = Time_ts,
+                       "Fratio" = Fratio_ts,
+                       # "Finput" = Finput_ts,
                        "SB" = SB_ts)
   
   write.csv(Record, file = paste0(dir_itr, "Record.csv"), row.names = FALSE)

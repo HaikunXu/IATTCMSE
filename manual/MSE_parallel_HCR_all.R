@@ -10,7 +10,7 @@ sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
 niterations <- 3
-nyears <- 30
+nyears <- 12
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -23,15 +23,15 @@ ctl_name <- "BET-EPO.ctl"
 ss_name <- "ss.exe"
 
 # Calculate the numbers of cores 
-no_cores = 12 # detectCores() - 2
+no_cores = 4 # detectCores() - 2
 # Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)
 
 
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1", "Fix-1.01-1", "Fix-1.02-1", "Fix-1-0.9", "Fix-1-0.8")[1:4]
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
 OM <- paste0(OM_name, "/")
-HCR_name <- c("HCR_staff", "HCR_staff_0", "HCR_staff_0_Fscaler", "HCR_staff_Fscaler")[4]
+HCR_name <- c("HCR_staff")[1]
 HCR <- paste0(HCR_name, "/")
 
 # Set the harvest strategy

@@ -40,5 +40,9 @@ Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name) {
   Line_R0 <- match("# SR_parm[1]:", ParFile)
   R0 <- as.numeric(ParFile[Line_R0 + 1])
   
+  # run the estimation model
+  command <- paste("cd", dir_OM_MSE, "& go_nohess.bat", sep = " ")
+  ss <- shell(cmd = command, intern = T, wait = T)
+  
   return(list("R0" = R0))
 }

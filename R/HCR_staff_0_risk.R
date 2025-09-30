@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff_risk = function(dir_EM, istep, CurrentClosure) {
+HCR_staff_0_risk = function(dir_EM, istep, CurrentClosure) {
   
   SBR_d_em <- rep(NA, 4)
   Fmult_em <- rep(NA, 4)
@@ -61,17 +61,17 @@ HCR_staff_risk = function(dir_EM, istep, CurrentClosure) {
   NewClosure <- max(365 - (365 - CurrentClosure) * Fratio, 0)
   
   # if(SBR_d >= 0.2) {
-    if ((CurrentClosure - NewClosure) > 10) {
-      NewClosure <- CurrentClosure - 10
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      Fadjust <- Fratio * Frecent / Fmult
-    }
-    
-    if ((NewClosure - CurrentClosure) > 10) {
-      NewClosure <- CurrentClosure + 10
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      Fadjust <- Fratio * Frecent / Fmult
-    }
+  #   if ((CurrentClosure - NewClosure) > 15) {
+  #     NewClosure <- CurrentClosure - 10
+  #     Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+  #     Fadjust <- Fratio * Frecent / Fmult
+  #   }
+  #   
+  #   if ((NewClosure - CurrentClosure) > 15) {
+  #     NewClosure <- CurrentClosure + 10
+  #     Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+  #     Fadjust <- Fratio * Frecent / Fmult
+  #   }
   # }
   # else {
   #   if ((CurrentClosure - NewClosure) > 30) {
