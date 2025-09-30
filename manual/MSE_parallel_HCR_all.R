@@ -10,7 +10,7 @@ sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
 niterations <- 3
-nyears <- 12
+nyears <- 21
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -23,7 +23,7 @@ ctl_name <- "BET-EPO.ctl"
 ss_name <- "ss.exe"
 
 # Calculate the numbers of cores 
-no_cores = 4 # detectCores() - 2
+no_cores = 12 # detectCores() - 2
 # Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)

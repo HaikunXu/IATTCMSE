@@ -104,7 +104,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
     # *************************************************************************************
     # Step 5: Update the OM with simulated data without error
     # *************************************************************************************
-    step5 <- IATTCMSE::Update_OM(dir_OM, dir_OM_Boot, paste0(dir_istep, "OM_Final/"), Mcycle, dat_name, ss_name)
+    step5 <- IATTCMSE::Update_OM(istep, dir_OM, dir_OM_Boot, paste0(dir_istep, "OM_Final/"), Mcycle, endquarter, dat_name, ss_name, ctl_name)
     
     # *************************************************************************************
     # Step 6: Estimation model

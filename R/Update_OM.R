@@ -8,7 +8,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Update_OM = function(dir_OM, dir_OM_Boot, dir_OM_Final, Mcycle, dat_name, ss_name) {
+Update_OM = function(istep, dir_OM, dir_OM_Boot, dir_OM_Final, Mcycle, endquarter, dat_name, ss_name, ctl_name) {
   
   # change data file
   dat_OM <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, dat_name), verbose = FALSE)

@@ -4,7 +4,17 @@
 \alias{Update_OM}
 \title{Update OM's data file with "true" data}
 \usage{
-Update_OM(dir_OM, dir_OM_Boot, dir_OM_Final, Mcycle, dat_name, ss_name)
+Update_OM(
+  istep,
+  dir_OM,
+  dir_OM_Boot,
+  dir_OM_Final,
+  Mcycle,
+  endquarter,
+  dat_name,
+  ss_name,
+  ctl_name
+)
 }
 \arguments{
 \item{dir_OM}{the directory of OM}
