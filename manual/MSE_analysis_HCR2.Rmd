@@ -35,8 +35,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 1
-nyears <- 12
+niterations <- 3
+nyears <- 21
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -45,7 +45,7 @@ startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
-HCR_name <-  "HCR_staff_0"
+HCR_name <-  "HCR_staff_Fscaler"
 
 # Set the harvest strategy
 HSnum <- 1
@@ -97,14 +97,14 @@ ggplot(data = Record_all) +
   theme_bw()
  
 ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = Fadjust, fill = OM)) +
+  geom_boxplot(aes(x = Step, y = Fratio, fill = OM)) +
   theme_bw() +
   ylab("F/F30%")
 
-ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = (Time_Stamp - min(Time_Stamp))/60, fill = OM)) +
-  theme_bw() +
-  ylab("Time chart in minute")
+# ggplot(data = Record_all) +
+#   geom_boxplot(aes(x = Step, y = (Time_Stamp - min(Time_Stamp))/60, fill = OM)) +
+#   theme_bw() +
+#   ylab("Time chart in minute")
 ```
 
 ```{r fig.height=10, fig.width=20}
@@ -166,31 +166,42 @@ ggplot() +
 # compare estimated and true SBR_d
 Record_all$Year <- as.numeric(Record_all$Step) * Mcycle + 2021.125
 
-ggplot() +
-  geom_boxplot(aes(x = as.factor(Year), y = Value, fill = OM), data = output_all_new %>% filter(Quantity == "SBR_d", Year %in% Record_all$Year)) +
-  geom_boxplot(aes(x = as.factor(Year), y = SBR_d, fill = OM), data = Record_all) +
-  ylab("SBR_d") +
-  geom_hline(yintercept = 0.2) +
-  geom_hline(yintercept = 0.3, linetype = "dashed") +
-  facet_wrap(~OM, nrow = 4) +
-  theme_bw()
+# ggplot() +
+#   geom_boxplot(aes(x = as.factor(Year), y = Value, fill = OM), data = output_all_new %>% filter(Quantity == "SBR_d", Year %in% Record_all$Year)) +
+#   geom_boxplot(aes(x = as.factor(Year), y = SBR_d, fill = OM), data = Record_all) +
+#   ylab("SBR_d") +
+#   geom_hline(yintercept = 0.2) +
+#   geom_hline(yintercept = 0.3, linetype = "dashed") +
+#   facet_wrap(~OM, nrow = 4) +
+#   theme_bw()
 
 # compare estimated and true SB
-ggplot() +
-  geom_boxplot(aes(x = as.factor(Year), y = Value, fill = OM), data = output_all_new %>% filter(Quantity == "SB", Year %in% Record_all$Year)) +
-  geom_boxplot(aes(x = as.factor(Year), y = SB, fill = OM), data = Record_all) +
-  ylab("SB") +
-  facet_wrap(~OM, nrow = 4, scales = "free_y") +
-  theme_bw()
-
+# ggplot() +
+#   geom_boxplot(aes(x = as.factor(Year), y = Value, fill = OM), data = output_all_new %>% filter(Quantity == "SB", Year %in% Record_all$Year)) +
+#   geom_boxplot(aes(x = as.factor(Year), y = SB, fill = OM), data = Record_all) +
+#   ylab("SB") +
+#   facet_wrap(~OM, nrow = 4, scales = "free_y") +
+#   theme_bw()
+# 
 Record_all_2 <- left_join(Record_all, output_all_new) %>%
   filter(Quantity == "SB") %>%
-  mutate(SB_ratio = Value / SB)
+  mutate(SB_ratio = SB / Value)
 
 # compare SB ratio
 ggplot() +
   geom_boxplot(aes(x = as.factor(Year), y = SB_ratio, fill = OM), data = Record_all_2) +
-  ylab("SB_OM / SB_EM") +
-  facet_wrap(~OM, nrow = 4) +
+  ylab("SB_EM / SB_OM") +
+  facet_wrap( ~ OM, nrow = 4) +
+  theme_bw()
+
+Record_all_3 <- left_join(Record_all, output_all_new) %>%
+  filter(Quantity == "SBR_d") %>%
+  mutate(SB_ratio = SBR_d / Value)
+
+# compare SB ratio
+ggplot() +
+  geom_boxplot(aes(x = as.factor(Year), y = SB_ratio, fill = OM), data = Record_all_3) +
+  ylab("SBR_d_EM / SBR_d_OM") +
+  facet_wrap( ~ OM, nrow = 4) +
   theme_bw()
 ```

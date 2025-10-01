@@ -12,7 +12,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name) {
+Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name, clean) {
   
   # *************************************************************************************
   # Step 0: get the OM from the 2024 assessment
@@ -30,7 +30,8 @@ Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name) {
     paste0(dir_OM_benchmark, "go_nohess.bat"),
     paste0(sdir, "forecast.ss"),
     paste0(sdir, "starter.ss"),
-    paste0(dir_OM_benchmark, "ss3.par")
+    paste0(dir_OM_benchmark, "ss3.par"),
+    paste0(pdir, "CLEAN.BAT")
   )
   file.copy(from = files, to = dir_OM_MSE, overwrite = TRUE)
 
@@ -43,6 +44,12 @@ Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name) {
   # run the estimation model
   command <- paste("cd", dir_OM_MSE, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
+  
+  if(clean == TRUE) {
+    # clean unused files in this folder to save storage space
+    command <- paste("cd", dir_OM_Final, "& CLEAN.BAT", sep = " ")
+    ss <- shell(cmd = command, intern = T, wait = T)
+  }
   
   return(list("R0" = R0))
 }

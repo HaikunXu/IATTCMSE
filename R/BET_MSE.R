@@ -45,7 +45,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
   # *************************************************************************************
   # step 1: initialize the OM by copying from the benchmark assessment model
   # *************************************************************************************
-  step1 <- IATTCMSE::Initialize_OM(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name)
+  step1 <- IATTCMSE::Initialize_OM(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name, clean)
   Flag <- 1 # mark whether the loop is running without an EM with a large gradient
   
   for (istep in 1:nsteps){
@@ -71,6 +71,7 @@ BET_MSE = function(pdir, sdir, HS, HCR, OM, itrnum, nquarters, Mcycle, n_extra_R
                          paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/", "EM/"))
     
     if(HCR == "HCR_staff/") step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_HCR, istep, CurrentClosure)
+    if(HCR == "HCR_staff_Fscaler/") step2 <- IATTCMSE::HCR_staff_Fscaler(dir_EM = dir_EM_HCR, istep, CurrentClosure)
     
     if((step2$max_gradient > 0.1) | (step2$SBR_d > 0.99) | (step2$SBR_d < 0.01)) { # large gradient - the model does not converge
       max_gradient_ts[istep] <- step2$max_gradient # record the gradient

@@ -64,13 +64,13 @@ HCR_staff_risk = function(dir_EM, istep, CurrentClosure) {
     if ((CurrentClosure - NewClosure) > 10) {
       NewClosure <- CurrentClosure - 10
       Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      Fadjust <- Fratio * Frecent / Fmult
+      # Fadjust <- Fratio * Frecent / Fmult
     }
     
     if ((NewClosure - CurrentClosure) > 10) {
       NewClosure <- CurrentClosure + 10
       Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      Fadjust <- Fratio * Frecent / Fmult
+      # Fadjust <- Fratio * Frecent / Fmult
     }
   # }
   # else {
@@ -87,15 +87,15 @@ HCR_staff_risk = function(dir_EM, istep, CurrentClosure) {
   #   }
   # }
   
-  Fscale <- Fmult * Fadjust
+  # Fscale <- Fmult * Fadjust
   
   return(
     list(
       "SBR_d" = SBR_d,
-      "Fadjust" = Fadjust,
+      # "Fadjust" = Fadjust,
       "NewClosure" = NewClosure,
       "max_gradient" = max_gradient,
-      "Fscale" = Fscale,
+      "Fratio" = Fratio,
       "SB" = SB
     )
   )

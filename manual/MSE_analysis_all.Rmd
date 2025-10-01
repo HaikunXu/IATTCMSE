@@ -23,8 +23,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 6
-nyears <- 30
+niterations <- 3
+nyears <- 21
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -95,20 +95,17 @@ Record_all$Step <- as.factor(Record_all$Step)
 Record_all$HCR <- as.factor(Record_all$HCR)
 
 ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = closure, fill = HCR)) +
+  geom_boxplot(aes(x = Step, y = closure, fill = OM)) +
+  facet_wrap(~ HCR) +
   theme_bw()
   
 ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = SBR_d, fill = HCR)) +
+  geom_boxplot(aes(x = Step, y = SBR_d, fill = OM)) +
+  facet_wrap(~ HCR) +
   theme_bw()
- 
-ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = Fadjust, fill = HCR)) +
-  theme_bw() +
-  ylab("F/F30%")
 ```
 
-```{r fig.height=10, fig.width=20}
+```{r fig.height=10, fig.width=10}
 for (HCRnum in 1:length(HCR_name)) {
   # Set the HCR
   HCR <- paste0(HCR_name[HCRnum], "/")
@@ -149,6 +146,7 @@ Output_all <- Output_all %>%
          Year = Year / 4 + 1974.875,
          year = floor(Year) + 0.5)
 
+# Catch
 Catch <- Output_all %>%
   group_by(HCR, OM, itr, year) %>%
   summarise(Catch_annual = sum(Catch)) %>%
@@ -160,62 +158,66 @@ Catch <- Output_all %>%
 ggplot(data = Catch %>% filter(year > 2023)) +
   geom_ribbon(aes(x = year, ymin = Catch_low, ymax = Catch_high, fill = HCR), alpha = 0.25) +
   geom_line(aes(x = year, y = Catch_medium, color = HCR), linewidth = 1) +
-  # facet_wrap(~Quantity, scales = "free_y", nrow = 2) +
   theme_bw()
 
+# SBR_d
+SBR_d <- Output_all %>%
+  group_by(HCR, Year) %>%
+  mutate(low = quantile(SBR_d, 0.1, na.rm = TRUE),
+         medium = quantile(SBR_d, 0.5, na.rm = TRUE),
+         high = quantile(SBR_d, 0.9, na.rm = TRUE))
 
-
-
-output_all_old <- Output_all_long %>%
-  filter(Year < 2024)
-output_all_new <- Output_all_long %>%
-  filter(Year > 2024, Year < max(Year))
-
-ggplot() +
-  geom_boxplot(aes(x = factor(year), y = Value, fill = HCR), data = output_all_new) +
-  facet_wrap(~Quantity, scales = "free_y", nrow = 2) +
-  theme_bw()
-```
-
-```{r fig.height=10, fig.width=10}
-# compare estimated and true SBR_d
-Record_all$Year <- as.numeric(Record_all$Step) * Mcycle + 2021.125
-
-ggplot() +
-  geom_boxplot(aes(x = as.factor(Year), y = Value, fill = OM), data = output_all_new %>% filter(Quantity == "SBR_d", Year %in% Record_all$Year)) +
-  geom_boxplot(aes(x = as.factor(Year), y = SBR_d, fill = OM), data = Record_all) +
-  ylab("SBR_d") +
+ggplot(data = SBR_d %>% filter(Year > 2023)) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
+  geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
   geom_hline(yintercept = 0.2) +
   geom_hline(yintercept = 0.3, linetype = "dashed") +
-  facet_wrap(~OM, nrow = 4) +
+  ylab("SBR_d") +
   theme_bw()
 
-# compare estimated and true SB
-ggplot() +
-  geom_boxplot(aes(x = as.factor(Year), y = Value, fill = OM), data = output_all_new %>% filter(Quantity == "SB", Year %in% Record_all$Year)) +
-  geom_boxplot(aes(x = as.factor(Year), y = SB, fill = OM), data = Record_all) +
-  ylab("SB") +
-  facet_wrap(~OM, nrow = 4, scales = "free_y") +
+SBR_d_OM <- Output_all %>%
+  group_by(HCR, Year, OM) %>%
+  mutate(low = quantile(SBR_d, 0.1, na.rm = TRUE),
+         medium = quantile(SBR_d, 0.5, na.rm = TRUE),
+         high = quantile(SBR_d, 0.9, na.rm = TRUE))
+
+ggplot(data = SBR_d_OM %>% filter(Year > 2023)) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.25) +
+  geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
+  geom_hline(yintercept = 0.2) +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  facet_wrap(~ HCR) +
+  ylab("SBR_d") +
   theme_bw()
 
-# compare SB ratio
-Record_all_2 <- left_join(Record_all, output_all_new) %>%
-  filter(Quantity == "SB") %>%
-  mutate(SB_ratio = Value / SB)
-ggplot() +
-  geom_boxplot(aes(x = as.factor(Year), y = SB_ratio, fill = OM), data = Record_all_2) +
-  ylab("SB_OM / SB_EM") +
-  facet_wrap(~OM, nrow = 4) +
+
+# SBR
+SBR <- Output_all %>%
+  group_by(HCR, Year) %>%
+  mutate(low = quantile(SBR, 0.1, na.rm = TRUE),
+         medium = quantile(SBR, 0.5, na.rm = TRUE),
+         high = quantile(SBR, 0.9, na.rm = TRUE))
+
+ggplot(data = SBR %>% filter(Year > 2023)) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
+  geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
+  geom_hline(yintercept = 0.2) +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  ylab("SBR") +
   theme_bw()
 
-# compare SBR_d ratio
-Record_all_2 <- left_join(Record_all, output_all_new) %>%
-  filter(Quantity == "SBR_d") %>%
-  mutate(SBR_d_ratio = Value / SBR_d)
+SBR_OM <- Output_all %>%
+  group_by(HCR, Year, OM) %>%
+  mutate(low = quantile(SBR, 0.1, na.rm = TRUE),
+         medium = quantile(SBR, 0.5, na.rm = TRUE),
+         high = quantile(SBR, 0.9, na.rm = TRUE))
 
-ggplot() +
-  geom_boxplot(aes(x = as.factor(Year), y = SBR_d_ratio, fill = OM), data = Record_all_2) +
-  ylab("SBR_d_OM / SBR_d_EM") +
-  facet_wrap(~OM, nrow = 4) +
+ggplot(data = SBR_OM %>% filter(Year > 2023)) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.25) +
+  geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
+  geom_hline(yintercept = 0.2) +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  facet_wrap(~ HCR) +
+  ylab("SBR") +
   theme_bw()
 ```

@@ -4,7 +4,7 @@
 \alias{HCR_staff_Fscaler}
 \title{Runs the staff's HCR algorithm}
 \usage{
-HCR_staff_Fscaler(OM, dir_EM, istep, CurrentClosure)
+HCR_staff_Fscaler(dir_EM, istep, CurrentClosure)
 }
 \arguments{
 \item{dir_EM}{the directory of the EM used to compute the current SBR_d for harvest control rule}

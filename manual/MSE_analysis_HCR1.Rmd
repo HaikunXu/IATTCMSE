@@ -36,7 +36,7 @@ sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
 niterations <- 3
-nyears <- 12
+nyears <- 21
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
