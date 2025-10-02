@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = FALSE, warning = FALSE)
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(knitr)
 
 #Specify path of parent directory
 pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
@@ -23,8 +24,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 3
-nyears <- 21
+niterations <- 10
+nyears <- 18
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -33,7 +34,7 @@ startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
-HCR_name <- c("HCR_staff")
+HCR_name <- c("HCR_staff_0", "HCR_staff_Fscaler")[1]
 
 # Set the harvest strategy
 HSnum <- 1
@@ -93,16 +94,6 @@ Record_all <- left_join(Record_all, Record_all_failed) %>%
 Record_all$itr <- as.factor(Record_all$itr)
 Record_all$Step <- as.factor(Record_all$Step)
 Record_all$HCR <- as.factor(Record_all$HCR)
-
-ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = closure, fill = OM)) +
-  facet_wrap(~ HCR) +
-  theme_bw()
-  
-ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = SBR_d, fill = OM)) +
-  facet_wrap(~ HCR) +
-  theme_bw()
 ```
 
 ```{r fig.height=10, fig.width=10}
@@ -145,79 +136,139 @@ Output_all <- Output_all %>%
   mutate(itr = as.factor(itr),
          Year = Year / 4 + 1974.875,
          year = floor(Year) + 0.5)
+Output_MSE <- Output_all %>% filter(year > 2023)
+```
 
-# Catch
-Catch <- Output_all %>%
+```{r SBR_d}
+SBR_d <- Output_MSE %>%
+  group_by(HCR, Year) %>%
+  mutate(low = quantile(SBR_d, 0.1, na.rm = TRUE),
+         medium = quantile(SBR_d, 0.5, na.rm = TRUE),
+         high = quantile(SBR_d, 0.9, na.rm = TRUE))
+
+ggplot(data = SBR_d) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
+  geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
+  geom_hline(yintercept = 0.2) +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  ylab("SBR_d") +
+  theme_bw()
+
+SBR_d_OM <- Output_MSE %>%
+  group_by(HCR, Year, OM) %>%
+  mutate(low = quantile(SBR_d, 0.1, na.rm = TRUE),
+         medium = quantile(SBR_d, 0.5, na.rm = TRUE),
+         high = quantile(SBR_d, 0.9, na.rm = TRUE))
+
+ggplot(data = SBR_d_OM) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.25) +
+  geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
+  geom_hline(yintercept = 0.2) +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  facet_wrap(~ HCR) +
+  ylab("SBR_d") +
+  theme_bw()
+
+p_SBR_d <- Output_MSE %>%
+  mutate(check = SBR_d < 0.2) %>%
+  group_by(HCR) %>%
+  summarise(p = sum(check)/ n())
+kable(p_SBR_d,caption = "p(SBR_d) < 0.2")
+
+ggplot(data = Output_MSE) +
+  geom_violin(aes(x = HCR, y = SBR_d, fill = HCR), draw_quantiles = c(0.1, 0.5, 0.9)) +
+  geom_hline(yintercept = 0.2, linetype = "dashed") +
+  theme_bw()
+```
+
+```{r SBR}
+SBR <- Output_MSE %>%
+  group_by(HCR, Year) %>%
+  mutate(low = quantile(SBR, 0.1, na.rm = TRUE),
+         medium = quantile(SBR, 0.5, na.rm = TRUE),
+         high = quantile(SBR, 0.9, na.rm = TRUE))
+
+ggplot(data = SBR) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
+  geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
+  geom_hline(yintercept = 0.2) +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  ylab("SBR") +
+  theme_bw()
+
+SBR_OM <- Output_MSE %>%
+  group_by(HCR, Year, OM) %>%
+  mutate(low = quantile(SBR, 0.1, na.rm = TRUE),
+         medium = quantile(SBR, 0.5, na.rm = TRUE),
+         high = quantile(SBR, 0.9, na.rm = TRUE))
+
+ggplot(data = SBR_OM) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.25) +
+  geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
+  geom_hline(yintercept = 0.2) +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  facet_wrap(~ HCR) +
+  ylab("SBR") +
+  theme_bw()
+
+p_SBR <- Output_MSE %>%
+  mutate(check = SBR < 0.077) %>%
+  group_by(HCR) %>%
+  summarise(p = sum(check)/ n())
+kable(p_SBR,caption = "p(SBR) < 0.077")
+
+ggplot(data = Output_MSE) +
+  geom_violin(aes(x = HCR, y = SBR, fill = HCR), draw_quantiles = c(0.1, 0.5, 0.9)) +
+  geom_hline(yintercept = 0.077, linetype = "dashed") +
+  theme_bw()
+```
+
+```{r average catch}
+Catch <- Output_MSE %>%
+  na.omit() %>%
   group_by(HCR, OM, itr, year) %>%
-  summarise(Catch_annual = sum(Catch)) %>%
+  summarise(Catch_annual = sum(Catch))
+
+Catch_plot <- Catch %>%
   group_by(HCR, year) %>%
-  mutate(Catch_low = quantile(Catch_annual, 0.1, na.rm = TRUE),
-         Catch_medium = quantile(Catch_annual, 0.5, na.rm = TRUE),
-         Catch_high = quantile(Catch_annual, 0.9, na.rm = TRUE))
+  summarise(low = quantile(Catch_annual, 0.1, na.rm = TRUE),
+         medium = quantile(Catch_annual, 0.5, na.rm = TRUE),
+         high = quantile(Catch_annual, 0.9, na.rm = TRUE))
 
-ggplot(data = Catch %>% filter(year > 2023)) +
-  geom_ribbon(aes(x = year, ymin = Catch_low, ymax = Catch_high, fill = HCR), alpha = 0.25) +
-  geom_line(aes(x = year, y = Catch_medium, color = HCR), linewidth = 1) +
+ggplot(data = Catch_plot) +
+  geom_ribbon(aes(x = year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
+  geom_line(aes(x = year, y = medium, color = HCR), linewidth = 1) +
+  ylab("Catch") +
   theme_bw()
 
-# SBR_d
-SBR_d <- Output_all %>%
-  group_by(HCR, Year) %>%
-  mutate(low = quantile(SBR_d, 0.1, na.rm = TRUE),
-         medium = quantile(SBR_d, 0.5, na.rm = TRUE),
-         high = quantile(SBR_d, 0.9, na.rm = TRUE))
-
-ggplot(data = SBR_d %>% filter(Year > 2023)) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
-  geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
-  geom_hline(yintercept = 0.2) +
-  geom_hline(yintercept = 0.3, linetype = "dashed") +
-  ylab("SBR_d") +
+ggplot(data = Catch) +
+  geom_violin(aes(x = HCR, y = Catch_annual, fill = HCR), draw_quantiles = c(0.1, 0.5, 0.9)) +
   theme_bw()
 
-SBR_d_OM <- Output_all %>%
-  group_by(HCR, Year, OM) %>%
-  mutate(low = quantile(SBR_d, 0.1, na.rm = TRUE),
-         medium = quantile(SBR_d, 0.5, na.rm = TRUE),
-         high = quantile(SBR_d, 0.9, na.rm = TRUE))
+Catch_stats <- Catch %>%
+  group_by(HCR, year) %>%
+  summarise(Catch_HCR = mean(Catch_annual)) %>%
+  group_by(HCR) %>%
+  summarise(ave_catch = mean(Catch_HCR),
+            std_catch = sd(Catch_HCR))
+```
 
-ggplot(data = SBR_d_OM %>% filter(Year > 2023)) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.25) +
-  geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
-  geom_hline(yintercept = 0.2) +
-  geom_hline(yintercept = 0.3, linetype = "dashed") +
-  facet_wrap(~ HCR) +
-  ylab("SBR_d") +
+```{r average closure}
+Closure_plot <- Record_all %>%
+  mutate(Step = as.numeric(Step)) %>%
+  group_by(HCR, Step) %>%
+  summarise(low = quantile(closure, 0.1, na.rm = TRUE),
+         medium = quantile(closure, 0.5, na.rm = TRUE),
+         high = quantile(closure, 0.9, na.rm = TRUE))
+
+ggplot(data = Closure_plot) +
+  geom_ribbon(aes(x = Step, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
+  geom_line(aes(x = Step, y = medium, color = HCR), linewidth = 1) +
+  ylab("Closure") +
+  xlab("Management cycle") +
   theme_bw()
 
-
-# SBR
-SBR <- Output_all %>%
-  group_by(HCR, Year) %>%
-  mutate(low = quantile(SBR, 0.1, na.rm = TRUE),
-         medium = quantile(SBR, 0.5, na.rm = TRUE),
-         high = quantile(SBR, 0.9, na.rm = TRUE))
-
-ggplot(data = SBR %>% filter(Year > 2023)) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
-  geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
-  geom_hline(yintercept = 0.2) +
-  geom_hline(yintercept = 0.3, linetype = "dashed") +
-  ylab("SBR") +
-  theme_bw()
-
-SBR_OM <- Output_all %>%
-  group_by(HCR, Year, OM) %>%
-  mutate(low = quantile(SBR, 0.1, na.rm = TRUE),
-         medium = quantile(SBR, 0.5, na.rm = TRUE),
-         high = quantile(SBR, 0.9, na.rm = TRUE))
-
-ggplot(data = SBR_OM %>% filter(Year > 2023)) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.25) +
-  geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
-  geom_hline(yintercept = 0.2) +
-  geom_hline(yintercept = 0.3, linetype = "dashed") +
-  facet_wrap(~ HCR) +
-  ylab("SBR") +
+ggplot(data = Record_all) +
+  geom_violin(aes(x = HCR, y = closure, fill = HCR), draw_quantiles = c(0.1, 0.5, 0.9)) +
   theme_bw()
 ```

@@ -47,7 +47,7 @@ Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name, c
   
   if(clean == TRUE) {
     # clean unused files in this folder to save storage space
-    command <- paste("cd", dir_OM_Final, "& CLEAN.BAT", sep = " ")
+    command <- paste("cd", dir_OM_MSE, "& CLEAN.BAT", sep = " ")
     ss <- shell(cmd = command, intern = T, wait = T)
   }
   

@@ -35,8 +35,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 3
-nyears <- 15
+niterations <- 2
+nyears <- 6
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -114,7 +114,7 @@ ggplot(data = Record_all) +
   theme_bw()
  
 ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = Fadjust, fill = OM)) +
+  geom_boxplot(aes(x = Step, y = Fratio, fill = OM)) +
   theme_bw() +
   ylab("F/F30%")
 

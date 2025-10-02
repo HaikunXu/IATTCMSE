@@ -6,28 +6,10 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff_0_Fscaler = function(OM, dir_EM, istep, CurrentClosure) {
-  
-  # if(OM == "Fix-1-1/") {
-  #   Fscaler = 0.980753865
-  #   Sscaler = 1.055267
-  # }
-  # if(OM == "Gro-1-1/") {
-  #   Fscaler = 0.860062653
-  #   Sscaler = 1.281592
-  # }
-  # if(OM == "Mrt-1-1/") {
-  #   Fscaler = 0.624446298
-  #   Sscaler = 1.833368
-  # }
-  # if(OM == "Sel-1-1/") {
-  #   Fscaler = 0.626810429
-  #   Sscaler = 1.815945
-  # }
+HCR_staff_0_Fscaler = function(dir_EM, istep, CurrentClosure) {
   
   Fscaler <- (0.980753865 + 0.860062653 + 0.624446298 + 0.626810429) / 4
-  Sscaler <- (1.055267 + 1.281592 + 1.833368 + 1.815945) / 4
-  
+
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
   
@@ -36,12 +18,11 @@ HCR_staff_0_Fscaler = function(OM, dir_EM, istep, CurrentClosure) {
   
   # dynamic SBR
   Dynamic_Bzero <- em_out$Dynamic_Bzero
-  SBR_d <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)] / Dynamic_Bzero$SSB_nofishing[nrow(Dynamic_Bzero)] * Sscaler
+  SBR_d <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)] / Dynamic_Bzero$SSB_nofishing[nrow(Dynamic_Bzero)]
   SB <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)]
   
   # Find FHCR from the estimated Sbio using the HCR
-  if (SBR_d > 0.2) Fadjust <- 1
-  else Fadjust <- SBR_d / 0.2
+  Fadjust <- min(5 * SBR_d, 1)
   
   # get Fmult
   ForeRepName <- paste(dir_EM, "Forecast-report.SSO", sep = "")
@@ -65,19 +46,19 @@ HCR_staff_0_Fscaler = function(OM, dir_EM, istep, CurrentClosure) {
   
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
-  NewClosure <- 365 - (365 - CurrentClosure) * Fratio
-
-  Fscale <- Fmult * Fadjust
+  NewClosure <- max(365 - (365 - CurrentClosure) * Fratio, 0)
+  
+  # Fscale <- Fmult * Fadjust
   
   return(
     list(
       "SBR_d" = SBR_d,
-      "Fscale" = Fscale,
-      "Fadjust" = Fadjust,
+      "F30" = Fmult,
+      "Fcurrent" = Frecent,
       "NewClosure" = NewClosure,
       "max_gradient" = max_gradient,
+      "Fratio" = Fratio,
       "SB" = SB
     )
   )
-  
 }

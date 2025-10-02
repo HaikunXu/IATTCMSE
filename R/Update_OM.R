@@ -15,7 +15,7 @@ Update_OM = function(istep, dir_OM, dir_OM_Boot, dir_OM_Final, Mcycle, endquarte
   dat_OM_Boot <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, dat_name), verbose = FALSE)
   data_true <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, "data_expval.ss"), verbose = FALSE)
   
-    # add new CPUE
+  # add new CPUE
   CPUE <- dat_OM$CPUE
   CPUE_true <- data_true$CPUE[(nrow(CPUE)+1):nrow(data_true$CPUE),]
   CPUE_new <- rbind(CPUE, CPUE_true)
@@ -113,5 +113,4 @@ Update_OM = function(istep, dir_OM, dir_OM_Boot, dir_OM_Final, Mcycle, endquarte
   ss <- shell(cmd = command, intern = T, wait = T)
   
   return()
-
 }

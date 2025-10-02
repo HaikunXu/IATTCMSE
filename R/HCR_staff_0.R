@@ -20,8 +20,7 @@ HCR_staff_0 = function(dir_EM, istep, CurrentClosure) {
   SB <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)]
 
   # Find FHCR from the estimated Sbio using the HCR
-  if (SBR_d > 0.2) Fadjust <- 1
-  else Fadjust <- SBR_d / 0.2
+  Fadjust <- min(5 * SBR_d, 1)
   
   # get Fmult
   ForeRepName <- paste(dir_EM, "Forecast-report.SSO", sep = "")
@@ -45,17 +44,18 @@ HCR_staff_0 = function(dir_EM, istep, CurrentClosure) {
   
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
-  NewClosure <- 365 - (365 - CurrentClosure) * Fratio
-
-  Fscale <- Fmult * Fadjust
+  NewClosure <- max(365 - (365 - CurrentClosure) * Fratio, 0)
+  
+  # Fscale <- Fmult * Fadjust
   
   return(
     list(
       "SBR_d" = SBR_d,
-      "Fscale" = Fscale,
-      "Fadjust" = Fadjust,
+      "F30" = Fmult,
+      "Fcurrent" = Frecent,
       "NewClosure" = NewClosure,
       "max_gradient" = max_gradient,
+      "Fratio" = Fratio,
       "SB" = SB
     )
   )
