@@ -30,6 +30,9 @@ Extract_OM = function(dir_OM_Final, startquarter, plot = FALSE) {
   SB <- SB %>%
     filter(Yr >= startquarter)
   
+  CPUE <- om_out$cpue %>%
+    filter(Yr >= startquarter)
+  
   Output <- data.frame(
     "Year" = Recruit$Yr,
     "Catch" = c(Catch$Tot_catch,NA),
@@ -37,7 +40,8 @@ Extract_OM = function(dir_OM_Final, startquarter, plot = FALSE) {
     "SB" = SB$SpawnBio,
     "SBR" = SB$SBR,
     "Recruit" = Recruit$pred_recr,
-    "R_devs" = Recruit$dev
+    "R_devs" = Recruit$dev,
+    "CPUE" = c(CPUE$Obs, NA, NA)
   )
   
   return(Output)

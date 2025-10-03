@@ -35,8 +35,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 2
-nyears <- 6
+niterations <- 10
+nyears <- 15
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -45,7 +45,7 @@ startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
-HCR_name <-  "HCR_staff_risk"
+HCR_name <-  "HCR_staff_0_risk"
 
 # Set the harvest strategy
 HSnum <- 2
@@ -114,14 +114,19 @@ ggplot(data = Record_all) +
   theme_bw()
  
 ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = Fratio, fill = OM)) +
+  geom_boxplot(aes(x = Step, y = Fcurrent_EM/F30_EM, fill = OM)) +
   theme_bw() +
-  ylab("F/F30%")
+  ylab("F_EM/F30_EM")
 
-# ggplot(data = Record_all) +
-#   geom_boxplot(aes(x = Step, y = (Time_Stamp - min(Time_Stamp))/60, fill = OM)) +
-#   theme_bw() +
-#   ylab("Time chart in minute")
+ggplot(data = Record_all) +
+  geom_boxplot(aes(x = Step, y = Fcurrent/F30, fill = OM)) +
+  theme_bw() +
+  ylab("F/F30")
+
+ggplot(data = Record_all) +
+  geom_boxplot(aes(x = Step, y = (Fcurrent_EM/F30_EM) / (Fcurrent/F30), fill = OM)) +
+  theme_bw() +
+  ylab("F/F30(EM) / F/F30_OM")
 ```
 
 ```{r fig.height=10, fig.width=20}
@@ -176,6 +181,21 @@ ggplot() +
 ggplot() +
   geom_boxplot(aes(x = factor(year), y = Value, fill = OM), data = output_all_new) +
   facet_wrap(~Quantity, scales = "free_y", nrow = 2) +
+  theme_bw()
+
+ggplot() +
+  geom_violin(aes(x = factor(year), y = Value), data = output_all_new) +
+  facet_wrap(~Quantity, scales = "free_y", nrow = 2) +
+  theme_bw()
+
+
+CPUE_all <- Output_all %>%
+  mutate(itr = as.factor(itr),
+         Year = Year / 4 + 1974.875,
+         year = floor(Year) + 0.5)
+
+ggplot() +
+  geom_boxplot(aes(x = as.factor(year), y = CPUE, color = OM), data = CPUE_all %>% filter(Year > 2023)) +
   theme_bw()
 ```
 

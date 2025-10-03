@@ -35,7 +35,7 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 4
+niterations <- 10
 nyears <- 15
 nquarters <- nyears * 4
 Mcycle <- 3
@@ -44,8 +44,8 @@ endquarter <- 196
 startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1]
-HCR_name <-  "HCR_staff_Fscaler"
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
+HCR_name <-  "HCR_staff_0_Fscaler"
 
 # Set the harvest strategy
 HSnum <- 1
@@ -131,10 +131,10 @@ ggplot(data = Record_all) +
   theme_bw() +
   ylab("Fcurrent")
 
-ggplot(data = Record_all) +
-  geom_boxplot(aes(x = Step, y = F30, fill = OM)) +
-  theme_bw() +
-  ylab("F30")
+# ggplot(data = Record_all) +
+#   geom_boxplot(aes(x = Step, y = F30, fill = OM)) +
+#   theme_bw() +
+#   ylab("F30")
 ```
 
 ```{r fig.height=10, fig.width=20}
