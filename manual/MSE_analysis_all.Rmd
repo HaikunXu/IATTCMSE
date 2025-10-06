@@ -25,11 +25,16 @@ sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
 niterations <- 10
+nyears <- 15
+Mcycle <- 3
+nsteps <- nyears / Mcycle
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
 
-Check_list <- data.frame(HSnum = c(1,2),
-                         HCR_name = c("HCR_staff_0","HCR_staff_0_risk"))
+Check_list <- data.frame(HSnum = c(1,1,1,1,2),
+                         HCR_name = c("HCR_staff_0","HCR_staff_0_Fscaler","HCR_staff","HCR_staff_Fscaler","HCR_staff_0_risk"),
+                         HS_plot = c("HS_Fix","HS_Fix_tuned","HS_Fix","HS_Fix_tuned","HS_ensemble"),
+                         HCR_plot = c("HCR1","HCR1","HCR2","HCR2","HCR1"))
 ```
 
 ```{r management_output}
@@ -39,42 +44,45 @@ for (i in 1:nrow(Check_list)) {
   HS <- paste0("HS", Check_list$HSnum[i], "/")
   
   for (OMnum in 1:length(OM_name)) {
-  # Set the scenario
-  OM <- paste0(OM_name[OMnum], "/")
-  
-  # extract saved management output
-  for (itrnum in 1:niterations) {
-    itr = paste0("itr", itrnum, "/")
+    # Set the scenario
+    OM <- paste0(OM_name[OMnum], "/")
     
-    skip_to_next <- FALSE
-    
-    tryCatch({
-      Record <- read.csv(paste0(paste0(pdir, HS, HCR, OM, itr, "Record.csv")))
-      Record$Step <- 1:nrow(Record)
-      Record$OM <- OM
-      Record$itr <- itrnum
-      Record$HCR <- Check_list$HCR_name[i]
-      Record$HS <- Check_list$HSnum[i]
+    # extract saved management output
+    for (itrnum in 1:niterations) {
+      itr = paste0("itr", itrnum, "/")
       
-      if (i == 1 & itrnum == 1)
-        Record_all <- Record
-      else
-        Record_all <- rbind(Record_all, Record)
-    }, error = function(e) {
-      skip_to_next <<- TRUE
-    })
-    if (skip_to_next) {
-      next
+      skip_to_next <- FALSE
+      
+      tryCatch({
+        Record <- read.csv(paste0(paste0(
+          pdir, HS, HCR, OM, itr, "Record.csv"
+        )))
+        Record$Step <- 1:nrow(Record)
+        Record$OM <- OM
+        Record$itr <- itrnum
+        Record$HCR <- Check_list$HCR_plot[i]
+        Record$HS <- Check_list$HS_plot[i]
+        
+        if (i == 1 & OMnum == 1 & itrnum == 1)
+          Record_all <- Record
+        else
+          Record_all <- rbind(Record_all, Record)
+      }, error = function(e) {
+        skip_to_next <<- TRUE
+      })
+      if (skip_to_next) {
+        next
+      }
     }
   }
 }
-}
 
-# Record_all_count <- Record_all %>%
-#   filter(Step == nsteps, max_gradient < 0.1) %>%
-#   group_by(HCR, OM) %>%
-#   summarise(count = n())
-# 
+Record_all_count <- Record_all %>%
+  filter(Step == nsteps, max_gradient < 0.1) %>%
+  group_by(HS, HCR, OM) %>%
+  summarise(count = n())
+kable(Record_all_count,caption = "Record_all_count")
+
 # Record_all_failed <- Record_all %>%
 #   filter(Step == nsteps) %>%
 #   filter(max_gradient > 0.1 | is.na(max_gradient)) %>%
@@ -108,10 +116,10 @@ for (i in 1:nrow(Check_list)) {
         Output <- read.csv(paste0(paste0(pdir, HS, HCR, OM, itr, "Output.csv")))
         Output$OM <- OM
         Output$itr <- itrnum
-        Output$HCR <- Check_list$HCR_name[i]
-        Output$HS <- Check_list$HSnum[i]
+        Output$HCR <- Check_list$HCR_plot[i]
+        Output$HS <- Check_list$HS_plot[i]
         
-        if (i == 1 & itrnum == 1)
+        if (i == 1 & OMnum == 1 & itrnum == 1)
           Output_all <- Output
         else
           Output_all <- rbind(Output_all, Output)
@@ -140,7 +148,7 @@ SBR_d <- Output_MSE %>%
          high = quantile(SBR_d, 0.9, na.rm = TRUE))
 
 ggplot(data = SBR_d) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.2) +
   geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
   geom_hline(yintercept = 0.2) +
   geom_hline(yintercept = 0.3, linetype = "dashed") +
@@ -149,23 +157,23 @@ ggplot(data = SBR_d) +
   theme_bw()
 
 SBR_d_OM <- Output_MSE %>%
-  group_by(HCR, Year, OM) %>%
+  group_by(HS, HCR, Year, OM) %>%
   mutate(low = quantile(SBR_d, 0.1, na.rm = TRUE),
          medium = quantile(SBR_d, 0.5, na.rm = TRUE),
          high = quantile(SBR_d, 0.9, na.rm = TRUE))
 
 ggplot(data = SBR_d_OM) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.25) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.2) +
   geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
   geom_hline(yintercept = 0.2) +
   geom_hline(yintercept = 0.3, linetype = "dashed") +
-  facet_wrap(~ HCR) +
+  facet_grid(HS ~ HCR) +
   ylab("SBR_d") +
   theme_bw()
 
 p_SBR_d <- Output_MSE %>%
   mutate(check = SBR_d < 0.2) %>%
-  group_by(HCR) %>%
+  group_by(HS, HCR) %>%
   summarise(p = sum(check)/ n())
 kable(p_SBR_d,caption = "p(SBR_d) < 0.2")
 
@@ -183,10 +191,9 @@ SBR <- Output_MSE %>%
          high = quantile(SBR, 0.9, na.rm = TRUE))
 
 ggplot(data = SBR) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.2) +
   geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
-  geom_hline(yintercept = 0.2) +
-  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  geom_hline(yintercept = 0.077, linetype = "dashed") +
   ylab("SBR") +
   theme_bw()
 
@@ -197,10 +204,9 @@ SBR_OM <- Output_MSE %>%
          high = quantile(SBR, 0.9, na.rm = TRUE))
 
 ggplot(data = SBR_OM) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.25) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.2) +
   geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
-  geom_hline(yintercept = 0.2) +
-  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  geom_hline(yintercept = 0.077, linetype = "dashed") +
   facet_wrap(~ HCR) +
   ylab("SBR") +
   theme_bw()
@@ -245,6 +251,7 @@ Catch_stats <- Catch %>%
   group_by(HCR) %>%
   summarise(ave_catch = mean(Catch_HCR),
             std_catch = sd(Catch_HCR))
+kable(Catch_stats,caption = "Catch")
 ```
 
 ```{r average closure}

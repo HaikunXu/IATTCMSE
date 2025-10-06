@@ -65,11 +65,13 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   return(
     list(
       "SBR_d" = SBR_d,
-      # "Fadjust" = Fadjust,
+      "F30" = Fmult,
+      "Fcurrent" = Frecent,
       "NewClosure" = NewClosure,
       "max_gradient" = max_gradient,
       "Fratio" = Fratio,
       "SB" = SB
     )
   )
+  
 }

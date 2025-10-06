@@ -57,7 +57,7 @@ HCR_staff_risk = function(dir_EM, istep, CurrentClosure) {
   Fadjust <- min(5 * SBR_d, 1)
   
   # Check the Fscale with the 10 days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
-  Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
+  Fratio <- mean(Fmult_em / Frecent_em) * Fadjust # Fnew = Fmult * Fadjust
   NewClosure <- max(365 - (365 - CurrentClosure) * Fratio, 0)
   
   # if(SBR_d >= 0.2) {
@@ -72,31 +72,19 @@ HCR_staff_risk = function(dir_EM, istep, CurrentClosure) {
       Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
       # Fadjust <- Fratio * Frecent / Fmult
     }
-  # }
-  # else {
-  #   if ((CurrentClosure - NewClosure) > 30) {
-  #     NewClosure <- CurrentClosure - 30
-  #     Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-  #     Fadjust <- Fratio * Frecent / Fmult
-  #   }
-  #   
-  #   if ((NewClosure - CurrentClosure) > 30) {
-  #     NewClosure <- CurrentClosure + 30
-  #     Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-  #     Fadjust <- Fratio * Frecent / Fmult
-  #   }
-  # }
-  
+
   # Fscale <- Fmult * Fadjust
   
   return(
     list(
       "SBR_d" = SBR_d,
-      # "Fadjust" = Fadjust,
+      "F30" = Fmult,
+      "Fcurrent" = Frecent,
       "NewClosure" = NewClosure,
       "max_gradient" = max_gradient,
       "Fratio" = Fratio,
       "SB" = SB
     )
   )
+  
 }

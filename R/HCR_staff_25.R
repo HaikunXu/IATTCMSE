@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff = function(dir_EM, istep, CurrentClosure) {
+HCR_staff_25 = function(dir_EM, istep, CurrentClosure) {
   
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)

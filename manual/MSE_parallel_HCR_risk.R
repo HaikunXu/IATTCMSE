@@ -30,7 +30,7 @@ registerDoParallel(cl)
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
 OM <- paste0(OM_name, "/")
-HCR_name <- "HCR_staff_0_risk"
+HCR_name <- "HCR_staff_risk"
 HCR <- paste0(HCR_name, "/")
 
 # Set the harvest strategy
