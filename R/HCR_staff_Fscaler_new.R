@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff_new = function(dir_EM, istep, CurrentClosure) {
+HCR_staff_Fscaler_new = function(dir_EM, istep, CurrentClosure) {
   
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
@@ -40,7 +40,7 @@ HCR_staff_new = function(dir_EM, istep, CurrentClosure) {
   FvectorRepStart <- grep("Seasonal_apicalF=Fmult", readLines(ForeRepName))
   Fvector <- read.table(file = ForeRepName, nrows = 1, skip = FvectorRepStart[1] + 1)
   Fvector <- Fvector[3:length(Fvector)]
-  Frecent <- sum(Fvector) # F
+  Frecent <- sum(Fvector) * 0.7 # F
   
   # Check the Fscale with the 10 days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust

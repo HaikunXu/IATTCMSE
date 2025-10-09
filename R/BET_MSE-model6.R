@@ -20,23 +20,23 @@
 #' @author Haikun Xu
 #' @export
 
-BET_MSE_risk = function(pdir,
-                        sdir,
-                        HS,
-                        HCR,
-                        OM,
-                        itrnum,
-                        nquarters,
-                        Mcycle,
-                        n_extra_R,
-                        startquarter,
-                        endquarter,
-                        EM_comp_fleet,
-                        dat_name,
-                        ctl_name,
-                        ss_name,
-                        clean = FALSE,
-                        plot = FALSE) {
+BET_MSE = function(pdir,
+                   sdir,
+                   HS,
+                   HCR,
+                   OM,
+                   itrnum,
+                   nquarters,
+                   Mcycle,
+                   n_extra_R,
+                   startquarter,
+                   endquarter,
+                   EM_comp_fleet,
+                   dat_name,
+                   ctl_name,
+                   ss_name,
+                   clean = FALSE,
+                   plot = FALSE) {
   itr = paste0("itr", itrnum, "/")
   
   # create and set directory for each iteration (i.e. different recruitment)
@@ -70,24 +70,33 @@ BET_MSE_risk = function(pdir,
     # specify the previous OM and EM directories
     if (istep == 1) {
       dir_OM_previous <- paste0(pdir, HS, HCR, OM, "itr0/")
-      dir_EM_previous <- paste0(pdir, HS, c("EM_Fix/", "EM_Mrt/", "EM_Sel/", "EM_Gro/"))
+      dir_EM_previous <- paste0(pdir, HS, "EM/")
       CurrentClosure <- 72
     }
     else {
       dir_OM_previous <- paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/OM_Final/")
-      dir_EM_previous <- paste0(pdir, HS, HCR, OM, itr, "step", istep - 1,  "/", c("EM_Fix/", "EM_Mrt/", "EM_Sel/", "EM_Gro/"))
+      dir_EM_previous <- paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/EM/")
     }
     
     # *************************************************************************************
     # step 2: Compute the F for the new management cycle
     # *************************************************************************************
-
-    if (HCR == "HCR_staff_risk/")
-      step2 <- IATTCMSE::HCR_staff_risk(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_0_risk/")
-      step2 <- IATTCMSE::HCR_staff_0_risk(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_risk_new/")
-      step2 <- IATTCMSE::HCR_staff_risk_new(dir_EM = dir_EM_previous, istep, CurrentClosure)
+    dir_EM_HCR <- ifelse(
+      istep == 1,
+      paste0(pdir, HS, "EM/"),
+      paste0(pdir, HS, HCR, OM, itr, "step", istep - 1, "/", "EM/")
+    )
+    
+    if (HCR == "HCR_staff/")
+      step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_HCR, istep, CurrentClosure)
+    if (HCR == "HCR_staff_Fscaler/")
+      step2 <- IATTCMSE::HCR_staff_Fscaler(dir_EM = dir_EM_HCR, istep, CurrentClosure)
+    if (HCR == "HCR_staff_0/")
+      step2 <- IATTCMSE::HCR_staff_0(dir_EM = dir_EM_HCR, istep, CurrentClosure)
+    if (HCR == "HCR_staff_0_Fscaler/")
+      step2 <- IATTCMSE::HCR_staff_0_Fscaler(dir_EM = dir_EM_HCR, istep, CurrentClosure)
+    if (HCR == "HCR_staff_Fscaler_new/")
+      step2 <- IATTCMSE::HCR_staff_Fscaler_new(dir_EM = dir_EM_HCR, istep, CurrentClosure)
     
     if ((step2$max_gradient > 0.1) |
         (step2$SBR_d > 0.99) |
@@ -123,7 +132,7 @@ BET_MSE_risk = function(pdir,
       istep,
       step2$Fratio,
       dir_OM_previous,
-      dir_EM_previous[1],
+      dir_EM_previous,
       R_devs,
       n_extra_R,
       Mcycle,
@@ -178,8 +187,9 @@ BET_MSE_risk = function(pdir,
     Time_ts[istep] <- Sys.time()
     
     if (istep < nsteps)
-      step6 <- IATTCMSE::Estimation_EM_risk(
+      step6 <- IATTCMSE::Estimation_EM(
         dir_istep,
+        step1$R0,
         dir_EM_previous,
         dir_OM_Boot,
         Mcycle,

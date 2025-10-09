@@ -32,10 +32,39 @@ nsteps <- nyears / Mcycle
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
 
-Check_list <- data.frame(HSnum = c(1,1,1,1,2,2),
-                         HCR_name = c("HCR_staff_0","HCR_staff_0_Fscaler","HCR_staff","HCR_staff_Fscaler","HCR_staff_0_risk","HCR_staff_risk"),
-                         HS_plot = c("HS_Fix","HS_Fix_tuned","HS_Fix","HS_Fix_tuned","HS_ensemble","HS_ensemble"),
-                         HCR_plot = c("HCR_staff_0","HCR_staff_0","HCR_staff","HCR_staff","HCR_staff_0","HCR_staff"))
+Check_list <- data.frame(
+  HSnum = c(1, 1, 1, 1, 2, 2, 1, 2),
+  HCR_name = c(
+    "HCR_staff_0",
+    "HCR_staff_0_Fscaler",
+    "HCR_staff",
+    "HCR_staff_Fscaler",
+    "HCR_staff_0_risk",
+    "HCR_staff_risk",
+    "HCR_staff_Fscaler_new",
+    "HCR_staff_risk_new"
+  ),
+  HS_plot = c(
+    "HS_Fix",
+    "HS_Fix_tuned",
+    "HS_Fix",
+    "HS_Fix_tuned",
+    "HS_ensemble",
+    "HS_ensemble",
+    "HS_Fix_tuned",
+    "HS_ensemble"
+  ),
+  HCR_plot = c(
+    "HCR_staff_0",
+    "HCR_staff_0",
+    "HCR_staff",
+    "HCR_staff",
+    "HCR_staff_0",
+    "HCR_staff",
+    "HCR_staff_new",
+    "HCR_staff_new"
+  )
+)
   # filter(HCR_plot == "HCR_staff")
 ```
 

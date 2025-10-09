@@ -23,18 +23,19 @@ ctl_name <- "BET-EPO.ctl"
 ss_name <- "ss.exe"
 
 # Calculate the numbers of cores 
-no_cores = 15 # detectCores() - 2
+no_cores = 14 # detectCores() - 2
 # Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)
 
+
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
 OM <- paste0(OM_name, "/")
-HCR_name <- "HCR_staff_risk_new"
+HCR_name <- c("HCR_staff", "HCR_staff_Fscaler", "HCR_staff_Fscaler_new")[3]
 HCR <- paste0(HCR_name, "/")
 
 # Set the harvest strategy
-HSnum <- 2
+HSnum <- 1
 HS <- paste0("HS", HSnum, "/")
 dir.create(paste0(pdir, HS)) # for that harvest strategy
 
@@ -52,11 +53,11 @@ for (HCRnum in 1:length(HCR)) {
 # specify the run list 
 runs <- data.frame(expand.grid(run_hcr = HCR, run_om = OM, run_itr = 1:niterations))
 
-# i = 19;  HCR= runs[i,1]; OM = runs[i,2]; itrnum= runs[i,3]
-# BET_MSE_risk(pdir,sdir,HS,runs[i, 1],runs[i, 2],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,clean = FALSE)
+# i = 1;  HCR= runs[i,1]; OM = runs[i,2]; itrnum= runs[i,3]
+# BET_MSE(pdir,sdir,HS,runs[i, 1],runs[i, 2],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,clean = FALSE)
 
 foreach(i = 1:nrow(runs)) %dopar% {
-  IATTCMSE::BET_MSE_risk(
+  IATTCMSE::BET_MSE(
     pdir,
     sdir,
     HS,
