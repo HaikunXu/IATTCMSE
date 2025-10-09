@@ -8,9 +8,8 @@
 
 HCR_staff_Fscaler = function(dir_EM, istep, CurrentClosure) {
   
-  Fscaler <- (0.980753865 + 0.860062653 + 0.624446298 + 0.626810429) / 4
-  Sscaler <- 1 # (1.055267 + 1.281592 + 1.833368 + 1.815945) / 4
-  
+  Fscaler <- 0.7 # (0.980753865 + 0.860062653 + 0.624446298 + 0.626810429) / 4
+
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
   
@@ -19,7 +18,7 @@ HCR_staff_Fscaler = function(dir_EM, istep, CurrentClosure) {
   
   # dynamic SBR
   Dynamic_Bzero <- em_out$Dynamic_Bzero
-  SBR_d <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)] / Dynamic_Bzero$SSB_nofishing[nrow(Dynamic_Bzero)] * Sscaler
+  SBR_d <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)] / Dynamic_Bzero$SSB_nofishing[nrow(Dynamic_Bzero)]
   SB <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)]
   
   # Find FHCR from the estimated Sbio using the HCR

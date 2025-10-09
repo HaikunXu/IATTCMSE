@@ -52,8 +52,8 @@ for (HCRnum in 1:length(HCR)) {
 # specify the run list 
 runs <- data.frame(expand.grid(run_hcr = HCR, run_om = OM, run_itr = 1:niterations))
 
-# i = 1;  HCR= runs[i,1]; OM = runs[i,2]; itrnum= runs[i,3]
-# BET_MSE_risk(pdir,sdir,HS,runs[i, 1],runs[i, 2],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,clean = FALSE)
+i = 19;  HCR= runs[i,1]; OM = runs[i,2]; itrnum= runs[i,3]
+BET_MSE_risk(pdir,sdir,HS,runs[i, 1],runs[i, 2],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,clean = FALSE)
 
 foreach(i = 1:nrow(runs)) %dopar% {
   IATTCMSE::BET_MSE_risk(

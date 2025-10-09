@@ -23,15 +23,14 @@ ctl_name <- "BET-EPO.ctl"
 ss_name <- "ss.exe"
 
 # Calculate the numbers of cores 
-no_cores = 12 # detectCores() - 2
+no_cores = 5 # detectCores() - 2
 # Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)
 
-
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1", "Fix-1-0.8", "Fix-1.02-1")[6]
 OM <- paste0(OM_name, "/")
-HCR_name <- c("HCR_staff", "HCR_staff_Fscaler", "HCR_staff_0", "HCR_staff_0_Fscaler")[1]
+HCR_name <- c("HCR_staff", "HCR_staff_Fscaler", "HCR_staff_0", "HCR_staff_0_Fscaler")[2]
 HCR <- paste0(HCR_name, "/")
 
 # Set the harvest strategy

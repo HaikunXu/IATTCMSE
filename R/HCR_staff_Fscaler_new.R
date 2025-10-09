@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff_25 = function(dir_EM, istep, CurrentClosure) {
+HCR_staff_new = function(dir_EM, istep, CurrentClosure) {
   
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
@@ -20,7 +20,7 @@ HCR_staff_25 = function(dir_EM, istep, CurrentClosure) {
   SB <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)]
   
   # Find FHCR from the estimated Sbio using the HCR
-  Fadjust <- min(5 * SBR_d, 1)
+  Fadjust <- min(10 / 3 * SBR_d, 1)
   
   # get Fmult
   ForeRepName <- paste(dir_EM, "Forecast-report.SSO", sep = "")
@@ -65,11 +65,13 @@ HCR_staff_25 = function(dir_EM, istep, CurrentClosure) {
   return(
     list(
       "SBR_d" = SBR_d,
-      # "Fadjust" = Fadjust,
+      "F30" = Fmult,
+      "Fcurrent" = Frecent,
       "NewClosure" = NewClosure,
       "max_gradient" = max_gradient,
       "Fratio" = Fratio,
       "SB" = SB
     )
   )
+  
 }

@@ -8,7 +8,7 @@
 
 HCR_staff_0_Fscaler = function(dir_EM, istep, CurrentClosure) {
   
-  Fscaler <- (0.980753865 + 0.860062653 + 0.624446298 + 0.626810429) / 4
+  Fscaler <- 0.7 #(0.980753865 + 0.860062653 + 0.624446298 + 0.626810429) / 4
 
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)

@@ -45,7 +45,7 @@ startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
 OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
-HCR_name <-  "HCR_staff_0_risk"
+HCR_name <-  "HCR_staff_risk"
 
 # Set the harvest strategy
 HSnum <- 2
