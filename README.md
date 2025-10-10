@@ -4,5 +4,6 @@ IATTC's MSE code
 
 **To-do list**
 
--   round closure days as integers
--   save the change in closure days
+-   Round closure days as integers
+-   Save the change in closure days
+-   Remove the report file from OM_Final
