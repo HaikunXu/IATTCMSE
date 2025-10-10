@@ -10,12 +10,11 @@
 #' @param dat_name name of the SS data file
 #' @param ctl_name name of the SS control file
 #' @param ss_name name of the SS exe file
-#' @param clean if TRUE, all intermediate folders of the MSE simulation will be deleted to save storage space
 #' 
 #' @author Haikun Xu 
 #' @export
 
-Final_OM = function(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, dat_name, ctl_name, ss_name, clean) {
+Final_OM = function(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarter, dat_name, ctl_name, ss_name) {
   
   # step 1: create a new folder for the OM bootstrap
   dir_OM_Final <- paste0(dir_itr, "OM_Final/")
@@ -99,12 +98,6 @@ Final_OM = function(pdir, dir_itr, istep, dir_OM, dir_OM_Boot, Mcycle, endquarte
   # run the OM
   command <- paste("cd", dir_OM_Final, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
-  
-  if(clean == TRUE) {
-    # clean unused files in this folder to save storage space
-    command <- paste("cd", dir_OM_Final, "& CLEAN.BAT", sep = " ")
-    ss <- shell(cmd = command, intern = T, wait = T)
-  }
   
   return(dir_OM_Final)
 }

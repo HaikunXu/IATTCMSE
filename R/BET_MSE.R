@@ -37,6 +37,7 @@ BET_MSE = function(pdir,
                    ss_name,
                    clean = FALSE,
                    plot = FALSE) {
+  
   itr = paste0("itr", itrnum, "/")
   
   # create and set directory for each iteration (i.e. different recruitment)
@@ -50,6 +51,7 @@ BET_MSE = function(pdir,
   SBR_d_ts <- rep(NA, nsteps)
   max_gradient_ts <- rep(NA, nsteps)
   Closure_ts <- rep(NA, nsteps)
+  Closure_diff_ts <- rep(NA, nsteps)
   Fratio_ts <- rep(NA, nsteps)
   F30_EM_ts <- rep(NA, nsteps)
   F30_ts <- rep(NA, nsteps)
@@ -93,8 +95,8 @@ BET_MSE = function(pdir,
       step2 <- IATTCMSE::HCR_staff_0(dir_EM = dir_EM_previous, istep, CurrentClosure)
     if (HCR == "HCR_staff_0_Fscaler/")
       step2 <- IATTCMSE::HCR_staff_0_Fscaler(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_new")
-      step2 <- IATTCMSE::HCR_staff_new(dir_EM = dir_EM_previous, istep, CurrentClosure)
+    if (HCR == "HCR_staff_FSscaler_new/")
+      step2 <- IATTCMSE::HCR_staff_FSscaler_new(dir_EM = dir_EM_previous, istep, CurrentClosure)
     
     if ((step2$max_gradient > 0.1) |
         (step2$SBR_d > 0.99) |
@@ -107,6 +109,7 @@ BET_MSE = function(pdir,
     }
     
     # update closure days
+    Closure_diff_ts[istep] <- step2$NewClosure - CurrentClosure
     CurrentClosure <- step2$NewClosure
     
     # save some management quantities from the EM
@@ -214,15 +217,14 @@ BET_MSE = function(pdir,
       endquarter,
       dat_name,
       ctl_name,
-      ss_name,
-      clean
+      ss_name
     )
     dir_OM_Final <- step7
     
     # *************************************************************************************
     # Step 8: Extract OM_final's results
     # *************************************************************************************
-    step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter, plot = plot)
+    step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter, clean = clean, plot = plot)
     write.csv(step8,
               file = paste0(dir_itr, "Output.csv"),
               row.names = FALSE)
@@ -244,6 +246,7 @@ BET_MSE = function(pdir,
     "SBR_d" = SBR_d_ts,
     "max_gradient" = max_gradient_ts,
     "closure" = Closure_ts,
+    "closure_diff" = Closure_diff_ts,
     "F30" = F30_ts,
     "F30_EM" = F30_EM_ts,
     "Fcurrent_EM" = Fcurrent_EM_ts,

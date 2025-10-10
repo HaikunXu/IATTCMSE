@@ -3,7 +3,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Extract_OM = function(dir_OM_Final, startquarter, plot = FALSE) {
+Extract_OM = function(dir_OM_Final, startquarter, clean, plot = FALSE) {
   
   library(dplyr)
   # read the report file from the final OM
@@ -43,6 +43,12 @@ Extract_OM = function(dir_OM_Final, startquarter, plot = FALSE) {
     "R_devs" = Recruit$dev,
     "CPUE" = c(CPUE$Obs, NA, NA)
   )
+  
+  if(clean == TRUE) {
+    # clean unused files in this folder to save storage space
+    command <- paste("cd", dir_OM_Final, "& CLEAN.BAT", sep = " ")
+    ss <- shell(cmd = command, intern = T, wait = T)
+  }
   
   return(Output)
   

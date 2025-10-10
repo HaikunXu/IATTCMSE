@@ -14,8 +14,7 @@ Final_OM(
   endquarter,
   dat_name,
   ctl_name,
-  ss_name,
-  clean
+  ss_name
 )
 }
 \arguments{
@@ -38,8 +37,6 @@ Final_OM(
 \item{ctl_name}{name of the SS control file}
 
 \item{ss_name}{name of the SS exe file}
-
-\item{clean}{if TRUE, all intermediate folders of the MSE simulation will be deleted to save storage space}
 }
 \description{
 Make the final OM for extracting MSE results
