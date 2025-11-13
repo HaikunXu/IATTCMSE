@@ -6,7 +6,6 @@
 \usage{
 Estimation_EM(
   dir_istep,
-  R0,
   dir_EM_previous,
   dir_OM_Boot,
   Mcycle,
@@ -19,8 +18,6 @@ Estimation_EM(
 }
 \arguments{
 \item{dir_istep}{the directory of step i}
-
-\item{R0}{true R0}
 
 \item{dir_EM_previous}{the directory of the EM in the previous step}
 

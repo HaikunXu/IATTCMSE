@@ -12,7 +12,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name, clean) {
+Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name) {
   
   # *************************************************************************************
   # Step 0: get the OM from the 2024 assessment
@@ -45,11 +45,9 @@ Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name, c
   command <- paste("cd", dir_OM_MSE, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
   
-  if(clean == TRUE) {
-    # clean unused files in this folder to save storage space
-    command <- paste("cd", dir_OM_MSE, "& CLEAN.BAT", sep = " ")
-    ss <- shell(cmd = command, intern = T, wait = T)
-  }
+  # clean unused files in this folder to save storage space
+  command <- paste("cd", dir_OM_MSE, "& CLEAN.BAT", sep = " ")
+  ss <- shell(cmd = command, intern = T, wait = T)
   
-  return(list("R0" = R0))
+  return(ss)
 }

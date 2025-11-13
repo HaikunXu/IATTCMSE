@@ -1,7 +1,6 @@
 #' Make projection based on simulated R devs and HCR
 #'
 #' @param dir_istep the directory of step i
-#' @param R0 true R0
 #' @param dir_EM_previous the directory of the EM in the previous step
 #' @param dir_OM_Boot the directory of the OM bootstrap in the current step
 #' @param Mcycle the number of years within a management cycle
@@ -15,7 +14,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE, include_LF = TRUE) {
+Estimation_EM = function(dir_istep, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE, include_LF = TRUE) {
   
   # step 1: create a new folder for the EM
   dir_EM <- paste0(dir_istep, "EM/")
@@ -41,7 +40,7 @@ Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, da
   
   # add new catch
   catch <- dat_EM_previous$catch
-  catch_boot <- data_boot$catch[which(data_boot$catch$year>max(catch$year)),]
+  catch_boot <- data_boot$catch[which(data_boot$catch$year > max(catch$year)),]
   catch_new <- dplyr::arrange(rbind(catch, catch_boot), fleet, year)
   
   # add new LF
@@ -68,7 +67,7 @@ Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, da
   )
   ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
   
-  ctl$SR_parms$INIT[1] <- R0 + 0.2 # adding 0.25 makes the EM more likely to converge
+  # ctl$SR_parms$INIT[1] <- R0 + 0.2 # adding 0.25 makes the EM more likely to converge
   
   r4ss::SS_writectl_3.30(
     ctl,
@@ -79,10 +78,10 @@ Estimation_EM = function(dir_istep, R0, dir_EM_previous, dir_OM_Boot, Mcycle, da
   
   starter <- r4ss::SS_readstarter(paste0(dir_EM, "/starter.ss"), verbose = FALSE)
   
-  #specify to not use the ss3.par as parameters
+  # specify to not use the ss3.par as parameters
   starter$init_values_src = 0
   
-  #write new starter file
+  # write new starter file
   r4ss::SS_writestarter(starter, dir_EM, verbose = FALSE, overwrite = TRUE)
   
   # run the estimation model

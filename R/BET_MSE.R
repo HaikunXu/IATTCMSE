@@ -60,10 +60,6 @@ BET_MSE = function(pdir,
   Time_ts <- rep(NA, nsteps)
   SB_ts <- rep(NA, nsteps)
   
-  # *************************************************************************************
-  # step 1: initialize the OM by copying from the benchmark assessment model
-  # *************************************************************************************
-  step1 <- IATTCMSE::Initialize_OM(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name, clean)
   Flag <- 1 # mark whether the loop is running without an EM with a large gradient
   
   for (istep in 1:nsteps) {
@@ -181,6 +177,21 @@ BET_MSE = function(pdir,
     )
     
     # *************************************************************************************
+    # Step 5 (optional): Update the OM with simulated data without error - MSY related quantities
+    # *************************************************************************************
+    # step5 <- IATTCMSE::Update_OM(
+    #   istep,
+    #   dir_OM,
+    #   dir_OM_Boot,
+    #   paste0(dir_istep, "OM_Final/"),
+    #   Mcycle,
+    #   endquarter,
+    #   dat_name,
+    #   ss_name,
+    #   ctl_name
+    # )
+    
+    # *************************************************************************************
     # Step 6: Estimation model
     # *************************************************************************************
     
@@ -190,7 +201,6 @@ BET_MSE = function(pdir,
     if (istep < nsteps)
       step6 <- IATTCMSE::Estimation_EM(
         dir_istep,
-        step1$R0,
         dir_EM_previous,
         dir_OM_Boot,
         Mcycle,

@@ -4,7 +4,7 @@
 \alias{Initialize_OM}
 \title{Initialize the OM based on the benchmark assessment model}
 \usage{
-Initialize_OM(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name, clean)
+Initialize_OM(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name)
 }
 \arguments{
 \item{pdir}{parent directory path}

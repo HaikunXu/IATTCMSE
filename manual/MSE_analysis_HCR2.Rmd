@@ -35,8 +35,8 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 5
-nyears <- 15
+niterations <- 10
+nyears <- 30
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -44,7 +44,7 @@ endquarter <- 196
 startquarter <- 17
 n_extra_R <- 2 #number of assessment period recruitment in the projection
 
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1", "Fix-1-0.8")[c(1, 5)]
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
 HCR_name <-  "HCR_staff_Fscaler"
 
 # Set the harvest strategy

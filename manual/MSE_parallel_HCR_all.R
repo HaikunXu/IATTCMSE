@@ -22,13 +22,7 @@ dat_name <- "BET-EPO.dat"
 ctl_name <- "BET-EPO.ctl"
 ss_name <- "ss.exe"
 
-# Calculate the numbers of cores 
-no_cores = 2 # detectCores() - 2
-# Initiate cluster
-cl = makeCluster(no_cores)
-registerDoParallel(cl)
-
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1", "Fix-1-0.8", "Fix-1.02-1")[5]
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1", "Fix-1-0.8", "Fix-1.02-1")[1:4]
 OM <- paste0(OM_name, "/")
 HCR_name <- c("HCR_staff", "HCR_staff_Fscaler", "HCR_staff_0", "HCR_staff_0_Fscaler", "HCR_staff_FSscaler_new")[1]
 HCR <- paste0(HCR_name, "/")
@@ -46,6 +40,12 @@ for (HCRnum in 1:length(HCR)) {
     # create a folder for all iterations
     unlink(paste0(pdir, HS, HCR[HCRnum], OM[OMnum]), recursive = TRUE)
     dir.create(paste0(pdir, HS, HCR[HCRnum], OM[OMnum])) # for that OM
+    
+    # *************************************************************************************
+    # step 1: initialize the OM by copying from the benchmark assessment model
+    # *************************************************************************************
+    IATTCMSE::Initialize_OM(pdir, sdir, HS, HCR[HCRnum], OM[OMnum], dat_name, ctl_name, ss_name)
+    
   }
 }
 
@@ -54,6 +54,12 @@ runs <- data.frame(expand.grid(run_hcr = HCR, run_om = OM, run_itr = 1:niteratio
 
 # i = 1;  HCR= runs[i,1]; OM = runs[i,2]; itrnum= runs[i,3]
 # BET_MSE(pdir,sdir,HS,runs[i, 1],runs[i, 2],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,clean = FALSE)
+
+# Calculate the numbers of cores 
+no_cores = 4 # detectCores() - 2
+# Initiate cluster
+cl = makeCluster(no_cores)
+registerDoParallel(cl)
 
 foreach(i = 1:nrow(runs)) %dopar% {
   IATTCMSE::BET_MSE(
@@ -72,7 +78,8 @@ foreach(i = 1:nrow(runs)) %dopar% {
     dat_name,
     ctl_name,
     ss_name,
-    clean = TRUE
+    clean = TRUE,
+    plot = FALSE
   )
 }
 
