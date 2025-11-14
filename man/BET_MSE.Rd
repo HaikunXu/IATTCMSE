@@ -21,7 +21,8 @@ BET_MSE(
   ctl_name,
   ss_name,
   clean = FALSE,
-  plot = FALSE
+  plot = FALSE,
+  MSY = FALSE
 )
 }
 \arguments{

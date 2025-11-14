@@ -25,12 +25,12 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 10
-nyears <- 15
+niterations <- 5
+nyears <- 6
 Mcycle <- 3
 nsteps <- nyears / Mcycle
 
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1]
 
 Check_list <- data.frame(
   HSnum = c(1, 1, 1, 1, 2, 2, 1, 2),
@@ -65,7 +65,8 @@ Check_list <- data.frame(
     "HCR_staff_new"
   )
 )
-  # filter(HCR_plot == "HCR_staff")
+
+Check_list <- Check_list[3,]
 ```
 
 ```{r management_output}

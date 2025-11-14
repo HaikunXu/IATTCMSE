@@ -36,7 +36,8 @@ BET_MSE = function(pdir,
                    ctl_name,
                    ss_name,
                    clean = FALSE,
-                   plot = FALSE) {
+                   plot = FALSE,
+                   MSY = FALSE) {
   
   itr = paste0("itr", itrnum, "/")
   
@@ -59,6 +60,8 @@ BET_MSE = function(pdir,
   Fcurrent_ts <- rep(NA, nsteps)
   Time_ts <- rep(NA, nsteps)
   SB_ts <- rep(NA, nsteps)
+  FFMSY_ts <- rep(NA, nsteps)
+  SSMSY_ts <- rep(NA, nsteps)
   
   Flag <- 1 # mark whether the loop is running without an EM with a large gradient
   
@@ -176,20 +179,24 @@ BET_MSE = function(pdir,
       ctl_name
     )
     
-    # *************************************************************************************
-    # Step 5 (optional): Update the OM with simulated data without error - MSY related quantities
-    # *************************************************************************************
-    # step5 <- IATTCMSE::Update_OM(
-    #   istep,
-    #   dir_OM,
-    #   dir_OM_Boot,
-    #   paste0(dir_istep, "OM_Final/"),
-    #   Mcycle,
-    #   endquarter,
-    #   dat_name,
-    #   ss_name,
-    #   ctl_name
-    # )
+    if(MSY == TRUE) {
+
+      # *************************************************************************************
+      # Step 5 (optional): Update the OM with MSY related quantities
+      # *************************************************************************************
+
+      step5_plus <- IATTCMSE::Update_OM_MSY(
+        istep,
+        paste0(dir_istep, "OM_Final/"),
+        paste0(dir_istep, "OM_MSY/"),
+        dat_name,
+        ss_name,
+        ctl_name
+      )
+
+      FFMSY_ts[istep] <- step5_plus$FFMSY
+      SSMSY_ts[istep] <- step5_plus$SSMSY
+    }
     
     # *************************************************************************************
     # Step 6: Estimation model
@@ -209,7 +216,6 @@ BET_MSE = function(pdir,
         ss_name,
         plot = plot
       )
-    
   }
   
   if (Flag == 1) {
@@ -246,6 +252,7 @@ BET_MSE = function(pdir,
       for (istep in 1:nsteps) {
         unlink(paste0(pdir, HS, HCR, OM, itr, "step", istep), recursive = TRUE)
       }
+      unlink(dir_OM_Final, recursive = TRUE)
     }
   }
   
@@ -263,7 +270,9 @@ BET_MSE = function(pdir,
     "Fcurrent" = Fcurrent_ts,
     "Time_Stamp" = Time_ts,
     "Fratio" = Fratio_ts,
-    "SB" = SB_ts
+    "SB" = SB_ts,
+    "FFMSY" = FFMSY_ts,
+    "SSMSY" = SSMSY_ts
   )
   
   write.csv(Record,

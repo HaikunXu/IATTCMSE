@@ -44,7 +44,7 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   
   # Check the Fscale with the 10 days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
-  NewClosure <- max(365 - (365 - CurrentClosure) * Fratio, 0)
+  NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
   # if(SBR_d >= 0.2) {
     if ((CurrentClosure - NewClosure) > 10) {

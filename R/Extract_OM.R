@@ -33,6 +33,19 @@ Extract_OM = function(dir_OM_Final, startquarter, clean, plot = FALSE) {
   CPUE <- om_out$cpue %>%
     filter(Yr >= startquarter)
   
+
+  ForeRepName <- paste(dir_OM_Final, "Forecast-report.SSO", sep = "")
+  # Get management report
+  ForeRepStart <- grep("Management_report", readLines(ForeRepName))
+  ForeRepEnd <- grep("THIS FORECAST IS FOR PURPOSES", readLines(ForeRepName))[1]
+  ForeDat <- read.table(file = ForeRepName, col.names = c(seq(1, 10, by = 1)), fill = T, quote = "", colClasses = "character", 
+                        nrows = ForeRepEnd - ForeRepStart, skip = ForeRepStart - 1)
+  ForeDat <- as.data.frame(ForeDat)
+  
+  # SMSY
+  Smsy <- as.numeric(ForeDat[ForeDat[, 1] == c("SSBio"), 2])
+  Smsy <- Smsy[length(Smsy)]
+  
   Output <- data.frame(
     "Year" = Recruit$Yr,
     "Catch" = c(Catch$Tot_catch,NA),
@@ -44,11 +57,11 @@ Extract_OM = function(dir_OM_Final, startquarter, clean, plot = FALSE) {
     "CPUE" = c(CPUE$Obs, NA, NA)
   )
   
-  if(clean == TRUE) {
-    # clean unused files in this folder to save storage space
-    command <- paste("cd", dir_OM_Final, "& CLEAN.BAT", sep = " ")
-    ss <- shell(cmd = command, intern = T, wait = T)
-  }
+  # if(clean == TRUE) {
+  #   # clean unused files in this folder to save storage space
+  #   command <- paste("cd", dir_OM_Final, "& CLEAN.BAT", sep = " ")
+  #   ss <- shell(cmd = command, intern = T, wait = T)
+  # }
   
   return(Output)
   
