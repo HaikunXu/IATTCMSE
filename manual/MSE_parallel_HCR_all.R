@@ -9,7 +9,7 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 5
+niterations <- 3
 nyears <- 9
 nquarters <- nyears * 4
 Mcycle <- 3
@@ -22,7 +22,7 @@ dat_name <- "BET-EPO.dat"
 ctl_name <- "BET-EPO.ctl"
 ss_name <- "ss.exe"
 
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1", "Fix-1-0.8", "Fix-1.02-1")[1]
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1", "Fix-1-0.8", "Fix-1.02-1")[1:4]
 OM <- paste0(OM_name, "/")
 HCR_name <- c("HCR_staff", "HCR_staff_Fscaler", "HCR_staff_0", "HCR_staff_0_Fscaler", "HCR_staff_FSscaler_new")[1]
 HCR <- paste0(HCR_name, "/")
@@ -56,7 +56,7 @@ runs <- data.frame(expand.grid(run_hcr = HCR, run_om = OM, run_itr = 1:niteratio
 # BET_MSE(pdir,sdir,HS,runs[i, 1],runs[i, 2],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,clean = FALSE)
 
 # Calculate the numbers of cores 
-no_cores = 5 # detectCores() - 2
+no_cores = 6 # detectCores() - 2
 # Initiate cluster
 cl = makeCluster(no_cores)
 registerDoParallel(cl)

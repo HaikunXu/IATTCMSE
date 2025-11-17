@@ -14,7 +14,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Estimation_EM = function(dir_istep, dir_EM_previous, dir_OM_Boot, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE, include_LF = TRUE) {
+Estimation_EM = function(dir_istep, dir_EM_previous, dir_OM_Boot, R0, Mcycle, dat_name, ctl_name, ss_name, plot = FALSE, include_LF = TRUE) {
   
   # step 1: create a new folder for the EM
   dir_EM <- paste0(dir_istep, "EM/")
@@ -67,7 +67,7 @@ Estimation_EM = function(dir_istep, dir_EM_previous, dir_OM_Boot, Mcycle, dat_na
   )
   ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
   
-  # ctl$SR_parms$INIT[1] <- R0 + 0.2 # adding 0.25 makes the EM more likely to converge
+  ctl$SR_parms$INIT[1] <- R0 + 0.2 # adding 0.2 makes the EM more likely to converge
   
   r4ss::SS_writectl_3.30(
     ctl,

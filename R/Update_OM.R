@@ -10,6 +10,17 @@
 
 Update_OM = function(istep, dir_OM, dir_OM_Boot, dir_OM_Final, Mcycle, endquarter, dat_name, ss_name, ctl_name) {
   
+  # run the OM to get current F
+  dir.create(dir_OM_Final)
+  
+  # copy files to the new folder
+  files = c(
+    paste0(dir_OM, "starter.ss"),
+    paste0(dir_OM, ss_name),
+    paste0(dir_OM, "go_nohess.bat")
+  )
+  file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
+  
   # change data file
   dat_OM <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, dat_name), verbose = FALSE)
   dat_OM_Boot <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, dat_name), verbose = FALSE)
@@ -31,28 +42,16 @@ Update_OM = function(istep, dir_OM, dir_OM_Boot, dir_OM_Final, Mcycle, endquarte
   dat_OM$sizefreq_data_list[[1]] <- LF_new
   dat_OM$Nobs_per_method <- nrow(LF_new)
   dat_OM$endyr <- dat_OM$endyr + Mcycle * 4
-  r4ss::SS_writedat_3.30(dat_OM, paste0(dir_OM_Boot, dat_name), verbose = FALSE, overwrite = TRUE)
-  
-  # run the OM to get current F
-  dir.create(dir_OM_Final)
-  
-  # copy files to the new folder
-  files = c(
-    paste0(dir_OM, "starter.ss"),
-    paste0(dir_OM, ss_name),
-    paste0(dir_OM, "go_nohess.bat"),
-    paste0(dir_OM_Boot, dat_name)
-  )
-  file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
+  r4ss::SS_writedat_3.30(dat_OM, paste0(dir_OM_Final, dat_name), verbose = FALSE, overwrite = TRUE)
   
   # read data file
-  dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Final, dat_name), verbose = FALSE)
+  # dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Final, dat_name), verbose = FALSE)
   
   # change recruitment period in the control file
   ctl <- r4ss::SS_readctl_3.30(
     file = paste0(dir_OM, ctl_name),
     verbose = FALSE,
-    datlist = dat,
+    datlist = dat_OM,
     use_datlist = TRUE
   )
   ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
@@ -112,5 +111,11 @@ Update_OM = function(istep, dir_OM, dir_OM_Boot, dir_OM_Final, Mcycle, endquarte
   command <- paste("cd", dir_OM_Final, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
   
-  return()
+  ParDir <- paste0(dir_OM_Final, "ss3.par")
+  ParFile <- readLines(ParDir, warn = F)
+  
+  Line_R0 <- match("# SRparm[1]:", ParFile)
+  R0 <- as.numeric(ParFile[Line_R0 + 1])
+  
+  return(R0)
 }

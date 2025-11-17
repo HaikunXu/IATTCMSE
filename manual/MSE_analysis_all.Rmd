@@ -25,12 +25,12 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 5
-nyears <- 6
+niterations <- 4
+nyears <- 9
 Mcycle <- 3
 nsteps <- nyears / Mcycle
 
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1]
+OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
 
 Check_list <- data.frame(
   HSnum = c(1, 1, 1, 1, 2, 2, 1, 2),
@@ -323,6 +323,18 @@ Catch_stats <- Catch %>%
   group_by(HS, HCR) %>%
   summarise(ave_catch = mean(Catch_HCR),
             std_catch = sd(Catch_HCR))
+
+Catch_pre <- Catch %>% 
+  rename(Catch_annual_next = Catch_annual) %>%
+  mutate(year = year + 1)
+
+Catch_diff <- left_join(Catch, Catch_pre) %>%
+  mutate(abs_diff = abs(Catch_annual - Catch_annual_next)) %>%
+  group_by(HS, HCR) %>%
+  summarise(AAV = sum(abs_diff, na.rm = TRUE) / sum(Catch_annual_next, na.rm = TRUE))
+
+Catch_stats <- left_join(Catch_stats, Catch_diff)
+
 kable(Catch_stats,caption = "Catch")
 ```
 
@@ -363,23 +375,15 @@ ggplot(data = Record_all) +
 ```
 
 ```{r change in closure}
-Closure <- Record_all %>%
+Closure_change <- Record_all %>%
   mutate(Step = as.numeric(Step)) %>%
-  select(HS, HCR, OM, itr, Step, closure)
-
-Closure_previous <- Closure %>%
-  mutate(Step = Step + 1) %>%
-  rename(closure_pre = closure)
-
-Closure_change <- left_join(Closure, Closure_previous) %>%
-  mutate(closure_pre = ifelse(is.na(closure_pre), 72, closure_pre),
-         closure_change = closure - closure_pre)
+  select(HS, HCR, OM, itr, Step, closure_diff)
 
 Closure_change_plot <- Closure_change %>%
   group_by(HS, HCR, Step) %>%
-  summarise(low = quantile(closure_change, 0.1, na.rm = TRUE),
-         medium = mean(closure_change, na.rm = TRUE),
-         high = quantile(closure_change, 0.9, na.rm = TRUE))
+  summarise(low = quantile(closure_diff, 0.1, na.rm = TRUE),
+         medium = mean(closure_diff, na.rm = TRUE),
+         high = quantile(closure_diff, 0.9, na.rm = TRUE))
 
 ggplot(data = Closure_change_plot) +
   # geom_errorbar(aes(x = Step, ymin = low, ymax = high, color = HCR)) +
@@ -389,18 +393,15 @@ ggplot(data = Closure_change_plot) +
   theme_bw()
 
 ggplot(data = Closure_change) +
-  geom_violin(aes(x = HCR, y = closure_change, color = HCR), draw_quantiles = c(0.1, 0.5, 0.9), scale = "width") +
+  geom_violin(aes(x = HCR, y = closure_diff, color = HCR), draw_quantiles = c(0.1, 0.5, 0.9), scale = "width") +
   facet_wrap(~ HS) +
   geom_hline(yintercept = 1, linetype = "dashed") +
   theme_bw()
 
-Closure_change_stats <- Closure_change %>%
-  group_by(HS, HCR, Step) %>%
-  summarise(Closure_change_HCR = mean(closure_change)) %>%
+Closure_stats <- Closure_change %>%
   group_by(HS, HCR) %>%
-  summarise(ave_closure_change = mean(Closure_change_HCR),
-            std_closure_change= sd(Closure_change_HCR))
-kable(Catch_stats,caption = "Catch")
+  summarise(AAV = mean(closure_diff))
+kable(Closure_stats,caption = "Catch")
 ```
 
 ```{r F/F30}
@@ -453,4 +454,38 @@ ggplot(data = SBR_d_OM) +
   geom_hline(yintercept = 0.3, linetype = "dashed") +
   ylab("Dynamic SBR from the EM") +
   xlab("Management cycle")
+```
+
+```{r FFMSY}
+F_FMSY <- Record_all %>%
+  mutate(Step = as.numeric(Step)) %>%
+  group_by(HS, HCR, Step) %>%
+  summarise(low = quantile(FFMSY, 0.1, na.rm = TRUE),
+         medium = mean(FFMSY, na.rm = TRUE),
+         high = quantile(FFMSY, 0.9, na.rm = TRUE))
+
+ggplot(data = F_FMSY) +
+  # geom_errorbar(aes(x = Step, ymin = low, ymax = high, color = HCR)) +
+  geom_line(aes(x = Step, y = medium, color = HCR), size = 1) +
+  facet_wrap(~ HS) +
+  theme_bw() +
+  geom_hline(yintercept = 1) +
+  ylab("F / FMSY") +
+  xlab("Management cycle")
+
+# F_F30_OM <- Record_all %>%
+#   mutate(Step = as.numeric(Step)) %>%
+#   group_by(HS, HCR, OM, Step) %>%
+#   summarise(low = quantile(Fcurrent/F30, 0.1, na.rm = TRUE),
+#          medium = mean(Fcurrent/F30, na.rm = TRUE),
+#          high = quantile(Fcurrent/F30, 0.9, na.rm = TRUE))
+# 
+# ggplot(data = F_F30_OM) +
+#   # geom_errorbar(aes(x = Step, ymin = low, ymax = high, color = HCR)) +
+#   geom_line(aes(x = Step, y = medium, color = OM),size=1) +
+#   facet_grid(HCR ~ HS) +
+#   theme_bw() +
+#   geom_hline(yintercept = 1) +
+#   ylab("F / F30%") +
+#   xlab("Management cycle")
 ```

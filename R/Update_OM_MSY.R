@@ -63,12 +63,5 @@ Update_OM_MSY = function(istep, dir_OM_Final, dir_OM_MSY, dat_name, ss_name, ctl
   Smsy <- as.numeric(ForeDat[ForeDat[, 1] == c("SSBio"), 2])
   Smsy <- Smsy[length(Smsy)]
   
-  # S
-  replist <- r4ss::SS_output(dir = dir_OM_MSY, covar = T, printstats = F, verbose = FALSE)
-  TimeSeries <- replist$timeseries
-  Srecent <- TimeSeries$SpawnBio[nrow(TimeSeries)]
-  
-  SSMSY <- Srecent / Smsy
-  
-  return(list("SSMSY" = SSMSY, "FFMSY" = FFMSY))
+  return(FFMSY)
 }

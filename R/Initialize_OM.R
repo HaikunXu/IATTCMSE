@@ -34,12 +34,6 @@ Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name) {
     paste0(pdir, "CLEAN.BAT")
   )
   file.copy(from = files, to = dir_OM_MSE, overwrite = TRUE)
-
-  ParDir <- paste0(dir_OM_MSE, "ss3.par")
-  ParFile <- readLines(ParDir, warn = F)
-  
-  Line_R0 <- match("# SR_parm[1]:", ParFile)
-  R0 <- as.numeric(ParFile[Line_R0 + 1])
   
   # run the estimation model
   command <- paste("cd", dir_OM_MSE, "& go_nohess.bat", sep = " ")
