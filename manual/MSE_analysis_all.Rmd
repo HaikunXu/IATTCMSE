@@ -2,7 +2,7 @@
 title: "MSE_analysis_all"
 author: "Haikun Xu"
 date: "`r Sys.Date()`"
-output: html_document
+output: word_document
 editor_options: 
   chunk_output_type: console
 ---
@@ -25,48 +25,33 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 4
-nyears <- 9
+niterations <- 6
+nyears <- 6
 Mcycle <- 3
 nsteps <- nyears / Mcycle
 
-OM_name <- c("Fix-1-1", "Sel-1-1", "Gro-1-1", "Mrt-1-1")[1:4]
+model = c("Fix", "Gro", "Sel", "Mrt")
+catchability = c(1, 1.01, 1.02)
+steepness = c(1, 0.9, 0.8)
+converge <- array(1, dim = c(length(model), length(catchability), length(steepness)))
+converge[1, 3, 3] <- 0
+converge[4, 2, 2:3] <- 0
+
+OM_list <- data.frame(expand.grid(
+  model = model,
+  catchability = catchability,
+  steepness = steepness
+))
+OM_list$converge <- converge[1:36]
+OM_list <- OM_list %>% filter(converge == 1)
+OM_name <- paste0(OM_list$model, "-", OM_list$catchability, "-", OM_list$steepness)
 
 Check_list <- data.frame(
-  HSnum = c(1, 1, 1, 1, 2, 2, 1, 2),
-  HCR_name = c(
-    "HCR_staff_0",
-    "HCR_staff_0_Fscaler",
-    "HCR_staff",
-    "HCR_staff_Fscaler",
-    "HCR_staff_0_risk",
-    "HCR_staff_risk",
-    "HCR_staff_Fscaler_new",
-    "HCR_staff_risk_new"
-  ),
-  HS_plot = c(
-    "HS_Fix",
-    "HS_Fix_tuned",
-    "HS_Fix",
-    "HS_Fix_tuned",
-    "HS_ensemble",
-    "HS_ensemble",
-    "HS_Fix_tuned",
-    "HS_ensemble"
-  ),
-  HCR_plot = c(
-    "HCR_staff_0",
-    "HCR_staff_0",
-    "HCR_staff",
-    "HCR_staff",
-    "HCR_staff_0",
-    "HCR_staff",
-    "HCR_staff_new",
-    "HCR_staff_new"
-  )
+  HSnum = 1,
+  HCR_name = c("HCR_staff"),
+  HS_plot = c("HS_Fix"),
+  HCR_plot = c("HCR_staff")
 )
-
-Check_list <- Check_list[3,]
 ```
 
 ```{r management_output}
@@ -94,6 +79,9 @@ for (i in 1:nrow(Check_list)) {
         Record$itr <- itrnum
         Record$HCR <- Check_list$HCR_plot[i]
         Record$HS <- Check_list$HS_plot[i]
+        Record$Model <- stringr::str_split(OM_name[OMnum], "-",  simplify = TRUE)[1]
+        Record$Catchability <- stringr::str_split(OM_name[OMnum], "-",  simplify = TRUE)[2]
+        Record$Steepness <- stringr::str_split(OM_name[OMnum], "-",  simplify = TRUE)[3]
         
         if (i == 1 & OMnum == 1 & itrnum == 1)
           Record_all <- Record
@@ -115,11 +103,11 @@ Record_all_count <- Record_all %>%
   summarise(count = n())
 kable(Record_all_count,caption = "Record_all_count")
 
-# Record_all_failed <- Record_all %>%
-#   filter(Step == nsteps) %>%
-#   filter(max_gradient > 0.1 | is.na(max_gradient)) %>%
-#   select(OM, itr) %>%
-#   mutate(Flag = 0)
+Record_all_failed <- Record_all %>%
+  filter(Step == nsteps) %>%
+  filter(max_gradient > 0.1 | is.na(max_gradient)) %>%
+  select(OM, itr) %>%
+  mutate(Flag = 0)
 # 
 # Record_all <- left_join(Record_all, Record_all_failed) %>%
 #   filter(is.na(Flag))
@@ -150,6 +138,9 @@ for (i in 1:nrow(Check_list)) {
         Output$itr <- itrnum
         Output$HCR <- Check_list$HCR_plot[i]
         Output$HS <- Check_list$HS_plot[i]
+        Output$Model <- strsplit(OM_name[OMnum], "-")[[1]][1]
+        Output$Catchability <- strsplit(OM_name[OMnum], "-")[[1]][2]
+        Output$Steepness <- strsplit(OM_name[OMnum], "-")[[1]][3]
         
         if (i == 1 & OMnum == 1 & itrnum == 1)
           Output_all <- Output
@@ -174,11 +165,11 @@ Output_MSE <- Output_all %>% filter(year > 2024)
 
 ```{r SBR_d}
 ggplot(data = Output_MSE) +
-  geom_point(aes(x = Year, y = SBR_d, color = OM), alpha = 0.25, size = 0.5) +
+  geom_point(aes(x = Year, y = SBR_d, color = Model), alpha = 1, size = 1) +
   facet_grid(HCR~HS) +
   geom_hline(yintercept = 0.2) +
   geom_hline(yintercept = 0.3, linetype = "dashed") +
-  geom_vline(xintercept = 2024 + seq(Mcycle, nyears - Mcycle, Mcycle), alpha = 0.25, linetype = "dashed") +
+  # geom_vline(xintercept = 2024 + seq(Mcycle, nyears - Mcycle, Mcycle), alpha = 0.25, linetype = "dashed") +
   ylab("Dynamic SBR") +
   theme_bw()
 
@@ -195,23 +186,23 @@ ggplot(data = SBR_d) +
   geom_hline(yintercept = 0.3, linetype = "dashed") +
   facet_wrap(~ HS) +
   ylab("Dynamic SBR") +
-  geom_vline(xintercept = 2024 + seq(Mcycle, nyears - Mcycle, Mcycle), alpha = 0.25, linetype = "dashed") +
+  # geom_vline(xintercept = 2024 + seq(Mcycle, nyears - Mcycle, Mcycle), alpha = 0.25, linetype = "dashed") +
   theme_bw()
 
 SBR_d_OM <- Output_MSE %>%
-  group_by(HS, HCR, Year, OM) %>%
+  group_by(HS, HCR, Year, Model) %>%
   mutate(low = quantile(SBR_d, 0.1, na.rm = TRUE),
          medium = mean(SBR_d, na.rm = TRUE),
          high = quantile(SBR_d, 0.9, na.rm = TRUE))
 
 ggplot(data = SBR_d_OM) +
-  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = OM), alpha = 0.2) +
-  geom_line(aes(x = Year, y = medium, color = OM), linewidth = 1) +
+  geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = Model), alpha = 0.2) +
+  geom_line(aes(x = Year, y = medium, color = Model), linewidth = 1) +
   geom_hline(yintercept = 0.2) +
   geom_hline(yintercept = 0.3, linetype = "dashed") +
   facet_grid(HCR ~ HS) +
   ylab("Dynamic SBR") +
-  geom_vline(xintercept = 2024 + seq(Mcycle, nyears - Mcycle, Mcycle), alpha = 0.25, linetype = "dashed") +
+  # geom_vline(xintercept = 2024 + seq(Mcycle, nyears - Mcycle, Mcycle), alpha = 0.25, linetype = "dashed") +
   theme_bw()
 
 p_SBR_d <- Output_MSE %>%

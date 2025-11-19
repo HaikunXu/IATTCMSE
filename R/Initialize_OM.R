@@ -43,5 +43,5 @@ Initialize_OM = function(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name) {
   command <- paste("cd", dir_OM_MSE, "& CLEAN.BAT", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
   
-  return(ss)
+  return()
 }

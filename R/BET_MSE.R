@@ -166,6 +166,7 @@ BET_MSE = function(pdir,
     # *************************************************************************************
     # Step 5: Update the OM with simulated data without error
     # *************************************************************************************
+    
     step5 <- IATTCMSE::Update_OM(
       istep,
       dir_OM,
@@ -203,12 +204,14 @@ BET_MSE = function(pdir,
     # time stamp
     Time_ts[istep] <- Sys.time()
     
+    R0 <- step5 + 0.5 + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
+    
     if (istep < nsteps)
       step6 <- IATTCMSE::Estimation_EM(
         dir_istep,
         dir_EM_previous,
         dir_OM_Boot,
-        step5,
+        R0,
         Mcycle,
         dat_name,
         ctl_name,
