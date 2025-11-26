@@ -25,7 +25,7 @@ pdir <- "D:/OneDrive - IATTC/IATTC/2025/MSE/Test/"
 sdir <- "D:/OneDrive - IATTC/IATTC/2025/SAC16/BET F30/"
 
 # Dimensions
-niterations <- 6
+niterations <- 3
 nyears <- 6
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -34,8 +34,8 @@ model = c("Fix", "Gro", "Sel", "Mrt")
 catchability = c(1, 1.01, 1.02)
 steepness = c(1, 0.9, 0.8)
 converge <- array(1, dim = c(length(model), length(catchability), length(steepness)))
-converge[1, 3, 3] <- 0
-converge[4, 2, 2:3] <- 0
+# converge[1, 3, 3] <- 0
+# converge[4, 2, 2:3] <- 0
 
 OM_list <- data.frame(expand.grid(
   model = model,
@@ -160,7 +160,7 @@ Output_all <- Output_all %>%
   mutate(itr = as.factor(itr),
          Year = Year / 4 + 1974.875,
          year = floor(Year) + 0.5)
-Output_MSE <- Output_all %>% filter(year > 2024)
+Output_MSE <- Output_all %>% filter(year > 2025)
 ```
 
 ```{r SBR_d}

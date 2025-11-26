@@ -58,7 +58,7 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fratio, dir_OM_previous,
                         R_devs[((istep-1)*Mcycle*4+1):(istep*Mcycle*4)],
                         0)
   
-  ParFile[Line + 1] <- gsub(",", "", toString(R_forecast_new)) # do R bias adjustment???
+  ParFile[Line + 1] <- gsub(",", "", toString(R_forecast_new))
   writeLines(ParFile, paste0(dir_OM, "/ss3.par"))
   
   # step 2 plus: get Fcurrent

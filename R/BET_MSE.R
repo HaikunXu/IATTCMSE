@@ -70,10 +70,7 @@ BET_MSE = function(pdir,
     # specify the previous OM and EM directories
     if (istep == 1) {
       dir_OM_previous <- paste0(pdir, HS, HCR, OM, "itr0/")
-      q_hypothesis <- stringr::str_split(OM, "-", simplify = TRUE)[2]
-      if(q_hypothesis == "1") dir_EM_previous <- paste0(pdir, HS, "EM/")
-      if(q_hypothesis == "1.01") dir_EM_previous <- paste0(pdir, HS, "EM_1.01/")
-      if(q_hypothesis == "1.02") dir_EM_previous <- paste0(pdir, HS, "EM_1.02/")
+      dir_EM_previous <- paste0(pdir, HS, "EM/")
       CurrentClosure <- 72
     }
     else {
@@ -204,7 +201,8 @@ BET_MSE = function(pdir,
     # time stamp
     Time_ts[istep] <- Sys.time()
     
-    R0 <- step5 + 0.5 + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
+    # q_hypothesis <- stringr::str_split(OM, "-", simplify = TRUE)[2]
+    R0 <- step5 + 0.5 # + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
     
     if (istep < nsteps)
       step6 <- IATTCMSE::Estimation_EM(
