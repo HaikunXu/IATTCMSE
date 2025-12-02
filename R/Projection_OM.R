@@ -113,6 +113,6 @@ Projection_OM = function(pdir, HS, HCR, OM, itr, istep, Fratio, dir_OM_previous,
     r4ss::SS_plots(replist=om_out, uncertainty=F, datplot=T, forecastplot = TRUE, verbose = FALSE)
   }
   
-  return(list("dir_istep" = dir_istep, "dir_OM" = dir_OM, "Fcurrent" = Fcurrent, "F30" = Fmult))
+  return(list("dir_istep" = dir_istep, "dir_OM" = dir_OM, "Fcurrent" = Fcurrent * Fratio, "F30" = Fmult))
   
 }
