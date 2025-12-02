@@ -86,12 +86,8 @@ BET_MSE = function(pdir,
       step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_previous, istep, CurrentClosure)
     if (HCR == "HCR_staff_Fscaler/")
       step2 <- IATTCMSE::HCR_staff_Fscaler(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_0/")
-      step2 <- IATTCMSE::HCR_staff_0(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_0_Fscaler/")
-      step2 <- IATTCMSE::HCR_staff_0_Fscaler(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_FSscaler_new/")
-      step2 <- IATTCMSE::HCR_staff_FSscaler_new(dir_EM = dir_EM_previous, istep, CurrentClosure)
+    if (HCR == "HCR_staff_Fscaler_new/")
+      step2 <- IATTCMSE::HCR_staff_Fscaler_new(dir_EM = dir_EM_previous, istep, CurrentClosure)
     
     if ((step2$max_gradient > 0.1) |
         (step2$SBR_d > 0.99) |
@@ -202,7 +198,7 @@ BET_MSE = function(pdir,
     Time_ts[istep] <- Sys.time()
     
     # q_hypothesis <- stringr::str_split(OM, "-", simplify = TRUE)[2]
-    R0 <- step5 + 0.5 # + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
+    R0 <- step5 + 0.25 # + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
     
     if (istep < nsteps)
       step6 <- IATTCMSE::Estimation_EM(
