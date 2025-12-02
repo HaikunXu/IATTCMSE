@@ -50,6 +50,7 @@ BET_MSE_risk = function(pdir,
   SBR_d_ts <- rep(NA, nsteps)
   max_gradient_ts <- rep(NA, nsteps)
   Closure_ts <- rep(NA, nsteps)
+  Closure_diff_ts <- rep(NA, nsteps)
   Fratio_ts <- rep(NA, nsteps)
   F30_EM_ts <- rep(NA, nsteps)
   F30_ts <- rep(NA, nsteps)
@@ -57,11 +58,8 @@ BET_MSE_risk = function(pdir,
   Fcurrent_ts <- rep(NA, nsteps)
   Time_ts <- rep(NA, nsteps)
   SB_ts <- rep(NA, nsteps)
+  FFMSY_ts <- rep(NA, nsteps)
   
-  # *************************************************************************************
-  # step 1: initialize the OM by copying from the benchmark assessment model
-  # *************************************************************************************
-  step1 <- IATTCMSE::Initialize_OM(pdir, sdir, HS, HCR, OM, dat_name, ctl_name, ss_name, clean)
   Flag <- 1 # mark whether the loop is running without an EM with a large gradient
   
   for (istep in 1:nsteps) {
@@ -84,11 +82,7 @@ BET_MSE_risk = function(pdir,
 
     if (HCR == "HCR_staff_risk/")
       step2 <- IATTCMSE::HCR_staff_risk(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_0_risk/")
-      step2 <- IATTCMSE::HCR_staff_0_risk(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_risk_new/")
-      step2 <- IATTCMSE::HCR_staff_risk_new(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    
+	  
     if ((step2$max_gradient > 0.1) |
         (step2$SBR_d > 0.99) |
         (step2$SBR_d < 0.01)) {
@@ -100,6 +94,7 @@ BET_MSE_risk = function(pdir,
     }
     
     # update closure days
+	Closure_diff_ts[istep] <- step2$NewClosure - CurrentClosure
     CurrentClosure <- step2$NewClosure
     
     # save some management quantities from the EM
@@ -177,11 +172,14 @@ BET_MSE_risk = function(pdir,
     # time stamp
     Time_ts[istep] <- Sys.time()
     
+	R0 <- step5 + 0.25 # + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
+
     if (istep < nsteps)
       step6 <- IATTCMSE::Estimation_EM_risk(
         dir_istep,
         dir_EM_previous,
         dir_OM_Boot,
+		R0,
         Mcycle,
         dat_name,
         ctl_name,
@@ -206,15 +204,14 @@ BET_MSE_risk = function(pdir,
       endquarter,
       dat_name,
       ctl_name,
-      ss_name,
-      clean
+      ss_name
     )
     dir_OM_Final <- step7
     
     # *************************************************************************************
     # Step 8: Extract OM_final's results
     # *************************************************************************************
-    step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter, plot = plot)
+    step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter, clean = clean, plot = plot)
     write.csv(step8,
               file = paste0(dir_itr, "Output.csv"),
               row.names = FALSE)
@@ -236,13 +233,15 @@ BET_MSE_risk = function(pdir,
     "SBR_d" = SBR_d_ts,
     "max_gradient" = max_gradient_ts,
     "closure" = Closure_ts,
+    "closure_diff" = Closure_diff_ts,
     "F30" = F30_ts,
     "F30_EM" = F30_EM_ts,
     "Fcurrent_EM" = Fcurrent_EM_ts,
     "Fcurrent" = Fcurrent_ts,
     "Time_Stamp" = Time_ts,
     "Fratio" = Fratio_ts,
-    "SB" = SB_ts
+    "SB" = SB_ts,
+    "FFMSY" = FFMSY_ts
   )
   
   write.csv(Record,
