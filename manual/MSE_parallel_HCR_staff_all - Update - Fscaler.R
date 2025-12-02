@@ -41,7 +41,7 @@ OM_list <- OM_list %>% filter(converge == 1)
 
 OM_name <- paste0(OM_list$Model, "-", OM_list$Catchability, "-", OM_list$Steepness)
 OM <- paste0(OM_name, "/")
-HCR_name <- "HCR_staff"
+HCR_name <- "HCR_staff_Fscaler"
 HCR <- paste0(HCR_name, "/")
 
 # Set the harvest strategy
@@ -112,7 +112,7 @@ foreach(i = 1:length(OM_name)) %dopar% {
 
 # run the MSE
 
-# i = 2; OM = runs[i,5]; itrnum = runs[i,3]
+# i = 34; OM = runs[i,5]; itrnum = runs[i,3]
 # BET_MSE(pdir,sdir,HS,HCR,runs[i, 5],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,
 #         clean = TRUE,
 #         plot = FALSE,

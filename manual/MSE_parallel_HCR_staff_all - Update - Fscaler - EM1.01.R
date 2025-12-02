@@ -41,7 +41,7 @@ OM_list <- OM_list %>% filter(converge == 1)
 
 OM_name <- paste0(OM_list$Model, "-", OM_list$Catchability, "-", OM_list$Steepness)
 OM <- paste0(OM_name, "/")
-HCR_name <- "HCR_staff"
+HCR_name <- "HCR_staff_Fscaler_new"
 HCR <- paste0(HCR_name, "/")
 
 # Set the harvest strategy

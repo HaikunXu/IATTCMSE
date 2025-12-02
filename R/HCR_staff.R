@@ -47,17 +47,17 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
   # if(SBR_d >= 0.2) {
-    if ((CurrentClosure - NewClosure) > 10) {
-      NewClosure <- CurrentClosure - 10
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      # Fadjust <- Fratio * Frecent / Fmult
-    }
-    
-    if ((NewClosure - CurrentClosure) > 10) {
-      NewClosure <- CurrentClosure + 10
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      # Fadjust <- Fratio * Frecent / Fmult
-    }
+    # if ((CurrentClosure - NewClosure) > 10) {
+    #   NewClosure <- CurrentClosure - 10
+    #   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    #   # Fadjust <- Fratio * Frecent / Fmult
+    # }
+    # 
+    # if ((NewClosure - CurrentClosure) > 10) {
+    #   NewClosure <- CurrentClosure + 10
+    #   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    #   # Fadjust <- Fratio * Frecent / Fmult
+    # }
   # }
   
   # Fscale <- Fmult * Fadjust

@@ -8,6 +8,7 @@ Estimation_EM(
   dir_istep,
   dir_EM_previous,
   dir_OM_Boot,
+  R0,
   Mcycle,
   dat_name,
   ctl_name,
