@@ -67,7 +67,7 @@ Estimation_EM = function(dir_istep, dir_EM_previous, dir_OM_Boot, R0, Mcycle, da
   )
   ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
   
-  ctl$SR_parms$INIT[1] <- R0 + 0.2 # adding 0.2 makes the EM more likely to converge
+  ctl$SR_parms$INIT[1] <- R0 # adding 0.2 makes the EM more likely to converge
   
   r4ss::SS_writectl_3.30(
     ctl,
