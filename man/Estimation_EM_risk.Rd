@@ -8,6 +8,7 @@ Estimation_EM_risk(
   dir_istep,
   dir_EM_previous,
   dir_OM_Boot,
+  R0,
   Mcycle,
   dat_name,
   ctl_name,
@@ -23,6 +24,8 @@ Estimation_EM_risk(
 
 \item{dir_OM_Boot}{the directory of the OM bootstrap in the current step}
 
+\item{R0}{true R0}
+
 \item{Mcycle}{the number of years within a management cycle}
 
 \item{dat_name}{name of the SS data file}
@@ -34,8 +37,6 @@ Estimation_EM_risk(
 \item{plot}{whether to plot EM's results}
 
 \item{include_LF}{whether to fit the EM to bootstrapped LF data}
-
-\item{R0}{true R0}
 
 \item{from_par}{whether to start the EM from the par file}
 }

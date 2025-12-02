@@ -11,7 +11,7 @@ sdir <- "D:/OneDrive - IATTC/IATTC/2025/Update_Assessment/F30/"
 
 # Dimensions
 niterations <- 10
-nyears <- 12
+nyears <- 6
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -41,11 +41,11 @@ OM_list <- OM_list %>% filter(converge == 1)
 
 OM_name <- paste0(OM_list$Model, "-", OM_list$Catchability, "-", OM_list$Steepness)
 OM <- paste0(OM_name, "/")
-HCR_name <- "HCR_staff_Fscaler_new"
+HCR_name <- "HCR_staff_risk"
 HCR <- paste0(HCR_name, "/")
 
 # Set the harvest strategy
-HSnum <- 1
+HSnum <- 2
 HS <- paste0("HS", HSnum, "/")
 dir.create(paste0(pdir, HS)) # for that harvest strategy
 
@@ -95,7 +95,7 @@ counts <- runs %>% group_by(Model, Catchability, Steepness) %>% summarise(n=n())
 
 runs$OM <- paste0(runs$Model, "-", runs$Catchability, "-", runs$Steepness, "/")
 
-# runs <- runs %>% filter(OM == "Fix-1-1/")
+runs <- runs[1, ]
 
 # Calculate the numbers of cores 
 no_cores = 12 # detectCores() - 2
@@ -112,11 +112,10 @@ foreach(i = 1:length(OM_name)) %dopar% {
 
 # run the MSE
 
-# i = 2; OM = runs[i,5]; itrnum = runs[i,3]
-# BET_MSE(pdir,sdir,HS,HCR,runs[i, 5],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,
-#         clean = TRUE,
-#         plot = FALSE,
-#         MSY = FALSE)
+i = 1; OM = runs[i,5]; itrnum = runs[i,3]
+BET_MSE_risk(pdir,sdir,HS,HCR,runs[i, 5],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,
+        clean = TRUE,
+        plot = FALSE)
 
 foreach(i = 1:nrow(runs)) %dopar% {
   IATTCMSE::BET_MSE(

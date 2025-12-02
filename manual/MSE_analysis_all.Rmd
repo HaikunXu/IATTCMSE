@@ -47,10 +47,10 @@ OM_list <- OM_list %>% filter(converge == 1)
 OM_name <- paste0(OM_list$model, "-", OM_list$catchability, "-", OM_list$steepness)
 
 Check_list <- data.frame(
-  HSnum = c(1,1,1),
-  HCR_name = c("HCR_staff","HCR_staff_Fscaler","HCR_staff_Fscaler_new"),
-  HS_plot = c("HS_Fix","HS_Fix_tuned","HS_Fix_tuned_1.01"),
-  HCR_plot = c("HCR_staff","HCR_staff","HCR_staff")
+  HSnum = c(1,1),
+  HCR_name = c("HCR_staff","HCR_staff_Fscaler"),
+  HS_plot = c("HS_Fix","HS_Fix_tuned"),
+  HCR_plot = c("HCR_staff","HCR_staff")
 )[2, ]
 ```
 

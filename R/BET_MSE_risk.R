@@ -94,7 +94,7 @@ BET_MSE_risk = function(pdir,
     }
     
     # update closure days
-	Closure_diff_ts[istep] <- step2$NewClosure - CurrentClosure
+	  Closure_diff_ts[istep] <- step2$NewClosure - CurrentClosure
     CurrentClosure <- step2$NewClosure
     
     # save some management quantities from the EM
@@ -172,14 +172,14 @@ BET_MSE_risk = function(pdir,
     # time stamp
     Time_ts[istep] <- Sys.time()
     
-	R0 <- step5 + 0.25 # + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
+    R0 <- step5 + 0.25 # + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
 
     if (istep < nsteps)
       step6 <- IATTCMSE::Estimation_EM_risk(
         dir_istep,
         dir_EM_previous,
         dir_OM_Boot,
-		R0,
+        R0,
         Mcycle,
         dat_name,
         ctl_name,
