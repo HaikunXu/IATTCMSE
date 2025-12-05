@@ -51,7 +51,7 @@ Check_list <- data.frame(
   HCR_name = c("HCR_staff","HCR_staff_Fscaler"),
   HS_plot = c("HS_Fix","HS_Fix_tuned"),
   HCR_plot = c("HCR_staff","HCR_staff")
-)[2, ]
+)
 ```
 
 ```{r management_output}
@@ -168,7 +168,7 @@ Output_MSE <- Output_all %>% filter(year > 2025)
 ggplot(data = Output_MSE) +
   geom_point(aes(x = Year, y = SBR_d, color = Model), alpha = 0.5, size = 1) +
   facet_grid(HCR~HS) +
-  geom_hline(yintercept = 0.2) +
+  geom_hline(yintercept = 0.2, linetype = "dashed") +
   geom_hline(yintercept = 0.3, linetype = "dashed") +
   geom_vline(xintercept = 2025 + seq(Mcycle, nyears - Mcycle, Mcycle), linetype = "dashed") +
   ylab("Dynamic SBR") +
@@ -183,8 +183,8 @@ SBR_d <- Output_MSE %>%
 ggplot(data = SBR_d) +
   geom_ribbon(aes(x = Year, ymin = low, ymax = high, fill = HCR), alpha = 0.25) +
   geom_line(aes(x = Year, y = medium, color = HCR), linewidth = 1) +
-  # geom_hline(yintercept = 0.2) +
   geom_hline(yintercept = 0.2, linetype = "dashed") +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
   facet_wrap(~ HS) +
   ylab("Dynamic SBR") +
   geom_vline(xintercept = 2025 + seq(Mcycle, nyears - Mcycle, Mcycle), linetype = "dashed") +
@@ -289,7 +289,7 @@ ggplot(data = Output_MSE) +
 ```{r average catch}
 Catch <- Output_MSE %>%
   filter(is.na(Catch) == FALSE) %>%
-  group_by(HS, HCR, Model, itr, year) %>%
+  group_by(HS, HCR, Model, Catchability, itr, year) %>%
   summarise(Catch_annual = sum(Catch))
 
 Catch_plot <- Catch %>%
@@ -330,7 +330,7 @@ Catch_stats <- Catch %>%
   summarise(Catch_HCR = mean(Catch_annual)) %>%
   group_by(HS, HCR) %>%
   summarise(ave_catch = mean(Catch_HCR),
-            std_catch = sd(Catch_HCR))
+            CV_catch = sd(Catch_HCR)/mean(Catch_HCR))
 
 Catch_pre <- Catch %>% 
   rename(Catch_annual_next = Catch_annual) %>%
@@ -413,6 +413,22 @@ Closure_stats <- Closure_change %>%
 kable(Closure_stats,caption = "Catch")
 ```
 
+```{r Fratio}
+# Fratio_plot <- Record_all %>%
+#   mutate(Step = as.numeric(Step)) %>%
+#   group_by(HS, HCR, Step) %>%
+#   summarise(low = quantile(Fratio, 0.1, na.rm = TRUE),
+#          medium = mean(Fratio, na.rm = TRUE),
+#          high = quantile(Fratio, 0.9, na.rm = TRUE))
+# 
+# ggplot(data = Fratio_plot) +
+#   geom_errorbar(aes(x = Step, ymin = low, ymax = high, color = HCR), size = 1) +
+#   geom_point(aes(x = Step, y = medium, color = HCR), size = 3) +
+#   ylab("Fratio") +
+#   facet_wrap(~ HS) +
+#   theme_bw()
+```
+
 ```{r F/F30}
 F_F30 <- Record_all %>%
   mutate(Step = as.numeric(Step)) %>%
@@ -422,6 +438,22 @@ F_F30 <- Record_all %>%
          high = quantile(Fcurrent/F30, 0.9, na.rm = TRUE))
 
 ggplot(data = F_F30) +
+  geom_errorbar(aes(x = Step, ymin = low, ymax = high, color = HCR), size = 1) +
+  geom_point(aes(x = Step, y = medium, color = HCR), size = 3) +
+  facet_wrap(~ HS) +
+  theme_bw() +
+  geom_hline(yintercept = 1) +
+  ylab("F / F30%") +
+  xlab("Management cycle")
+
+F_F30_EM <- Record_all %>%
+  mutate(Step = as.numeric(Step)) %>%
+  group_by(HS, HCR, Step) %>%
+  summarise(low = quantile(Fcurrent_EM*Fratio/F30_EM, 0.1, na.rm = TRUE),
+         medium = mean(Fcurrent_EM*Fratio/F30_EM, na.rm = TRUE),
+         high = quantile(Fcurrent_EM*Fratio/F30_EM, 0.9, na.rm = TRUE))
+
+ggplot(data = F_F30_EM) +
   geom_errorbar(aes(x = Step, ymin = low, ymax = high, color = HCR), size = 1) +
   geom_point(aes(x = Step, y = medium, color = HCR), size = 3) +
   facet_wrap(~ HS) +
@@ -448,21 +480,25 @@ ggplot(data = F_F30_Model) +
 ```
 
 ```{r SBR_d EM}
-# SBR_d_Model <- Record_all %>%
-#   mutate(Step = as.numeric(Step)) %>%
-#   group_by(HS, HCR, Model, Step) %>%
-#   summarise(low = quantile(SBR_d, 0.1, na.rm = TRUE),
-#          medium = mean(SBR_d, na.rm = TRUE),
-#          high = quantile(SBR_d, 0.9, na.rm = TRUE))
-# 
-# ggplot(data = SBR_d_Model) +
-#   # geom_errorbar(aes(x = Step, ymin = low, ymax = high, color = HCR)) +
-#   geom_line(aes(x = Step, y = medium, color = Model), size = 1) +
-#   facet_grid(HCR ~ HS) +
-#   theme_bw() +
-#   geom_hline(yintercept = 0.3, linetype = "dashed") +
-#   ylab("Dynamic SBR from the EM") +
-#   xlab("Management cycle")
+SBR_d_Model <- Record_all %>%
+  mutate(Step = as.numeric(Step)) %>%
+  group_by(HS, HCR, Model, Step) %>%
+  summarise(low = quantile(SBR_d, 0.1, na.rm = TRUE),
+         medium = mean(SBR_d, na.rm = TRUE),
+         high = quantile(SBR_d, 0.9, na.rm = TRUE))
+
+ggplot(data = SBR_d_Model) +
+  geom_errorbar(aes(x = Step, ymin = low, ymax = high, color = Model), size = 1) +
+  geom_point(aes(x = Step, y = medium, color = Model), size = 3) +
+  facet_grid(HCR ~ HS) +
+  theme_bw() +
+  geom_hline(yintercept = 0.3, linetype = "dashed") +
+  ylab("Dynamic SBR from the EM") +
+  xlab("Management cycle")
+
+ggplot(data = Record_all) +
+  geom_violin(aes(x = Step, y = SBR_d, color = Model), draw_quantiles = c(0.1, 0.5, 0.9)) +
+  theme_bw()
 ```
 
 ```{r FFMSY}
@@ -497,4 +533,28 @@ ggplot(data = F_F30_Model) +
 #   geom_hline(yintercept = 1) +
 #   ylab("F / F30%") +
 #   xlab("Management cycle")
+```
+
+```{r trade-off}
+Catch <- Output_MSE %>%
+  filter(is.na(Catch) == FALSE) %>%
+  group_by(HS, HCR, Model, Catchability, itr, year) %>%
+  summarise(Catch_annual = sum(Catch)) %>%
+  group_by(HS, HCR) %>%
+  summarise(ave_catch = mean(Catch_annual))
+
+dSBR <- Output_MSE %>%
+  group_by(HS, HCR) %>%
+  summarise(ave_dSBR = mean(SBR_d))
+
+Closure <- Record_all %>%
+  group_by(HS, HCR) %>%
+  summarise(ave_closure = mean(closure, na.rm = TRUE))
+
+Tradeoff <- data.frame("HS" = Catch$HS, "HCR" = Catch$HCR, "Catch" = Catch$ave_catch, "Closure" = Closure$ave_closure, "dSBR" = dSBR$ave_dSBR)
+
+ggplot(data = Tradeoff) +
+  geom_point(aes(x = Closure, y = dSBR, color = HS, size = Catch)) +
+  theme_bw() +
+  coord_cartesian(xlim = c(0, 20), ylim = c(0, 0.4), expand = FALSE)
 ```

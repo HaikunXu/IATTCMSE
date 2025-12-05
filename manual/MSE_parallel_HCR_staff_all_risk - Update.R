@@ -11,7 +11,7 @@ sdir <- "D:/OneDrive - IATTC/IATTC/2025/Update_Assessment/F30/"
 
 # Dimensions
 niterations <- 10
-nyears <- 6
+nyears <- 12
 nquarters <- nyears * 4
 Mcycle <- 3
 nsteps <- nyears / Mcycle
@@ -95,7 +95,7 @@ counts <- runs %>% group_by(Model, Catchability, Steepness) %>% summarise(n=n())
 
 runs$OM <- paste0(runs$Model, "-", runs$Catchability, "-", runs$Steepness, "/")
 
-runs <- runs[1, ]
+# runs <- runs[1, ]
 
 # Calculate the numbers of cores 
 no_cores = 12 # detectCores() - 2
@@ -112,13 +112,13 @@ foreach(i = 1:length(OM_name)) %dopar% {
 
 # run the MSE
 
-i = 1; OM = runs[i,5]; itrnum = runs[i,3]
-BET_MSE_risk(pdir,sdir,HS,HCR,runs[i, 5],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,
-        clean = TRUE,
-        plot = FALSE)
+# i = 1; OM = runs[i,5]; itrnum = runs[i,3]
+# BET_MSE_risk(pdir,sdir,HS,HCR,runs[i, 5],runs[i, 3],nquarters,Mcycle,n_extra_R,startquarter,endquarter,EM_comp_fleet,dat_name,ctl_name,ss_name,
+#         clean = TRUE,
+#         plot = FALSE)
 
 foreach(i = 1:nrow(runs)) %dopar% {
-  IATTCMSE::BET_MSE(
+  IATTCMSE::BET_MSE_risk(
     pdir,
     sdir,
     HS,
@@ -135,8 +135,7 @@ foreach(i = 1:nrow(runs)) %dopar% {
     ctl_name,
     ss_name,
     clean = TRUE,
-    plot = FALSE,
-    MSY = FALSE
+    plot = FALSE
   )
 }
 

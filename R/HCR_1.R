@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff_Fscaler = function(dir_EM, istep, CurrentClosure) {
+HCR_staff = function(dir_EM, istep, CurrentClosure) {
   
   Fscaler <- 0.832865526
   Sscaler <- 1.163170077
@@ -49,27 +49,23 @@ HCR_staff_Fscaler = function(dir_EM, istep, CurrentClosure) {
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
   NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
-  # if(SBR_d >= 0.2) {
-  # if ((CurrentClosure - NewClosure) > 10) {
-  #   NewClosure <- CurrentClosure - 10
-  #   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-  #   # Fadjust <- Fratio * Frecent / Fmult
-  # }
-  # 
-  # if ((NewClosure - CurrentClosure) > 10) {
-  #   NewClosure <- CurrentClosure + 10
-  #   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-  #   # Fadjust <- Fratio * Frecent / Fmult
-  # }
-  # }
-  
-  # Fscale <- Fmult * Fadjust
+  if ((CurrentClosure - NewClosure) > 10) {
+    NewClosure <- CurrentClosure - 10
+    Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    # Fadjust <- Fratio * Frecent / Fmult
+  }
+
+  if ((NewClosure - CurrentClosure) > 10) {
+    NewClosure <- CurrentClosure + 10
+    Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    # Fadjust <- Fratio * Frecent / Fmult
+  }
   
   return(
     list(
       "SBR_d" = SBR_d,
       "F30" = Fmult,
-      "Fcurrent" = Frecent,
+      "Fcurrent" = Frecent * Fratio,
       "NewClosure" = NewClosure,
       "max_gradient" = max_gradient,
       "Fratio" = Fratio,

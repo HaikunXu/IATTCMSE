@@ -8,6 +8,9 @@
 
 HCR_staff = function(dir_EM, istep, CurrentClosure) {
   
+  Fscaler <- 0.832865526
+  Sscaler <- 1.163170077
+
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
   
@@ -16,7 +19,7 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   
   # dynamic SBR
   Dynamic_Bzero <- em_out$Dynamic_Bzero
-  SBR_d <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)] / Dynamic_Bzero$SSB_nofishing[nrow(Dynamic_Bzero)]
+  SBR_d <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)] / Dynamic_Bzero$SSB_nofishing[nrow(Dynamic_Bzero)] * Sscaler
   SB <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)]
   
   # Find FHCR from the estimated Sbio using the HCR
@@ -40,33 +43,29 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   FvectorRepStart <- grep("Seasonal_apicalF=Fmult", readLines(ForeRepName))
   Fvector <- read.table(file = ForeRepName, nrows = 1, skip = FvectorRepStart[1] + 1)
   Fvector <- Fvector[3:length(Fvector)]
-  Frecent <- sum(Fvector) # F
+  Frecent <- sum(Fvector) * Fscaler # F
   
-  # Check the Fscale with the 10 days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
+  # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
   NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
-  # if(SBR_d >= 0.2) {
-    # if ((CurrentClosure - NewClosure) > 10) {
-    #   NewClosure <- CurrentClosure - 10
-    #   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-    #   # Fadjust <- Fratio * Frecent / Fmult
-    # }
-    # 
-    # if ((NewClosure - CurrentClosure) > 10) {
-    #   NewClosure <- CurrentClosure + 10
-    #   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-    #   # Fadjust <- Fratio * Frecent / Fmult
-    # }
-  # }
-  
-  # Fscale <- Fmult * Fadjust
+  if ((CurrentClosure - NewClosure) > 10) {
+    NewClosure <- CurrentClosure - 10
+    Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    # Fadjust <- Fratio * Frecent / Fmult
+  }
+
+  if ((NewClosure - CurrentClosure) > 10) {
+    NewClosure <- CurrentClosure + 10
+    Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    # Fadjust <- Fratio * Frecent / Fmult
+  }
   
   return(
     list(
       "SBR_d" = SBR_d,
       "F30" = Fmult,
-      "Fcurrent" = Frecent,
+      "Fcurrent" = Frecent * Fratio,
       "NewClosure" = NewClosure,
       "max_gradient" = max_gradient,
       "Fratio" = Fratio,

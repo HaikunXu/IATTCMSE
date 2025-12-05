@@ -70,7 +70,7 @@ BET_MSE = function(pdir,
     # specify the previous OM and EM directories
     if (istep == 1) {
       dir_OM_previous <- paste0(pdir, HS, HCR, OM, "itr0/")
-      dir_EM_previous <- paste0(pdir, HS, "EM/")
+      dir_EM_previous <- paste0(pdir, HS, HCR, "EM/")
       CurrentClosure <- 72
     }
     else {
@@ -84,10 +84,12 @@ BET_MSE = function(pdir,
 
     if (HCR == "HCR_staff/")
       step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_Fscaler/")
-      step2 <- IATTCMSE::HCR_staff_Fscaler(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_staff_Fscaler_new/")
-      step2 <- IATTCMSE::HCR_staff_Fscaler_new(dir_EM = dir_EM_previous, istep, CurrentClosure)
+    if (HCR == "HCR_1/")
+      step2 <- IATTCMSE::HCR_1(dir_EM = dir_EM_previous, istep, CurrentClosure)
+    if (HCR == "HCR_2/")
+      step2 <- IATTCMSE::HCR_2(dir_EM = dir_EM_previous, istep, CurrentClosure)
+    if (HCR == "HCR_3/")
+      step2 <- IATTCMSE::HCR_3(dir_EM = dir_EM_previous, istep, CurrentClosure)
     
     if ((step2$max_gradient > 0.1) |
         (step2$SBR_d > 0.99) |
