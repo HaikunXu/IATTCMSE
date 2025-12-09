@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff = function(dir_EM, istep, CurrentClosure) {
+HCR_2 = function(dir_EM, istep, CurrentClosure) {
   
   Fscaler <- 0.832865526
   Sscaler <- 1.163170077
@@ -23,7 +23,7 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   SB <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)]
   
   # Find FHCR from the estimated Sbio using the HCR
-  Fadjust <- min(5 * SBR_d, 1)
+  Fadjust <- min(SBR_d / 0.3, 1)
   
   # get Fmult
   ForeRepName <- paste(dir_EM, "Forecast-report.SSO", sep = "")

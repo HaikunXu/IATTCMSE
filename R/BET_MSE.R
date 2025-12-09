@@ -1,7 +1,6 @@
 #' Runs the BET MSE framework for the specified number of iterations
 #'
 #' @param pdir parent directory path
-#' @param sdir benchmark assessment model directory path
 #' @param HS the name of the harvest strategy
 #' @param HCR the name of the harvest control rule
 #' @param OM the name of the operating model
@@ -21,7 +20,6 @@
 #' @export
 
 BET_MSE = function(pdir,
-                   sdir,
                    HS,
                    HCR,
                    OM,
@@ -200,7 +198,7 @@ BET_MSE = function(pdir,
     Time_ts[istep] <- Sys.time()
     
     # q_hypothesis <- stringr::str_split(OM, "-", simplify = TRUE)[2]
-    R0 <- step5 + 0.25 # + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
+    R0 <- step5 + 0.2 # + 50 * (as.numeric(q_hypothesis) - 1) # to make the model easy to converge
     
     if (istep < nsteps)
       step6 <- IATTCMSE::Estimation_EM(

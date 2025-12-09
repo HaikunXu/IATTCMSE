@@ -88,6 +88,34 @@ Estimation_EM = function(dir_istep, dir_EM_previous, dir_OM_Boot, R0, Mcycle, da
   command <- paste("cd", dir_EM, "& go_nohess.bat", sep = " ")
   ss <- shell(cmd = command, intern = T, wait = T)
   
+  # check whether the model reaches convergence
+  em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
+  max_gradient <- em_out$maximum_gradient_component
+  
+  if(max_gradient > 0.1) {
+    # if the model fails to converge, use the previous control file and try again
+    ctl <- r4ss::SS_readctl_3.30(
+      file = paste0(dir_EM_previous, "control.ss_new"),
+      verbose = FALSE,
+      datlist = dat_EM_previous,
+      use_datlist = TRUE
+    )
+    ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
+    
+    ctl$SR_parms$INIT[1] <- ctl$SR_parms$INIT[1] + 0.2
+    
+    r4ss::SS_writectl_3.30(
+      ctl,
+      outfile = paste0(dir_EM, ctl_name),
+      overwrite = TRUE,
+      verbose = FALSE
+    )
+    
+    # run the estimation model
+    command <- paste("cd", dir_EM, "& go_nohess.bat", sep = " ")
+    ss <- shell(cmd = command, intern = T, wait = T)
+  }
+  
   if(plot == TRUE) {
     em_out = r4ss::SS_output(dir = dir_EM, covar = F, verbose = FALSE, printstats = FALSE)
     r4ss::SS_plots(replist = em_out, uncertainty = F, datplot = T, verbose = FALSE)

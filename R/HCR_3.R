@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff = function(dir_EM, istep, CurrentClosure) {
+HCR_3 = function(dir_EM, istep, CurrentClosure) {
   
   Fscaler <- 0.832865526
   Sscaler <- 1.163170077
@@ -49,14 +49,14 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
   NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
-  if ((CurrentClosure - NewClosure) > 10) {
-    NewClosure <- CurrentClosure - 10
+  if ((CurrentClosure - NewClosure) > 20) {
+    NewClosure <- CurrentClosure - 20
     Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
     # Fadjust <- Fratio * Frecent / Fmult
   }
 
-  if ((NewClosure - CurrentClosure) > 10) {
-    NewClosure <- CurrentClosure + 10
+  if ((NewClosure - CurrentClosure) > 20) {
+    NewClosure <- CurrentClosure + 20
     Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
     # Fadjust <- Fratio * Frecent / Fmult
   }

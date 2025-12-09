@@ -6,7 +6,6 @@
 \usage{
 BET_MSE(
   pdir,
-  sdir,
   HS,
   HCR,
   OM,
@@ -27,8 +26,6 @@ BET_MSE(
 }
 \arguments{
 \item{pdir}{parent directory path}
-
-\item{sdir}{benchmark assessment model directory path}
 
 \item{HS}{the name of the harvest strategy}
 
