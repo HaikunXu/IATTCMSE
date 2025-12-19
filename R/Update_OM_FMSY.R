@@ -8,7 +8,7 @@
 #' @author Haikun Xu 
 #' @export
 
-Update_OM_MSY = function(istep, dir_OM_Final, dir_OM_MSY, dat_name, ss_name, ctl_name) {
+Update_OM_FMSY = function(istep, dir_OM_Final, dir_OM_MSY, dat_name, ss_name, ctl_name) {
   
   dir.create(dir_OM_MSY)
   
@@ -17,8 +17,6 @@ Update_OM_MSY = function(istep, dir_OM_Final, dir_OM_MSY, dat_name, ss_name, ctl
     paste0(dir_OM_Final, dat_name),
     paste0(dir_OM_Final, ss_name),
     paste0(dir_OM_Final, "go_nohess.bat"),
-    # paste0(dir_OM_Final, "forecast.ss"),
-    # paste0(dir_OM_Final, "starter.ss"),
     paste0(dir_OM_Final, "ss3.par")
   )
   file.copy(from = files, to = dir_OM_MSY, overwrite = TRUE)
@@ -58,10 +56,6 @@ Update_OM_MSY = function(istep, dir_OM_Final, dir_OM_MSY, dat_name, ss_name, ctl
   # Fmultiplier
   Fmult <- as.numeric(ForeDat[ForeDat[, 1] == c("Fmult"), 2])[3] # FMSY
   FFMSY <- FmultScale/Fmult
-  
-  # SMSY
-  Smsy <- as.numeric(ForeDat[ForeDat[, 1] == c("SSBio"), 2])
-  Smsy <- Smsy[length(Smsy)]
-  
+
   return(FFMSY)
 }

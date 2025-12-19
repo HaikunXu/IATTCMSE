@@ -18,6 +18,18 @@ Extract_OM = function(dir_OM_Final, startquarter, clean, plot = FALSE) {
     summarise(Tot_catch = sum(Obs)) %>%
     filter(Yr >= startquarter)
   
+  Catch_LL <- om_out$catch %>%
+    filter(Fleet < 15) %>%
+    group_by(Yr) %>%
+    summarise(Tot_catch = sum(Obs)) %>%
+    filter(Yr >= startquarter)
+  
+  Catch_PS <- om_out$catch %>%
+    filter(Fleet > 14) %>%
+    group_by(Yr) %>%
+    summarise(Tot_catch = sum(Obs)) %>%
+    filter(Yr >= startquarter)
+  
   Dynamic_Bzero <- om_out$Dynamic_Bzero %>%
     mutate(SBR_d = SSB / SSB_nofishing) %>%
     filter(Yr >= startquarter)
@@ -36,6 +48,8 @@ Extract_OM = function(dir_OM_Final, startquarter, clean, plot = FALSE) {
   Output <- data.frame(
     "Year" = Recruit$Yr,
     "Catch" = c(Catch$Tot_catch,NA),
+    "Catch_LL" = c(Catch_LL$Tot_catch,NA),
+    "Catch_PS" = c(Catch_PS$Tot_catch,NA),
     "SBR_d" = Dynamic_Bzero$SBR_d,
     "SB" = SB$SpawnBio,
     "SBR" = SB$SBR,

@@ -175,13 +175,13 @@ BET_MSE = function(pdir,
     if(MSY == TRUE) {
 
       # *************************************************************************************
-      # Step 5 (optional): Update the OM with MSY related quantities
+      # Step 5 (optional): Update the OM with FMSY related quantities
       # *************************************************************************************
 
-      step5_plus <- IATTCMSE::Update_OM_MSY(
+      step5_plus <- IATTCMSE::Update_OM_FMSY(
         istep,
         paste0(dir_istep, "OM_Final/"),
-        paste0(dir_istep, "OM_MSY/"),
+        paste0(dir_istep, "OM_FMSY/"),
         dat_name,
         ss_name,
         ctl_name
@@ -237,6 +237,25 @@ BET_MSE = function(pdir,
     # Step 8: Extract OM_final's results
     # *************************************************************************************
     step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter, clean = clean, plot = plot)
+    
+    if(MSY == TRUE) {
+      
+      # *************************************************************************************
+      # Step 7 (optional): Update the OM with SMSY related quantities
+      # *************************************************************************************
+      
+      step7_plus <- IATTCMSE::Update_OM_SMSY(
+        istep,
+        paste0(dir_istep, "OM_Final/"),
+        paste0(dir_istep, "OM_SMSY/"),
+        dat_name,
+        ss_name,
+        ctl_name
+      )
+      
+      step8$SMSY <- step7_plus$SMSY
+    }
+    
     write.csv(step8,
               file = paste0(dir_itr, "Output.csv"),
               row.names = FALSE)
