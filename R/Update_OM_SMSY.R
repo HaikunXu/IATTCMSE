@@ -50,6 +50,8 @@ Update_OM_SMSY = function(istep, dir_OM_Final, dir_OM_MSY, dat_name, ss_name, ct
   Forecast$Nforecastyrs <- length(Recruit) + 1 # change forecast No. of recruitment
   Forecast$ControlRuleMethod <- 0 # Harvest control rule method
   Forecast$First_forecast_loop_with_stochastic_recruitment <- 1
+  Forecast$Forecast <- 2 # Fforecast = MSY
+  
   r4ss::SS_writeforecast(Forecast, dir_OM_MSY, verbose = FALSE, overwrite = TRUE)
   
   # change starter file
