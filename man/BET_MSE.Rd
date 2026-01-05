@@ -19,6 +19,7 @@ BET_MSE(
   dat_name,
   ctl_name,
   ss_name,
+  Scontrol = 0.2,
   clean = FALSE,
   plot = FALSE,
   MSY = FALSE

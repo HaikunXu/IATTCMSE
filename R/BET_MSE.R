@@ -33,6 +33,7 @@ BET_MSE = function(pdir,
                    dat_name,
                    ctl_name,
                    ss_name,
+                   Scontrol = 0.2,
                    clean = FALSE,
                    plot = FALSE,
                    MSY = FALSE) {
@@ -82,13 +83,9 @@ BET_MSE = function(pdir,
 
     if (HCR == "HCR_staff/")
       step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_1/")
-      step2 <- IATTCMSE::HCR_1(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_2/")
-      step2 <- IATTCMSE::HCR_2(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR == "HCR_3/")
-      step2 <- IATTCMSE::HCR_3(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    
+    if (HCR != "HCR_staff/")
+      step2 <- IATTCMSE::HCR_others(dir_EM = dir_EM_previous, istep, CurrentClosure, Scontrol)
+
     if ((step2$max_gradient > 0.1) |
         (step2$SBR_d > 0.99) |
         (step2$SBR_d < 0.01)) {

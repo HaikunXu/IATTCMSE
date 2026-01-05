@@ -15,19 +15,19 @@ Extract_OM = function(dir_OM_Final, startquarter, clean, plot = FALSE) {
   
   Catch <- om_out$catch %>%
     group_by(Yr) %>%
-    summarise(Tot_catch = sum(Obs)) %>%
+    summarise(Tot_catch = sum(dead_bio)) %>%
     filter(Yr >= startquarter)
   
   Catch_LL <- om_out$catch %>%
     filter(Fleet < 15) %>%
     group_by(Yr) %>%
-    summarise(Tot_catch = sum(Obs)) %>%
+    summarise(Tot_catch = sum(dead_bio)) %>%
     filter(Yr >= startquarter)
   
   Catch_PS <- om_out$catch %>%
     filter(Fleet > 14) %>%
     group_by(Yr) %>%
-    summarise(Tot_catch = sum(Obs)) %>%
+    summarise(Tot_catch = sum(dead_bio)) %>%
     filter(Yr >= startquarter)
   
   Dynamic_Bzero <- om_out$Dynamic_Bzero %>%

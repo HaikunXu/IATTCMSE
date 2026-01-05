@@ -6,9 +6,9 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_staff = function(dir_EM, istep, CurrentClosure) {
+HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol) {
   
-  Fscaler <- 0.832865526
+  Fscaler <- 0.828065333
   Sscaler <- 1.163170077
 
   # read EM output file
@@ -23,7 +23,7 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   SB <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)]
   
   # Find FHCR from the estimated Sbio using the HCR
-  Fadjust <- min(5 * SBR_d, 1)
+  Fadjust <- min(SBR_d / Scontrol, 1)
   
   # get Fmult
   ForeRepName <- paste(dir_EM, "Forecast-report.SSO", sep = "")
@@ -49,14 +49,16 @@ HCR_staff = function(dir_EM, istep, CurrentClosure) {
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
   NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
-  if ((CurrentClosure - NewClosure) > 10) {
-    NewClosure <- CurrentClosure - 10
-    Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-  }
-
-  if ((NewClosure - CurrentClosure) > 10) {
-    NewClosure <- CurrentClosure + 10
-    Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+  if(SBR_d > Scontrol) { # apply the 10-day cap when SBR_d is above the Scontrol
+    if ((CurrentClosure - NewClosure) > 10) {
+      NewClosure <- CurrentClosure - 10
+      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    }
+    
+    if ((NewClosure - CurrentClosure) > 10) {
+      NewClosure <- CurrentClosure + 10
+      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    }
   }
   
   return(
