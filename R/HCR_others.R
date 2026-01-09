@@ -49,18 +49,24 @@ HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol) {
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
   NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
-  # if(SBR_d > Scontrol) { # apply the 10-day cap when SBR_d is above the Scontrol
     if ((CurrentClosure - NewClosure) > 10) {
       NewClosure <- CurrentClosure - 10
       Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
     }
     
-    if (((NewClosure - CurrentClosure) > 10) & (SBR_d > Scontrol)) {
+  if(SBR_d > Scontrol) {
+    if ((NewClosure - CurrentClosure) > 10) {
       NewClosure <- CurrentClosure + 10
       Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
     }
-  # }
-  
+  }
+  else {
+    if ((NewClosure - CurrentClosure) > 20) {
+      NewClosure <- CurrentClosure + 20
+      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    }
+  }
+
   return(
     list(
       "SBR_d" = SBR_d,

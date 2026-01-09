@@ -45,7 +45,7 @@ BET_MSE_R = function(pdir,
   dir.create(dir_itr)
   
   nsteps <- nquarters / 4 / Mcycle
-  R_devs <- read.csv(paste0(pdir, "R_devs.csv"))[, itrnum] - log(0.75)
+  R_devs <- read.csv(paste0(pdir, "R_devs.csv"))[, itrnum] + log(0.75)
   seed <- read.csv(paste0(pdir, "seeds.csv"))[itrnum, 1]
   
   SBR_d_ts <- rep(NA, nsteps)
