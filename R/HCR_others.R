@@ -55,7 +55,7 @@ HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol) {
     }
     
   if(SBR_d > Scontrol) {
-    if ((NewClosure - CurrentClosure) > 10) {
+    if ((NewClosure - CurrentClosure) > 10)  {
       NewClosure <- CurrentClosure + 10
       Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
     }
