@@ -49,7 +49,7 @@ BET_MSE_IE = function(pdir,
   seed <- read.csv(paste0(pdir, "seeds.csv"))[itrnum, 1]
   
   set.seed(seed)
-  IEs <- rnorm(nsteps, -0.01/2, 0.1) # implementation error
+  IE_ts <- rnorm(nsteps, -0.01/2, 0.1) # implementation error
   
   SBR_d_ts <- rep(NA, nsteps)
   max_gradient_ts <- rep(NA, nsteps)
@@ -110,7 +110,7 @@ BET_MSE_IE = function(pdir,
     SBR_d_ts[istep] <- step2$SBR_d
     Closure_ts[istep] <- step2$NewClosure
     max_gradient_ts[istep] <- step2$max_gradient
-    Fratio_ts[istep] <- step2$Fratio
+    Fratio_ts[istep] <- step2$Fratio * exp(IE_ts[istep])
     SB_ts[istep] <- step2$SB
     Fcurrent_EM_ts[istep] <- step2$Fcurrent
     F30_EM_ts[istep] <- step2$F30
@@ -125,7 +125,7 @@ BET_MSE_IE = function(pdir,
       OM,
       itr,
       istep,
-      step2$Fratio * exp(IEs[istep]), # add implmentation error
+      step2$Fratio * exp(IE_ts[istep]), # add implementation error
       dir_OM_previous,
       dir_EM_previous,
       R_devs,
@@ -289,7 +289,8 @@ BET_MSE_IE = function(pdir,
     "Time_Stamp" = Time_ts,
     "Fratio" = Fratio_ts,
     "SB" = SB_ts,
-    "FFMSY" = FFMSY_ts
+    "FFMSY" = FFMSY_ts,
+    "Implementation_Error" = IE_ts
   )
   
   write.csv(Record,
