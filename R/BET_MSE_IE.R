@@ -49,7 +49,7 @@ BET_MSE_IE = function(pdir,
   seed <- read.csv(paste0(pdir, "seeds.csv"))[itrnum, 1]
   
   set.seed(seed)
-  IE_ts <- rnorm(nsteps, -0.01/2, 0.1) # implementation error
+  IE_ts <- rnorm(nsteps, -0.2^2/2, 0.2) # implementation error
   
   SBR_d_ts <- rep(NA, nsteps)
   max_gradient_ts <- rep(NA, nsteps)
