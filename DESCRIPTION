@@ -1,6 +1,6 @@
 Package: IATTCMSE
 Title: IATTC's R package for Management Strategy Evaluation
-Version: 0.0.1
+Version: 1.0.0
 Author: Haikun Xu (hkxu@iattc.org)
 Description: TBA
 License: Apache License (>= 2)
