@@ -92,7 +92,11 @@ Estimation_EM = function(dir_istep, dir_EM_previous, dir_OM_Boot, R0, Mcycle, da
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
   max_gradient <- em_out$maximum_gradient_component
   
-  if(max_gradient > 0.1) {
+  Dynamic_Bzero <- em_out$Dynamic_Bzero
+  SBR_d <- Dynamic_Bzero$SSB[nrow(Dynamic_Bzero)] / Dynamic_Bzero$SSB_nofishing[nrow(Dynamic_Bzero)]
+  
+  if ((max_gradient > 0.1) | (SBR_d > 0.99) | (SBR_d < 0.01)) {
+    
     # if the model fails to converge, use the previous control file and try again
     ctl <- r4ss::SS_readctl_3.30(
       file = paste0(dir_EM_previous, "control.ss_new"),
@@ -102,7 +106,7 @@ Estimation_EM = function(dir_istep, dir_EM_previous, dir_OM_Boot, R0, Mcycle, da
     )
     ctl$MainRdevYrLast <- ctl$MainRdevYrLast + Mcycle * 4 # increase the main recruitment last year
     
-    ctl$SR_parms$INIT[1] <- ctl$SR_parms$INIT[1] + 0.2
+    ctl$SR_parms$INIT[1] <- ctl$SR_parms$INIT[1] + 0.5
     
     r4ss::SS_writectl_3.30(
       ctl,
