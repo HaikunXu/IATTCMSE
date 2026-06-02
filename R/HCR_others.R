@@ -47,25 +47,31 @@ HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol) {
   
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
+  
   NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
+  if (istep > 1) {
     if ((CurrentClosure - NewClosure) > 10) {
       NewClosure <- CurrentClosure - 10
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+      # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
     }
     
-  if(SBR_d > Scontrol) {
-    if ((NewClosure - CurrentClosure) > 10)  {
-      NewClosure <- CurrentClosure + 10
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    if (SBR_d > Scontrol) {
+      if ((NewClosure - CurrentClosure) > 10) {
+        NewClosure <- CurrentClosure + 10
+        # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+      }
+    }
+    else {
+      if ((NewClosure - CurrentClosure) > 20) {
+        NewClosure <- CurrentClosure + 20
+        # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+      }
     }
   }
-  else {
-    if ((NewClosure - CurrentClosure) > 20) {
-      NewClosure <- CurrentClosure + 20
-      Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-    }
-  }
+
+  # calculate the modified Fratio based on NewClosure
+  Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
 
   return(
     list(
