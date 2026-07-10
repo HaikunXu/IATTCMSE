@@ -8,8 +8,11 @@
 
 HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol) {
   
-  Fscaler <- 0.828065333
-  Sscaler <- 1.163170077
+  # Fscaler <- 0.828065333
+  # Sscaler <- 1.163170077
+  
+  Fscaler <- 0.697300367
+  Sscaler <- 1.462563173
 
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
@@ -50,25 +53,24 @@ HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol) {
   
   NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
   
-  if (istep > 1) {
-    if ((CurrentClosure - NewClosure) > 10) {
-      NewClosure <- CurrentClosure - 10
-      # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-    }
-    
-    if (SBR_d > Scontrol) {
-      if ((NewClosure - CurrentClosure) > 10) {
-        NewClosure <- CurrentClosure + 10
-        # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      }
-    }
-    else {
-      if ((NewClosure - CurrentClosure) > 20) {
-        NewClosure <- CurrentClosure + 20
-        # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
-      }
-    }
-  }
+    # if ((CurrentClosure - NewClosure) > 10) {
+    #   NewClosure <- CurrentClosure - 10
+    #   # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    # }
+    # 
+    # if (SBR_d > Scontrol) {
+    #   if ((NewClosure - CurrentClosure) > 10) {
+    #     NewClosure <- CurrentClosure + 10
+    #     # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    #   }
+    # }
+    # else {
+    #   if ((NewClosure - CurrentClosure) > 20) {
+    #     NewClosure <- CurrentClosure + 20
+    #     # Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+    #   }
+    # }
+  
 
   # calculate the modified Fratio based on NewClosure
   Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
