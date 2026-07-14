@@ -6,13 +6,16 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol) {
+HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol, Fscaler, Sscaler) {
   
   # Fscaler <- 0.828065333
   # Sscaler <- 1.163170077
   
-  Fscaler <- 0.697300367
-  Sscaler <- 1.462563173
+  #Fscaler <- 0.697300367 # 1-1: ASPM_R+
+  #Sscaler <- 1 # 1.462563173 # 1-1: ASPM_R+
+  
+  # Fscaler <- 1.108327193 # 1-1: ASPM_R+_Sel
+  # Sscaler <- 0.87487908 # 1-1: ASPM_R+_Sel
 
   # read EM output file
   em_out <- r4ss::SS_output(dir_EM, covar = FALSE, verbose = FALSE, printstats = FALSE)
@@ -51,7 +54,7 @@ HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol) {
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
   
-  NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
+  NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, -1000), 0)
   
     # if ((CurrentClosure - NewClosure) > 10) {
     #   NewClosure <- CurrentClosure - 10

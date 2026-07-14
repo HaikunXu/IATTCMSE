@@ -4,7 +4,7 @@
 \alias{HCR_others}
 \title{Runs the staff's HCR algorithm}
 \usage{
-HCR_others(dir_EM, istep, CurrentClosure, Scontrol)
+HCR_others(dir_EM, istep, CurrentClosure, Scontrol, Fscaler, Sscaler)
 }
 \arguments{
 \item{dir_EM}{the directory of the EM used to compute the current SBR_d for harvest control rule}

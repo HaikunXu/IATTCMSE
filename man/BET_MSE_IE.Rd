@@ -22,7 +22,10 @@ BET_MSE_IE(
   Scontrol = 0.2,
   clean = FALSE,
   plot = FALSE,
-  MSY = FALSE
+  MSY = FALSE,
+  IE_CV = 0.1,
+  Fscaler = 0.828065333,
+  Sscaler = 1.163170077
 )
 }
 \arguments{
