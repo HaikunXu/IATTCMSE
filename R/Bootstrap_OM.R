@@ -64,9 +64,9 @@ Bootstrap_OM = function(dir_istep, istep, dir_OM, Mcycle, EM_comp_fleet, seed, e
     LF_new$year <- LF_new$year + istep * Mcycle * 4 + 16 # 4 COVID-years (2020-2023)
     dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
     dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
-    
-    r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, dat_name), verbose = FALSE, overwrite = TRUE)
-  }
+    }
+  r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, dat_name), verbose = FALSE, overwrite = TRUE)
+
   
   # change recruitment period in the control file
   ctl <- r4ss::SS_readctl_3.30(

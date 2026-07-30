@@ -252,7 +252,7 @@ BET_MSE_IE = function(pdir,
       
       step7_plus <- IATTCMSE::Update_OM_SMSY(
         istep,
-        paste0(dir_istep, "OM_Final/"),
+        dir_OM_Final,
         paste0(dir_istep, "OM_SMSY/"),
         dat_name,
         ss_name,
