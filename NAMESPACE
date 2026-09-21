@@ -3,6 +3,7 @@
 export(BET_MSE)
 export(BET_MSE_IE)
 export(BET_MSE_IE_R)
+export(BET_MSE_LL)
 export(BET_MSE_R)
 export(BET_MSE_risk)
 export(Bootstrap_OM)
