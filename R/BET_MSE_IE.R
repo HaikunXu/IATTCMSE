@@ -225,24 +225,24 @@ BET_MSE_IE = function(pdir,
     # *************************************************************************************
     # Step 7: Run the OM one last time to produce MSE time series outputs
     # *************************************************************************************
-    step7 <- IATTCMSE::Final_OM(
-      pdir,
-      dir_itr,
-      istep,
-      dir_OM,
-      dir_OM_Boot,
-      Mcycle,
-      endquarter,
-      dat_name,
-      ctl_name,
-      ss_name
-    )
-    dir_OM_Final <- step7
+    # step7 <- IATTCMSE::Final_OM(
+    #   pdir,
+    #   dir_itr,
+    #   istep,
+    #   dir_OM,
+    #   dir_OM_Boot,
+    #   Mcycle,
+    #   endquarter,
+    #   dat_name,
+    #   ctl_name,
+    #   ss_name
+    # )
+    # dir_OM_Final <- step7
     
     # *************************************************************************************
     # Step 8: Extract OM_final's results
     # *************************************************************************************
-    step8 <- IATTCMSE::Extract_OM(dir_OM_Final, startquarter, clean = clean, plot = plot)
+    step8 <- IATTCMSE::Extract_OM(paste0(dir_istep, "OM_Final/"), startquarter, clean = clean, plot = plot)
     
     if(MSY == TRUE) {
       
