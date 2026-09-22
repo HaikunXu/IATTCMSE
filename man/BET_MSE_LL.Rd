@@ -25,7 +25,9 @@ BET_MSE_LL(
   MSY = FALSE,
   IE_CV = 0.1,
   Fscaler = 0.828065333,
-  Sscaler = 1.163170077
+  Sscaler = 1.163170077,
+  LL_catch_limit = 55131,
+  LL_F_scaler = rep(1, Mcycle)
 )
 }
 \arguments{

@@ -40,7 +40,8 @@ BET_MSE_LL = function(pdir,
                    IE_CV = 0.1,
                    Fscaler = 0.828065333,
                    Sscaler = 1.163170077,
-                   LL_catch_limit = 55131) {
+                   LL_catch_limit = 55131,
+                   LL_F_scaler = rep(1, Mcycle)) {
   
   itr = paste0("itr", itrnum, "/")
   
@@ -140,7 +141,7 @@ BET_MSE_LL = function(pdir,
     dir.create(dir_OM_root)
     
     # update the F vector for the new management cycle
-    Fvector <- c(Fvector[1:14], Fvector[15:22] * step2$Fratio) * exp(IE_ts[istep])
+    Fvector <- c(Fvector[1:14] * LL_F_scaler[istep], Fvector[15:22] * step2$Fratio) * exp(IE_ts[istep])
     
     for (cycle in 1:3) {
       
