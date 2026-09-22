@@ -39,7 +39,8 @@ BET_MSE_LL = function(pdir,
                    MSY = FALSE,
                    IE_CV = 0.1,
                    Fscaler = 0.828065333,
-                   Sscaler = 1.163170077) {
+                   Sscaler = 1.163170077,
+                   LL_catch_limit = 55131) {
   
   itr = paste0("itr", itrnum, "/")
   
@@ -139,7 +140,6 @@ BET_MSE_LL = function(pdir,
     dir.create(dir_OM_root)
     
     # update the F vector for the new management cycle
-    
     Fvector <- c(Fvector[1:14], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
     
     for (cycle in 1:3) {
@@ -229,9 +229,10 @@ BET_MSE_LL = function(pdir,
     TS <- om_out$timeseries
     col_id <- which(names(TS) %in% paste0("dead(B):_", 1:14))
     
-    # total predicted longline catch
-    Catch_LL <- sum(TS[(nrow(TS) - 4):(nrow(TS) - 1), col_id])
-    LL_catch_scaler <- ifelse(Catch_LL < 55131, 1, 55131 / Catch_LL)
+    # total predicted longline catch for the predicted year
+    Catch_LL <- sum(TS[(nrow(TS) - 4):(nrow(TS) - 1), col_id]) 
+    # calculate whether longline catch needs to be reduced to the limit
+    LL_catch_scaler <- ifelse(Catch_LL < LL_catch_limit, 1, LL_catch_limit / Catch_LL)
     
     #################################################### Boot_OM ####################################################
     # dir_OM_Final <- paste0(dir_OM, "LL")
