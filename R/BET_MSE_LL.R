@@ -140,7 +140,7 @@ BET_MSE_LL = function(pdir,
     dir.create(dir_OM_root)
     
     # update the F vector for the new management cycle
-    Fvector <- c(Fvector[1:14], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
+    Fvector <- c(Fvector[1:14], Fvector[15:22] * step2$Fratio) * exp(IE_ts[istep])
     
     for (cycle in 1:3) {
       
