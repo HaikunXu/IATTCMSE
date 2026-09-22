@@ -68,7 +68,10 @@ BET_MSE_LL = function(pdir,
   Time_ts <- rep(NA, nsteps)
   SB_ts <- rep(NA, nsteps)
   FFMSY_ts <- rep(NA, nsteps)
-
+  LL_catch_scaler1 <- rep(NA, nsteps)
+  LL_catch_scaler2 <- rep(NA, nsteps)
+  LL_catch_scaler3 <- rep(NA, nsteps)
+  
   Flag <- 1 # mark whether the loop is running without an EM with a large gradient
   
   for (istep in 1:nsteps) {
@@ -235,7 +238,11 @@ BET_MSE_LL = function(pdir,
     # calculate whether longline catch needs to be reduced to the limit
     LL_catch_scaler <- ifelse(Catch_LL < LL_catch_limit, 1, LL_catch_limit / Catch_LL)
     
-    #################################################### Boot_OM ####################################################
+    if(cycle == 1) LL_catch_scaler1[istep] <- LL_catch_scaler
+    if(cycle == 2) LL_catch_scaler2[istep] <- LL_catch_scaler
+    if(cycle == 3) LL_catch_scaler3[istep] <- LL_catch_scaler
+
+        #################################################### Boot_OM ####################################################
     # dir_OM_Final <- paste0(dir_OM, "LL")
     # dir.create(dir_OM_Final)
     
@@ -674,11 +681,13 @@ BET_MSE_LL = function(pdir,
     "F30_EM" = F30_EM_ts,
     "Fcurrent_EM" = Fcurrent_EM_ts,
     "Fcurrent" = Fcurrent_ts,
-    # "Time_Stamp" = Time_ts,
     "Fratio" = Fratio_ts,
     "SB" = SB_ts,
     "FFMSY" = FFMSY_ts,
-    "Implementation_Error" = IE_ts
+    "Implementation_Error" = IE_ts,
+    "LL_catch_scaler1" = LL_catch_scaler1,
+    "LL_catch_scaler2" = LL_catch_scaler2,
+    "LL_catch_scaler3" = LL_catch_scaler3
   )
   
   write.csv(Record,
