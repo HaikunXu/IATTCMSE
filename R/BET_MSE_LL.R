@@ -41,7 +41,8 @@ BET_MSE_LL = function(pdir,
                    Fscaler = 0.828065333,
                    Sscaler = 1.163170077,
                    LL_catch_limit = 55131,
-                   LL_F_scaler = rep(1, Mcycle)) {
+                   LL_F_scaler = rep(1, Mcycle),
+                   PS_F_scaler = rep(1, Mcycle)) {
   
   itr = paste0("itr", itrnum, "/")
   
@@ -105,8 +106,11 @@ BET_MSE_LL = function(pdir,
 
     if (HCR == "HCR_staff/")
       step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_previous, istep, CurrentClosure)
-    if (HCR != "HCR_staff/")
-      step2 <- IATTCMSE::HCR_others(dir_EM = dir_EM_previous, istep, CurrentClosure, Scontrol, Fscaler, Sscaler)
+    if (HCR != "HCR_staff/") {
+      if(istep == 1) Capacity_scaler <- PS_F_scaler[1] / 1
+      else Capacity_scaler <- PS_F_scaler[istep] / PS_F_scaler[istep - 1]
+      step2 <- IATTCMSE::HCR_others(dir_EM = dir_EM_previous, istep, CurrentClosure, Scontrol, Fscaler, Sscaler, Capacity_scaler)
+    }
 
     if ((step2$max_gradient > 0.1) |
         (step2$SBR_d > 0.99) |
@@ -144,7 +148,7 @@ BET_MSE_LL = function(pdir,
     dir.create(dir_OM_root)
     
     # update the F vector for the new management cycle
-    Fvector <- c(Fvector[1:14] * LL_F_scaler[istep], Fvector[15:22] * step2$Fratio) * exp(IE_ts[istep])
+    Fvector <- c(Fvector[1:14] * LL_F_scaler[istep], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
     
     for (cycle in 1:3) {
       
@@ -196,7 +200,7 @@ BET_MSE_LL = function(pdir,
     
     Forecast$Nforecastyrs <- 1 + 4 # number of forecast years
     
-    if (istep + cycle == 2) years <- 201:205 # the first prediction
+    if (istep + cycle == 2) years <- (endquarter + 1):(endquarter + 5) # the first prediction
     else years <- unique(Forecast$ForeCatch$year) + 4
     
     Forecast$ForeCatch <- data.frame(

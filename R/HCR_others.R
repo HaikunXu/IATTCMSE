@@ -6,7 +6,7 @@
 #' @author Haikun Xu 
 #' @export
 
-HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol, Fscaler, Sscaler) {
+HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol, Fscaler, Sscaler, Capacity_scaler = 1) {
   
   # Fscaler <- 0.828065333
   # Sscaler <- 1.163170077
@@ -54,7 +54,7 @@ HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol, Fscaler, Sscaler)
   # Check the Fscale with the 10days maximum and re-adjust with Fscale = current opening +- 10 days / current opening
   Fratio <- Fmult * Fadjust / Frecent # Fnew = Fmult * Fadjust
   
-  NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio, 0), 0)
+  NewClosure <- round(max(365 - (365 - CurrentClosure) * Fratio / Capacity_scaler, 0), 0)
   
     if ((CurrentClosure - NewClosure) > 10) {
       NewClosure <- CurrentClosure - 10
