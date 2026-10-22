@@ -34,6 +34,7 @@ BET_MSE_LL = function(pdir,
                    ctl_name,
                    ss_name,
                    Scontrol = 0.2,
+                   effort_creep = 0,
                    clean = FALSE,
                    plot = FALSE,
                    MSY = FALSE,
@@ -152,6 +153,9 @@ BET_MSE_LL = function(pdir,
     
     for (cycle in 1:3) {
       
+      # LL effort creep
+      
+      
       # *************************************************************************************
       # step 3: make projection using simulated R devs and HCR F
       # *************************************************************************************
@@ -240,7 +244,9 @@ BET_MSE_LL = function(pdir,
     # total predicted longline catch for the predicted year
     Catch_LL <- sum(TS[(nrow(TS) - 4):(nrow(TS) - 1), col_id]) 
     # calculate whether longline catch needs to be reduced to the limit
-    LL_catch_scaler <- ifelse(Catch_LL < LL_catch_limit, 1, LL_catch_limit / Catch_LL)
+    LL_catch_limit_temp <- ifelse(step2$SBR_d < Scontrol, LL_catch_limit * step2$SBR_d / Scontrol)
+    
+    LL_catch_scaler <- ifelse(Catch_LL < LL_catch_limit, 1, LL_catch_limit_temp / Catch_LL)
     
     if(cycle == 1) LL_catch_scaler1[istep] <- LL_catch_scaler
     if(cycle == 2) LL_catch_scaler2[istep] <- LL_catch_scaler

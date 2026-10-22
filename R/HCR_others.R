@@ -76,7 +76,7 @@ HCR_others = function(dir_EM, istep, CurrentClosure, Scontrol, Fscaler, Sscaler,
   
 
   # calculate the modified Fratio based on NewClosure
-  Fratio <- (365 - NewClosure) / (365 - CurrentClosure)
+  Fratio <- (365 - NewClosure) / (365 - CurrentClosure) * Capacity_scaler
 
   return(
     list(
