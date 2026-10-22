@@ -108,7 +108,7 @@ BET_MSE_LL = function(pdir,
     if (HCR == "HCR_staff/")
       step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_previous, istep, CurrentClosure)
     if (HCR != "HCR_staff/") {
-      if(istep == 1) Capacity_scaler <- PS_F_scaler[1] / 1
+      if(istep == 1) Capacity_scaler <- PS_F_scaler[1]
       else Capacity_scaler <- PS_F_scaler[istep] / PS_F_scaler[istep - 1]
       step2 <- IATTCMSE::HCR_others(dir_EM = dir_EM_previous, istep, CurrentClosure, Scontrol, Fscaler, Sscaler, Capacity_scaler)
     }
@@ -149,12 +149,13 @@ BET_MSE_LL = function(pdir,
     dir.create(dir_OM_root)
     
     # update the F vector for the new management cycle
-    Fvector <- c(Fvector[1:14] * LL_F_scaler[istep], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
+    if(istep == 1) Fvector <- c(Fvector[1:14] * LL_F_scaler[1], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
+    else Fvector <- c(Fvector[1:14] * LL_F_scaler[istep] / LL_F_scaler[istep - 1], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
     
     for (cycle in 1:3) {
       
       # LL effort creep
-      
+      Fvector[1:14] <- Fvector[1:14] * (1 + effort_creep) # LL F increases each year
       
       # *************************************************************************************
       # step 3: make projection using simulated R devs and HCR F
