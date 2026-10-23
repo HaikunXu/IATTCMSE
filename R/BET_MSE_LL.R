@@ -245,15 +245,15 @@ BET_MSE_LL = function(pdir,
     # total predicted longline catch for the predicted year
     Catch_LL <- sum(TS[(nrow(TS) - 4):(nrow(TS) - 1), col_id]) 
     # calculate whether longline catch needs to be reduced to the limit
-    LL_catch_limit_temp <- ifelse(step2$SBR_d < Scontrol, LL_catch_limit * step2$SBR_d / Scontrol)
+    LL_catch_limit_temp <- ifelse(step2$SBR_d < Scontrol, LL_catch_limit * step2$SBR_d / Scontrol, LL_catch_limit)
     
-    LL_catch_scaler <- ifelse(Catch_LL < LL_catch_limit, 1, LL_catch_limit_temp / Catch_LL)
+    LL_catch_scaler <- ifelse(Catch_LL < LL_catch_limit_temp, 1, LL_catch_limit_temp / Catch_LL)
     
     if(cycle == 1) LL_catch_scaler1[istep] <- LL_catch_scaler
     if(cycle == 2) LL_catch_scaler2[istep] <- LL_catch_scaler
     if(cycle == 3) LL_catch_scaler3[istep] <- LL_catch_scaler
 
-        #################################################### Boot_OM ####################################################
+    #################################################### Boot_OM ####################################################
     # dir_OM_Final <- paste0(dir_OM, "LL")
     # dir.create(dir_OM_Final)
     

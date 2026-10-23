@@ -20,6 +20,7 @@ BET_MSE_LL(
   ctl_name,
   ss_name,
   Scontrol = 0.2,
+  effort_creep = 0,
   clean = FALSE,
   plot = FALSE,
   MSY = FALSE,
