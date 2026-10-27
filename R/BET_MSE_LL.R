@@ -42,8 +42,8 @@ BET_MSE_LL = function(pdir,
                    Fscaler = 0.828065333,
                    Sscaler = 1.163170077,
                    LL_catch_limit = 55131,
-                   LL_F_scaler = rep(1, Mcycle),
-                   PS_F_scaler = rep(1, Mcycle)) {
+                   LL_F_scaler = rep(1, nquarters / 4 / Mcycle),
+                   PS_F_scaler = rep(1, nquarters / 4 / Mcycle)) {
   
   itr = paste0("itr", itrnum, "/")
   
