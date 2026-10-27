@@ -56,7 +56,7 @@ BET_MSE_LL = function(pdir,
   seed <- read.csv(paste0(pdir, "seeds.csv"))[itrnum, 1]
   
   set.seed(seed)
-  IE_ts <- rnorm(nsteps, -IE_CV^2/2, IE_CV) # implementation error
+  IE_ts <- rnorm(nquarters / 4, -IE_CV^2/2, IE_CV) # implementation error
   
   SBR_d_ts <- rep(NA, nsteps)
   max_gradient_ts <- rep(NA, nsteps)
@@ -149,14 +149,15 @@ BET_MSE_LL = function(pdir,
     dir.create(dir_OM_root)
     
     # update the F vector for the new management cycle
-    if(istep == 1) Fvector <- c(Fvector[1:14] * LL_F_scaler[1], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
-    else Fvector <- c(Fvector[1:14] * LL_F_scaler[istep] / LL_F_scaler[istep - 1], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
+    if(istep == 1) Fvector <- c(Fvector[1:14] * LL_F_scaler[1], Fvector[15:22] * step2$Fratio)
+    else Fvector <- c(Fvector[1:14] * LL_F_scaler[istep] / LL_F_scaler[istep - 1], Fvector[15:22] * step2$Fratio)
     
     for (cycle in 1:3) {
       
       # LL effort creep
       Fvector[1:14] <- Fvector[1:14] * (1 + effort_creep) # LL F increases each year
-      
+      # add PS implementation error
+      Fvector_temp <- c(Fvector[1:14], Fvector[15:22] * exp(IE_ts[(istep-1)*3+cycle])) 
       # *************************************************************************************
       # step 3: make projection using simulated R devs and HCR F
       # *************************************************************************************
@@ -212,7 +213,7 @@ BET_MSE_LL = function(pdir,
       year = rep(years, each = 22),
       seas = 1,
       fleet = 1:22,
-      catch_or_F = Fvector,
+      catch_or_F = Fvector_temp,
       basis = 99
     )
 
