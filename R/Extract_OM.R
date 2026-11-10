@@ -55,7 +55,7 @@ Extract_OM = function(dir_OM_Final, startquarter, clean, plot = FALSE) {
     "SBR" = SB$SBR,
     "Recruit" = Recruit$pred_recr,
     "R_devs" = Recruit$dev,
-    "CPUE" = c(CPUE$Obs, NA)
+    "CPUE" = c(CPUE$Obs, rep(NA, length(Recruit$Yr) - length(CPUE$Obs)))
   )
   
   if(clean == TRUE) {
