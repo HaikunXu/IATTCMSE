@@ -20,30 +20,30 @@
 #' @export
 
 BET_MSE_LL = function(pdir,
-                   HS,
-                   HCR,
-                   OM,
-                   itrnum,
-                   nquarters,
-                   Mcycle,
-                   n_extra_R,
-                   startquarter,
-                   endquarter,
-                   EM_comp_fleet,
-                   dat_name,
-                   ctl_name,
-                   ss_name,
-                   Scontrol = 0.2,
-                   effort_creep = 0,
-                   clean = FALSE,
-                   plot = FALSE,
-                   MSY = FALSE,
-                   IE_CV = 0.1,
-                   Fscaler = 0.828065333,
-                   Sscaler = 1.163170077,
-                   LL_catch_limit = 55131,
-                   LL_F_scaler = rep(1, nquarters / 4 / Mcycle),
-                   PS_F_scaler = rep(1, nquarters / 4 / Mcycle)) {
+                      HS,
+                      HCR,
+                      OM,
+                      itrnum,
+                      nquarters,
+                      Mcycle,
+                      n_extra_R,
+                      startquarter,
+                      endquarter,
+                      EM_comp_fleet,
+                      dat_name,
+                      ctl_name,
+                      ss_name,
+                      Scontrol = 0.2,
+                      effort_creep = 0,
+                      clean = FALSE,
+                      plot = FALSE,
+                      MSY = FALSE,
+                      IE_CV = 0.1,
+                      Fscaler = 0.828065333,
+                      Sscaler = 1.163170077,
+                      LL_catch_limit = 55131,
+                      LL_F_scaler = rep(1, nquarters / 4 / Mcycle),
+                      PS_F_scaler = rep(1, nquarters / 4 / Mcycle)) {
   
   itr = paste0("itr", itrnum, "/")
   
@@ -56,7 +56,7 @@ BET_MSE_LL = function(pdir,
   seed <- read.csv(paste0(pdir, "seeds.csv"))[itrnum, 1]
   
   set.seed(seed)
-  IE_ts <- rnorm(nsteps, -IE_CV^2/2, IE_CV) # implementation error
+  IE_ts <- rnorm(nquarters / 4, -IE_CV^2/2, IE_CV) # implementation error
   
   SBR_d_ts <- rep(NA, nsteps)
   max_gradient_ts <- rep(NA, nsteps)
@@ -104,7 +104,7 @@ BET_MSE_LL = function(pdir,
     # *************************************************************************************
     # step 2: Compute the F for the new management cycle
     # *************************************************************************************
-
+    
     if (HCR == "HCR_staff/")
       step2 <- IATTCMSE::HCR_staff(dir_EM = dir_EM_previous, istep, CurrentClosure)
     if (HCR != "HCR_staff/") {
@@ -112,7 +112,7 @@ BET_MSE_LL = function(pdir,
       else Capacity_scaler <- PS_F_scaler[istep] / PS_F_scaler[istep - 1]
       step2 <- IATTCMSE::HCR_others(dir_EM = dir_EM_previous, istep, CurrentClosure, Scontrol, Fscaler, Sscaler, Capacity_scaler)
     }
-
+    
     if ((step2$max_gradient > 0.1) |
         (step2$SBR_d > 0.99) |
         (step2$SBR_d < 0.01)) {
@@ -139,7 +139,7 @@ BET_MSE_LL = function(pdir,
     Fcurrent_EM_ts[istep] <- step2$Fcurrent
     F30_EM_ts[istep] <- step2$F30
     
-
+    
     # create directory for new time step where the new dat file will be saved
     dir_istep <- paste0(pdir, HS, HCR, OM, itr, "step", istep, "/")
     dir.create(dir_istep)
@@ -150,357 +150,358 @@ BET_MSE_LL = function(pdir,
     
     # update the F vector for the new management cycle
     if(istep == 1) Fvector <- c(Fvector[1:14] * LL_F_scaler[1], Fvector[15:22] * step2$Fratio)
-    else Fvector <- c(Fvector[1:14] * LL_F_scaler[istep] / LL_F_scaler[istep - 1], Fvector[15:22] * step2$Fratio * exp(IE_ts[istep]))
+    else Fvector <- c(Fvector[1:14] * LL_F_scaler[istep] / LL_F_scaler[istep - 1], Fvector[15:22] * step2$Fratio)
     
     for (cycle in 1:3) {
       
       # LL effort creep
       Fvector[1:14] <- Fvector[1:14] * (1 + effort_creep) # LL F increases each year
-
+      # add PS implementation error
+      Fvector_temp <- c(Fvector[1:14], Fvector[15:22] * exp(IE_ts[(istep-1)*3+cycle])) 
       # *************************************************************************************
       # step 3: make projection using simulated R devs and HCR F
       # *************************************************************************************
       
-    if (cycle > 1) {
-      dir_OM_previous <- paste0(dir_istep, "OM/", cycle - 1, "Final/")
-    }
+      if (cycle > 1) {
+        dir_OM_previous <- paste0(dir_istep, "OM/", cycle - 1, "Final/")
+      }
       
-    dir_OM <- paste0(dir_OM_root, cycle,"/")
-    dir.create(dir_OM)
-    
-    files = c(
-      paste0(dir_OM_previous, dat_name),
-      paste0(dir_OM_previous, ctl_name),
-      paste0(pdir, ss_name),
-      paste0(dir_OM_previous, "go_nohess.bat")
-    )
-    file.copy(from = files, to = dir_OM, overwrite = TRUE)
-    
-    
-    # step 2: change par file
-    ParDir <- paste0(dir_OM_previous, "ss3.par")
-    ParFile <- readLines(ParDir, warn = F)
-    
-    Line <- match("# Fcast_recruitments:", ParFile)
-    
-    R_forecast <- read.table(
-      file = ParDir,
-      nrows = 1,
-      skip = Line
-    )
-    
-    if(n_extra_R == 0)
-      R_forecast_new <- c(R_devs[((istep-1)*Mcycle*4+1+(cycle-1)*4):((istep-1)*Mcycle*4+cycle*4)], 0)
-    else 
-      R_forecast_new <- c(as.vector(t(R_forecast[1,1:n_extra_R])), 
-                          R_devs[((istep-1)*Mcycle*4+1+(cycle-1)*4):((istep-1)*Mcycle*4+cycle*4)],
-                          0)
-    
-    ParFile[Line + 1] <- gsub(",", "", toString(R_forecast_new))
-    writeLines(ParFile, paste0(dir_OM, "/ss3.par"))
-    
-    
-    # step 3: change forecast file
-    Forecast <- r4ss::SS_readforecast(paste0(dir_OM_previous, "forecast.ss"), verbose = FALSE)
-    
-    Forecast$Nforecastyrs <- 1 + 4 # number of forecast years
-    
-    if (istep + cycle == 2) years <- (endquarter + 1):(endquarter + 5) # the first prediction
-    else years <- unique(Forecast$ForeCatch$year) + 4
-    
-    Forecast$ForeCatch <- data.frame(
-      year = rep(years, each = 22),
-      seas = 1,
-      fleet = 1:22,
-      catch_or_F = Fvector,
-      basis = 99
-    )
-
-    r4ss::SS_writeforecast(Forecast, dir_OM, verbose = FALSE, overwrite = TRUE)
-    
-    
-    # change starter file
-    starter <- r4ss::SS_readstarter(paste0(dir_EM_previous, "/starter.ss"), verbose = FALSE)
-    
-    #specify to use the ss3.par as parameters
-    starter$init_values_src = 1
-    #turn off estimation of parameters 
-    starter$last_estimation_phase = 0
-    
-    #write new starter file
-    r4ss::SS_writestarter(starter, dir_OM, verbose = FALSE, overwrite = TRUE)
-    
-    
-    # step 5: run ss
-    # setwd(dir_OM)
-    command <- paste("cd", dir_OM, "& go_nohess.bat", sep = " ")
-    ss <- shell(cmd = command, intern = T, wait = T)
-    
-    # step 6: check LL catch
-    om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
-
-    TS <- om_out$timeseries
-    col_id <- which(names(TS) %in% paste0("dead(B):_", 1:14))
-    
-    # total predicted longline catch for the predicted year
-    Catch_LL <- sum(TS[(nrow(TS) - 4):(nrow(TS) - 1), col_id]) 
-    # calculate whether longline catch needs to be reduced to the limit
-    LL_catch_limit_temp <- ifelse(step2$SBR_d < Scontrol, LL_catch_limit * step2$SBR_d / Scontrol, LL_catch_limit)
-    
-    LL_catch_scaler <- ifelse(Catch_LL < LL_catch_limit_temp, 1, LL_catch_limit_temp / Catch_LL)
-    
-    if(cycle == 1) LL_catch_scaler1[istep] <- LL_catch_scaler
-    if(cycle == 2) LL_catch_scaler2[istep] <- LL_catch_scaler
-    if(cycle == 3) LL_catch_scaler3[istep] <- LL_catch_scaler
-
-    #################################################### Boot_OM ####################################################
-    # dir_OM_Final <- paste0(dir_OM, "LL")
-    # dir.create(dir_OM_Final)
-    
-    # step 1: create a new folder for the OM bootstrap
-    dir_OM_Boot <- paste0(dir_OM_root, cycle, "Boot/")
-    dir.create(dir_OM_Boot)
-    
-    # copy files to the new folder
-    files = c(
-      paste0(dir_OM, "starter.ss"),
-      paste0(dir_OM, ss_name),
-      paste0(dir_OM, "go_nohess.bat")
-    )
-    file.copy(from = files, to = dir_OM_Boot, overwrite = TRUE)
-    
-    # read the report file from the OM projection
-    om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
-    
-    # read projected catch
-    Catch_projection <- r4ss::SS_ForeCatch(om_out,
-                                           yrs = ((istep - 1) * Mcycle * 4 + endquarter + 1 + (cycle - 1) * 4):((istep - 1) * Mcycle * 4 + endquarter + cycle * 4),
-                                           zeros = TRUE)
-    
-    # LL catch limit
-    Catch_projection$`dead(B)`[which(Catch_projection$Fleet < 15)] <- Catch_projection$`dead(B)`[which(Catch_projection$Fleet < 15)] * LL_catch_scaler
-    
-    # read catch file
-    dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, dat_name), verbose = FALSE)
-    Catch <- dat$catch
-    
-    Catch_projection_new <- data.frame("year" = Catch_projection$`#Year`,
-                                       "seas" = Catch_projection$Seas,
-                                       "fleet" = Catch_projection$Fleet,
-                                       "catch" = Catch_projection$`dead(B)`,
-                                       "catch_se" = 0.01)
-    
-    Catch_new <- dplyr::arrange(rbind(Catch, Catch_projection_new), fleet, year)
-    
-    dat$catch <- Catch_new
-    dat$endyr <- dat$endyr + 4
-    
-    # add dummy CPUE data
-    CPUE_new <- dat$CPUE[(nrow(dat$CPUE) - 3):nrow(dat$CPUE),]
-    CPUE_new$year <- CPUE_new$year + 4
-    CPUE_new$se_log <- mean(dat$CPUE$se_log[(nrow(dat$CPUE)-11):nrow(dat$CPUE)])
-    dat$CPUE <- rbind(dat$CPUE, CPUE_new)
-    
-    # add dummy LF data
-    if(sum(is.na(EM_comp_fleet)) == FALSE) {
-      LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
-      LF_new <- LF[which((LF$year %in% 177:180) & LF$fleet %in% EM_comp_fleet),] # no LL LF during COVID years so use pre-COVID samples
-      LF_new$year <- CPUE_new$year # 4 COVID-years (2020-2023)
-      dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
-      dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
-    }
-    r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, dat_name), verbose = FALSE, overwrite = TRUE)
-    
-    
-    # change recruitment period in the control file
-    ctl <- r4ss::SS_readctl_3.30(
-      file = paste0(dir_OM, ctl_name),
-      verbose = FALSE,
-      datlist = dat,
-      use_datlist = TRUE
-    )
-    ctl$MainRdevYrLast <- ctl$MainRdevYrLast + 4 # increase the main recruitment last year
-    
-    r4ss::SS_writectl_3.30(
-      ctl,
-      outfile = paste0(dir_OM_Boot, ctl_name),
-      overwrite = TRUE,
-      verbose = FALSE
-    )
-    
-    
-    # change forecast file
-    Forecast <- r4ss::SS_readforecast(paste0(dir_OM, "forecast.ss"), verbose = FALSE)
-    Forecast$Nforecastyrs <- 1
-    r4ss::SS_writeforecast(Forecast, dir_OM_Boot, verbose = FALSE, overwrite = TRUE)
-    
-    
-    # change recruitment in the par file
-    ParDir <- paste0(dir_OM, "ss3.par")
-    ParFile <- readLines(ParDir, warn = F)
-    
-    Line_main <- match("# recdev2:", ParFile)
-    R_main <- read.table(
-      file = ParDir,
-      nrows = 1,
-      skip = Line_main
-    )
-    
-    Line_forecast <- match("# Fcast_recruitments:", ParFile)
-    R_forecast <- read.table(
-      file = ParDir,
-      nrows = 1,
-      skip = Line_forecast
-    )
-    
-    R_main_new <- cbind(R_main, R_forecast[1,1:4])
-    R_forecast_new <- R_forecast[1,5:ncol(R_forecast)]
-    
-    ParFile[Line_main + 1] <- gsub(",", "", toString(R_main_new))
-    ParFile[Line_forecast + 1] <- gsub(",", "", toString(R_forecast_new))
-    
-    writeLines(ParFile, paste0(dir_OM_Boot, "/ss3.par"))
-    
-    # set up bootstrap
-    starter_boot <- r4ss::SS_readstarter(paste0(dir_OM_Boot, "starter.ss"), verbose = FALSE)
-    
-    # specify to use the ss3.par as parameters
-    starter_boot$init_values_src = 1
-    # turn off estimation of parameters 
-    starter_boot$last_estimation_phase = 0
-    # add 1 data bootstrap file
-    starter_boot$N_bootstraps = 3
-    # add the seed
-    starter_boot$seed <- seed
-    
-    # write new starter file
-    r4ss::SS_writestarter(starter_boot, dir_OM_Boot, verbose = FALSE, overwrite = TRUE)
-    
-    
-    # run the bootstrap model
-    command <- paste("cd", dir_OM_Boot, "& go_nohess.bat", sep = " ")
-    ss <- shell(cmd = command, intern = T, wait = T)
-    
-
-    
-    #################################################### update_OM ####################################################
-    
-    dir_OM_Final <- paste0(dir_OM_root, cycle, "Final/")
-    dir.create(dir_OM_Final)
-    
-    # copy files to the new folder
-    files = c(
-      paste0(dir_OM, "starter.ss"),
-      paste0(dir_OM, ss_name),
-      paste0(dir_OM, "go_nohess.bat")
-    )
-    file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
-    
-    # change data file
-    dat_OM <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, dat_name), verbose = FALSE)
-    dat_OM_Boot <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, dat_name), verbose = FALSE)
-    data_true <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, "data_expval.ss"), verbose = FALSE)
-    
-    # add new CPUE
-    CPUE <- dat_OM$CPUE
-    CPUE_true <- data_true$CPUE[(nrow(CPUE)+1):nrow(data_true$CPUE),]
-    CPUE_new <- rbind(CPUE, CPUE_true)
-    
-    # add new LF
-    LF <- dat_OM$sizefreq_data_list[[1]]
-    LF_true <- dplyr::filter(data_true$sizefreq_data_list[[1]], year > max(LF$year))
-    LF_new <- dplyr::arrange(rbind(LF, LF_true), fleet, year)
-    
-    # add new catch
-    catch <- dat_OM$catch
-    max_year <- max(catch$year)
-    catch_true <- dplyr::filter(data_true$catch, year > max_year)
-    catch_new <- dplyr::arrange(rbind(catch, catch_true), fleet, year)
-    
-    # save data file
-    dat_OM$catch <- catch_new
-    dat_OM$CPUE <- CPUE_new
-    dat_OM$sizefreq_data_list[[1]] <- LF_new
-    dat_OM$Nobs_per_method <- nrow(LF_new)
-    dat_OM$endyr <- dat_OM$endyr + 4
-    r4ss::SS_writedat_3.30(dat_OM, paste0(dir_OM_Final, dat_name), verbose = FALSE, overwrite = TRUE)
-    
-    # read data file
-    # dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Final, dat_name), verbose = FALSE)
-    
-    # change recruitment period in the control file
-    ctl <- r4ss::SS_readctl_3.30(
-      file = paste0(dir_OM, ctl_name),
-      verbose = FALSE,
-      datlist = dat_OM,
-      use_datlist = TRUE
-    )
-    ctl$MainRdevYrLast <- ctl$MainRdevYrLast + 4 # increase the main recruitment last year
-    
-    r4ss::SS_writectl_3.30(
-      ctl,
-      outfile = paste0(dir_OM_Final, ctl_name),
-      overwrite = TRUE,
-      verbose = FALSE
-    )
-    
-    # change forecast file
-    Forecast <- r4ss::SS_readforecast(paste0(dir_OM, "forecast.ss"), verbose = FALSE)
-    Forecast$Nforecastyrs <- 1
-    r4ss::SS_writeforecast(Forecast, dir_OM_Final, verbose = FALSE, overwrite = TRUE)
-    
-    # change recruitment in the par file
-    ParDir <- paste0(dir_OM, "ss3.par")
-    ParFile <- readLines(ParDir, warn = F)
-    
-    Line_main <- match("# recdev2:", ParFile)
-    R_main <- read.table(
-      file = ParDir,
-      nrows = 1,
-      skip = Line_main
-    )
-    
-    Line_forecast <- match("# Fcast_recruitments:", ParFile)
-    R_forecast <- read.table(
-      file = ParDir,
-      nrows = 1,
-      skip = Line_forecast
-    )
-    
-    R_main_new <- cbind(R_main, R_forecast[1,1:4])
-    R_forecast_new <- R_forecast[1,5:ncol(R_forecast)]
-    
-    ParFile[Line_main + 1] <- gsub(",", "", toString(R_main_new))
-    ParFile[Line_forecast + 1] <- gsub(",", "", toString(R_forecast_new))
-    
-    writeLines(ParFile, paste0(dir_OM_Final, "/ss3.par"))
-    
-    # starter file
-    starter <- r4ss::SS_readstarter(paste0(dir_OM_Final, "starter.ss"), verbose = FALSE)
-    
-    #specify to use the ss3.par as parameters
-    starter$init_values_src = 1
-    #turn off estimation of parameters 
-    starter$last_estimation_phase = 0
-    #
-    starter$maxyr_sdreport <- starter$maxyr_sdreport + 4
-    
-    #write new starter file
-    r4ss::SS_writestarter(starter, dir_OM_Final, verbose = FALSE, overwrite = TRUE)
-    
-    # run the OM
-    command <- paste("cd", dir_OM_Final, "& go_nohess.bat", sep = " ")
-    ss <- shell(cmd = command, intern = T, wait = T)
-    
-    if (cycle == 3) {
-      ParDir <- paste0(dir_OM_Final, "ss3.par")
+      dir_OM <- paste0(dir_OM_root, cycle,"/")
+      dir.create(dir_OM)
+      
+      files = c(
+        paste0(dir_OM_previous, dat_name),
+        paste0(dir_OM_previous, ctl_name),
+        paste0(pdir, ss_name),
+        paste0(dir_OM_previous, "go_nohess.bat")
+      )
+      file.copy(from = files, to = dir_OM, overwrite = TRUE)
+      
+      
+      # step 2: change par file
+      ParDir <- paste0(dir_OM_previous, "ss3.par")
       ParFile <- readLines(ParDir, warn = F)
       
-      Line_R0 <- match("# SRparm[1]:", ParFile)
-      step5 <- as.numeric(ParFile[Line_R0 + 1])
-    }
-
-    
+      Line <- match("# Fcast_recruitments:", ParFile)
+      
+      R_forecast <- read.table(
+        file = ParDir,
+        nrows = 1,
+        skip = Line
+      )
+      
+      if(n_extra_R == 0)
+        R_forecast_new <- c(R_devs[((istep-1)*Mcycle*4+1+(cycle-1)*4):((istep-1)*Mcycle*4+cycle*4)], 0)
+      else 
+        R_forecast_new <- c(as.vector(t(R_forecast[1,1:n_extra_R])), 
+                            R_devs[((istep-1)*Mcycle*4+1+(cycle-1)*4):((istep-1)*Mcycle*4+cycle*4)],
+                            0)
+      
+      ParFile[Line + 1] <- gsub(",", "", toString(R_forecast_new))
+      writeLines(ParFile, paste0(dir_OM, "/ss3.par"))
+      
+      
+      # step 3: change forecast file
+      Forecast <- r4ss::SS_readforecast(paste0(dir_OM_previous, "forecast.ss"), verbose = FALSE)
+      
+      Forecast$Nforecastyrs <- 1 + 4 # number of forecast years
+      
+      if (istep + cycle == 2) years <- (endquarter + 1):(endquarter + 5) # the first prediction
+      else years <- unique(Forecast$ForeCatch$year) + 4
+      
+      Forecast$ForeCatch <- data.frame(
+        year = rep(years, each = 22),
+        seas = 1,
+        fleet = 1:22,
+        catch_or_F = Fvector_temp,
+        basis = 99
+      )
+      
+      r4ss::SS_writeforecast(Forecast, dir_OM, verbose = FALSE, overwrite = TRUE)
+      
+      
+      # change starter file
+      starter <- r4ss::SS_readstarter(paste0(dir_EM_previous, "/starter.ss"), verbose = FALSE)
+      
+      #specify to use the ss3.par as parameters
+      starter$init_values_src = 1
+      #turn off estimation of parameters 
+      starter$last_estimation_phase = 0
+      
+      #write new starter file
+      r4ss::SS_writestarter(starter, dir_OM, verbose = FALSE, overwrite = TRUE)
+      
+      
+      # step 5: run ss
+      # setwd(dir_OM)
+      command <- paste("cd", dir_OM, "& go_nohess.bat", sep = " ")
+      ss <- shell(cmd = command, intern = T, wait = T)
+      
+      # step 6: check LL catch
+      om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
+      
+      TS <- om_out$timeseries
+      col_id <- which(names(TS) %in% paste0("dead(B):_", 1:14))
+      
+      # total predicted longline catch for the predicted year
+      Catch_LL <- sum(TS[(nrow(TS) - 4):(nrow(TS) - 1), col_id]) 
+      # calculate whether longline catch needs to be reduced to the limit
+      LL_catch_limit_temp <- ifelse(step2$SBR_d < Scontrol, LL_catch_limit * step2$SBR_d / Scontrol, LL_catch_limit)
+      
+      LL_catch_scaler <- ifelse(Catch_LL < LL_catch_limit_temp, 1, LL_catch_limit_temp / Catch_LL)
+      
+      if(cycle == 1) LL_catch_scaler1[istep] <- LL_catch_scaler
+      if(cycle == 2) LL_catch_scaler2[istep] <- LL_catch_scaler
+      if(cycle == 3) LL_catch_scaler3[istep] <- LL_catch_scaler
+      
+      #################################################### Boot_OM ####################################################
+      # dir_OM_Final <- paste0(dir_OM, "LL")
+      # dir.create(dir_OM_Final)
+      
+      # step 1: create a new folder for the OM bootstrap
+      dir_OM_Boot <- paste0(dir_OM_root, cycle, "Boot/")
+      dir.create(dir_OM_Boot)
+      
+      # copy files to the new folder
+      files = c(
+        paste0(dir_OM, "starter.ss"),
+        paste0(dir_OM, ss_name),
+        paste0(dir_OM, "go_nohess.bat")
+      )
+      file.copy(from = files, to = dir_OM_Boot, overwrite = TRUE)
+      
+      # read the report file from the OM projection
+      om_out = r4ss::SS_output(dir = dir_OM, covar = F, verbose = FALSE, printstats = FALSE)
+      
+      # read projected catch
+      Catch_projection <- r4ss::SS_ForeCatch(om_out,
+                                             yrs = ((istep - 1) * Mcycle * 4 + endquarter + 1 + (cycle - 1) * 4):((istep - 1) * Mcycle * 4 + endquarter + cycle * 4),
+                                             zeros = TRUE)
+      
+      # LL catch limit
+      Catch_projection$`dead(B)`[which(Catch_projection$Fleet < 15)] <- Catch_projection$`dead(B)`[which(Catch_projection$Fleet < 15)] * LL_catch_scaler
+      
+      # read catch file
+      dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, dat_name), verbose = FALSE)
+      Catch <- dat$catch
+      
+      Catch_projection_new <- data.frame("year" = Catch_projection$`#Year`,
+                                         "seas" = Catch_projection$Seas,
+                                         "fleet" = Catch_projection$Fleet,
+                                         "catch" = Catch_projection$`dead(B)`,
+                                         "catch_se" = 0.01)
+      
+      Catch_new <- dplyr::arrange(rbind(Catch, Catch_projection_new), fleet, year)
+      
+      dat$catch <- Catch_new
+      dat$endyr <- dat$endyr + 4
+      
+      # add dummy CPUE data
+      CPUE_new <- dat$CPUE[(nrow(dat$CPUE) - 3):nrow(dat$CPUE),]
+      CPUE_new$year <- CPUE_new$year + 4
+      CPUE_new$se_log <- mean(dat$CPUE$se_log[which(dat$CPUE$year %in% 193:203)])
+      dat$CPUE <- rbind(dat$CPUE, CPUE_new)
+      
+      # add dummy LF data
+      if(sum(is.na(EM_comp_fleet)) == FALSE) {
+        LF <- dat$sizefreq_data_list[[1]] # [which(dat$sizefreq_data_list$)]
+        LF_new <- LF[which((LF$year %in% 177:180) & LF$fleet %in% EM_comp_fleet),] # no LL LF during COVID years so use pre-COVID samples
+        LF_new$year <- CPUE_new$year # 4 COVID-years (2020-2023)
+        dat$sizefreq_data_list[[1]] <- rbind(LF, LF_new)
+        dat$Nobs_per_method <- nrow(dat$sizefreq_data_list[[1]])
+      }
+      r4ss::SS_writedat_3.30(dat, paste0(dir_OM_Boot, dat_name), verbose = FALSE, overwrite = TRUE)
+      
+      
+      # change recruitment period in the control file
+      ctl <- r4ss::SS_readctl_3.30(
+        file = paste0(dir_OM, ctl_name),
+        verbose = FALSE,
+        datlist = dat,
+        use_datlist = TRUE
+      )
+      ctl$MainRdevYrLast <- ctl$MainRdevYrLast + 4 # increase the main recruitment last year
+      
+      r4ss::SS_writectl_3.30(
+        ctl,
+        outfile = paste0(dir_OM_Boot, ctl_name),
+        overwrite = TRUE,
+        verbose = FALSE
+      )
+      
+      
+      # change forecast file
+      Forecast <- r4ss::SS_readforecast(paste0(dir_OM, "forecast.ss"), verbose = FALSE)
+      Forecast$Nforecastyrs <- 1
+      r4ss::SS_writeforecast(Forecast, dir_OM_Boot, verbose = FALSE, overwrite = TRUE)
+      
+      
+      # change recruitment in the par file
+      ParDir <- paste0(dir_OM, "ss3.par")
+      ParFile <- readLines(ParDir, warn = F)
+      
+      Line_main <- match("# recdev2:", ParFile)
+      R_main <- read.table(
+        file = ParDir,
+        nrows = 1,
+        skip = Line_main
+      )
+      
+      Line_forecast <- match("# Fcast_recruitments:", ParFile)
+      R_forecast <- read.table(
+        file = ParDir,
+        nrows = 1,
+        skip = Line_forecast
+      )
+      
+      R_main_new <- cbind(R_main, R_forecast[1,1:4])
+      R_forecast_new <- R_forecast[1,5:ncol(R_forecast)]
+      
+      ParFile[Line_main + 1] <- gsub(",", "", toString(R_main_new))
+      ParFile[Line_forecast + 1] <- gsub(",", "", toString(R_forecast_new))
+      
+      writeLines(ParFile, paste0(dir_OM_Boot, "/ss3.par"))
+      
+      # set up bootstrap
+      starter_boot <- r4ss::SS_readstarter(paste0(dir_OM_Boot, "starter.ss"), verbose = FALSE)
+      
+      # specify to use the ss3.par as parameters
+      starter_boot$init_values_src = 1
+      # turn off estimation of parameters 
+      starter_boot$last_estimation_phase = 0
+      # add 1 data bootstrap file
+      starter_boot$N_bootstraps = 3
+      # add the seed
+      starter_boot$seed <- seed
+      
+      # write new starter file
+      r4ss::SS_writestarter(starter_boot, dir_OM_Boot, verbose = FALSE, overwrite = TRUE)
+      
+      
+      # run the bootstrap model
+      command <- paste("cd", dir_OM_Boot, "& go_nohess.bat", sep = " ")
+      ss <- shell(cmd = command, intern = T, wait = T)
+      
+      
+      
+      #################################################### update_OM ####################################################
+      
+      dir_OM_Final <- paste0(dir_OM_root, cycle, "Final/")
+      dir.create(dir_OM_Final)
+      
+      # copy files to the new folder
+      files = c(
+        paste0(dir_OM, "starter.ss"),
+        paste0(dir_OM, ss_name),
+        paste0(dir_OM, "go_nohess.bat")
+      )
+      file.copy(from = files, to = dir_OM_Final, overwrite = TRUE)
+      
+      # change data file
+      dat_OM <- r4ss::SS_readdat_3.30(file = paste0(dir_OM, dat_name), verbose = FALSE)
+      dat_OM_Boot <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, dat_name), verbose = FALSE)
+      data_true <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Boot, "data_expval.ss"), verbose = FALSE)
+      
+      # add new CPUE
+      CPUE <- dat_OM$CPUE
+      CPUE_true <- data_true$CPUE[(nrow(CPUE)+1):nrow(data_true$CPUE),]
+      CPUE_new <- rbind(CPUE, CPUE_true)
+      
+      # add new LF
+      LF <- dat_OM$sizefreq_data_list[[1]]
+      LF_true <- dplyr::filter(data_true$sizefreq_data_list[[1]], year > max(LF$year))
+      LF_new <- dplyr::arrange(rbind(LF, LF_true), fleet, year)
+      
+      # add new catch
+      catch <- dat_OM$catch
+      max_year <- max(catch$year)
+      catch_true <- dplyr::filter(data_true$catch, year > max_year)
+      catch_new <- dplyr::arrange(rbind(catch, catch_true), fleet, year)
+      
+      # save data file
+      dat_OM$catch <- catch_new
+      dat_OM$CPUE <- CPUE_new
+      dat_OM$sizefreq_data_list[[1]] <- LF_new
+      dat_OM$Nobs_per_method <- nrow(LF_new)
+      dat_OM$endyr <- dat_OM$endyr + 4
+      r4ss::SS_writedat_3.30(dat_OM, paste0(dir_OM_Final, dat_name), verbose = FALSE, overwrite = TRUE)
+      
+      # read data file
+      # dat <- r4ss::SS_readdat_3.30(file = paste0(dir_OM_Final, dat_name), verbose = FALSE)
+      
+      # change recruitment period in the control file
+      ctl <- r4ss::SS_readctl_3.30(
+        file = paste0(dir_OM, ctl_name),
+        verbose = FALSE,
+        datlist = dat_OM,
+        use_datlist = TRUE
+      )
+      ctl$MainRdevYrLast <- ctl$MainRdevYrLast + 4 # increase the main recruitment last year
+      
+      r4ss::SS_writectl_3.30(
+        ctl,
+        outfile = paste0(dir_OM_Final, ctl_name),
+        overwrite = TRUE,
+        verbose = FALSE
+      )
+      
+      # change forecast file
+      Forecast <- r4ss::SS_readforecast(paste0(dir_OM, "forecast.ss"), verbose = FALSE)
+      Forecast$Nforecastyrs <- 1
+      r4ss::SS_writeforecast(Forecast, dir_OM_Final, verbose = FALSE, overwrite = TRUE)
+      
+      # change recruitment in the par file
+      ParDir <- paste0(dir_OM, "ss3.par")
+      ParFile <- readLines(ParDir, warn = F)
+      
+      Line_main <- match("# recdev2:", ParFile)
+      R_main <- read.table(
+        file = ParDir,
+        nrows = 1,
+        skip = Line_main
+      )
+      
+      Line_forecast <- match("# Fcast_recruitments:", ParFile)
+      R_forecast <- read.table(
+        file = ParDir,
+        nrows = 1,
+        skip = Line_forecast
+      )
+      
+      R_main_new <- cbind(R_main, R_forecast[1,1:4])
+      R_forecast_new <- R_forecast[1,5:ncol(R_forecast)]
+      
+      ParFile[Line_main + 1] <- gsub(",", "", toString(R_main_new))
+      ParFile[Line_forecast + 1] <- gsub(",", "", toString(R_forecast_new))
+      
+      writeLines(ParFile, paste0(dir_OM_Final, "/ss3.par"))
+      
+      # starter file
+      starter <- r4ss::SS_readstarter(paste0(dir_OM_Final, "starter.ss"), verbose = FALSE)
+      
+      #specify to use the ss3.par as parameters
+      starter$init_values_src = 1
+      #turn off estimation of parameters 
+      starter$last_estimation_phase = 0
+      #
+      starter$maxyr_sdreport <- starter$maxyr_sdreport + 4
+      
+      #write new starter file
+      r4ss::SS_writestarter(starter, dir_OM_Final, verbose = FALSE, overwrite = TRUE)
+      
+      # run the OM
+      command <- paste("cd", dir_OM_Final, "& go_nohess.bat", sep = " ")
+      ss <- shell(cmd = command, intern = T, wait = T)
+      
+      if (cycle == 3) {
+        ParDir <- paste0(dir_OM_Final, "ss3.par")
+        ParFile <- readLines(ParDir, warn = F)
+        
+        Line_R0 <- match("# SRparm[1]:", ParFile)
+        step5 <- as.numeric(ParFile[Line_R0 + 1])
+      }
+      
+      
     }
     
     
@@ -510,13 +511,13 @@ BET_MSE_LL = function(pdir,
     F30_ts[istep] <- NA # step3$F30
     
     if(MSY == TRUE & cycle == 3) {
-
+      
       # *************************************************************************************
       # Step 5 (optional): Update the OM with FMSY related quantities
       # *************************************************************************************
       dir_OM_MSY <- paste0(dir_istep, "OM_FMSY/")
       dir.create(dir_OM_MSY)
-
+      
       files = c(
         paste0(dir_OM_Final, ctl_name),
         paste0(dir_OM_Final, dat_name),
@@ -525,43 +526,43 @@ BET_MSE_LL = function(pdir,
         paste0(dir_OM_Final, "ss3.par")
       )
       file.copy(from = files, to = dir_OM_MSY, overwrite = TRUE)
-
+      
       # change forecast file
       Forecast <- r4ss::SS_readforecast(paste0(dir_OM_Final, "forecast.ss"), verbose = FALSE)
       Forecast$MSY <- 2 # calculate FMSY
       r4ss::SS_writeforecast(Forecast, dir_OM_MSY, verbose = FALSE, overwrite = TRUE)
-
+      
       # change starter file
       starter <- r4ss::SS_readstarter(paste0(dir_OM_Final, "starter.ss"), verbose = FALSE)
       starter$F_std_basis <- 122
       r4ss::SS_writestarter(starter, dir_OM_MSY, verbose = FALSE, overwrite = TRUE)
-
+      
       # run the OM
       command <- paste("cd", dir_OM_MSY, "& go_nohess.bat", sep = " ")
       ss <- shell(cmd = command, intern = T, wait = T)
-
+      
       # FMSY
       ForeRepName <- paste(dir_OM_MSY, "Forecast-report.SSO", sep = "")
-
+      
       # Get management report
       ForeRepStart <- grep("Management_report", readLines(ForeRepName))
       ForeRepEnd <- grep("THIS FORECAST IS FOR PURPOSES", readLines(ForeRepName))[1]
-
+      
       # ForeDat <- read.table(file=ForeRepName,col.names=c(seq(1,10,by=1)),fill=T,quote='',colClasses='character',
       # nrows=45, skip = ForeRepStart-1)
       ForeDat <- read.table(file = ForeRepName, col.names = c(seq(1, 10, by = 1)), fill = T, quote = "", colClasses = "character",
                             nrows = ForeRepEnd - ForeRepStart, skip = ForeRepStart - 1)
       ForeDat <- as.data.frame(ForeDat)
-
+      
       FvectorRepStart <- grep("Seasonal_apicalF=Fmult", readLines(ForeRepName))
       Fvector_FMSY <- read.table(file = ForeRepName, nrows = 1, skip = FvectorRepStart[1] + 1)
       Fvector_FMSY <- Fvector_FMSY[3:length(Fvector_FMSY)]
       FmultScale <- sum(Fvector_FMSY) # F
-
+      
       # Fmultiplier
       Fmult <- as.numeric(ForeDat[ForeDat[, 1] == c("Fmult"), 2])[3] # FMSY
       FFMSY <- FmultScale/Fmult
-
+      
       FFMSY_ts[istep] <- FFMSY
     }
     
